@@ -26,6 +26,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,9 +36,55 @@ import frc.robot.FieldLayout;
 
 public class ShooterHood extends SubsystemBase {
 
+    public class FeedbackControllerTuning implements Sendable{
+        
+        private double kP = 0;
+        private double kI = 0;
+        private double kD = 0;
+        private double kS = 0;
+        private double kV = 0;
+        private double kA = 0;
+
+        @Override
+        public void initSendable(SendableBuilder builder){
+            builder.addDoubleProperty("kP", () -> kP, (num) -> kP = num);
+            builder.addDoubleProperty("kI", () -> kI, (num) -> kI = num);
+            builder.addDoubleProperty("kD", () -> kD, (num) -> kD = num);
+            builder.addDoubleProperty("kS", () -> kS, (num) -> kS = num);
+            builder.addDoubleProperty("kV", () -> kV, (num) -> kV = num);
+            builder.addDoubleProperty("kA", () -> kA, (num) -> kA = num);
+        }
+
+        public double getkP(){
+            return kP;
+        }
+
+        public double getkI() {
+            return kI;
+        }
+
+        public double getkD() {
+            return kD;
+        }
+
+        public double getkS() {
+            return kS;
+        }
+
+        public double getkV() {
+            return kV;
+        }
+
+        public double getkA() {
+            return kA;
+        }
+    }
+
     // Motor
     private final TalonFX motor;
     private final CANcoder encoder;
+
+    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
@@ -56,6 +104,8 @@ public class ShooterHood extends SubsystemBase {
                     null,
                     this));
 
+    private final FeedbackControllerTuning feedbackControllerTuning = new FeedbackControllerTuning();
+
     /**
      * Constructor
      * 
@@ -67,7 +117,6 @@ public class ShooterHood extends SubsystemBase {
         motor = new TalonFX(motorId, bus);
         encoder = new CANcoder(encoderId, bus);
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);
@@ -86,7 +135,17 @@ public class ShooterHood extends SubsystemBase {
                 .withKV(0.0)
                 .withKA(0.0);
 
+        motorConfig.Slot2
+            .withKP(0.0)
+            .withKI(0.0)
+            .withKD(0.0)
+            .withKS(0.0)
+            .withKV(0.0)
+            .withKA(0.0);
+
         motor.getConfigurator().apply(motorConfig);
+
+
     }
 
     /**
@@ -224,6 +283,15 @@ public class ShooterHood extends SubsystemBase {
                 () -> setVelocity(RotationsPerSecond.zero()));
     }
 
+    public Command setPositionTestCmd(Supplier<Angle> target) {
+        return this.startRun(
+            () -> motor.getConfigurator().refresh(motorConfig.Slot2), 
+            () -> setPosition(target.get())
+        )
+        .finallyDo(() -> setVelocity(RotationsPerSecond.zero()));
+    }
+
+
     /**
      * Creates a new command to set the shooter hood for shooting at the hub
      * 
@@ -261,6 +329,15 @@ public class ShooterHood extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         SmartDashboard.putNumber("Shooter Hood Angle", getPosition().in(Degrees));
         SmartDashboard.putNumber("Shooter Hood Angle RPM", getVelocity().in(Rotations.per(Minute)));
+        SmartDashboard.putData("Tuning", feedbackControllerTuning);
+        
+        motorConfig.Slot2
+            .withKP(feedbackControllerTuning.getkP())
+            .withKI(feedbackControllerTuning.getkI())
+            .withKD(feedbackControllerTuning.getkD())
+            .withKS(feedbackControllerTuning.getkS())
+            .withKV(feedbackControllerTuning.getkV())
+            .withKA(feedbackControllerTuning.getkA());
     }
 
     private Angle calcHubShotAngle() {
