@@ -78,6 +78,11 @@ public class Constants {
     public static final Voltage intakeInVolt = Volts.of(12.0);
     public static final Voltage intakeOutVolt = Volts.of(-12.0);
 
+    public static final Angle intakeDownAngle = Degrees.of(0);
+    public static final Angle intakeUpAngle = Degrees.of(90);
+    public static final Angle intakeAutoRetractLimit = Degrees.of(80);
+    public static final AngularVelocity intakeAutoRetractVel = RotationsPerSecond.of(.25);
+
     // Drivetrain Constants
     public static final LinearVelocity linDeadband = maxLinVel.times(.07); 
     public static final AngularVelocity angDeadband = maxAngVel.times(.07

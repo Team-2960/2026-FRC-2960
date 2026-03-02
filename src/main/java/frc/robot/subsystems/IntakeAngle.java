@@ -1,8 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -19,19 +18,29 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 
 public class IntakeAngle extends SubsystemBase {
 
     // Motor
     private final TalonFX motor;
     private final CANcoder encoder;
+
+    private final LaserCan leftLaserCan;
+    private final LaserCan rightLaserCan;
+
+    private final MutDistance leftHopperLevel = Millimeters.mutable(0);
+    private final MutDistance rightHopperLevel = Millimeters.mutable(0);
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
@@ -54,9 +63,17 @@ public class IntakeAngle extends SubsystemBase {
      * 
      * @param motorID
      */
-    public IntakeAngle(int motorId, int encoderId, CANBus bus, double gearRatio) {
+    public IntakeAngle(
+            int motorId,
+            int encoderId,
+            int leftLaserCanID,
+            int rightLaserCanID,
+            CANBus bus,
+            double gearRatio) {
         motor = new TalonFX(motorId, bus);
         encoder = new CANcoder(encoderId, bus);
+        leftLaserCan = new LaserCan(leftLaserCanID);
+        rightLaserCan = new LaserCan(rightLaserCanID);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
@@ -76,6 +93,13 @@ public class IntakeAngle extends SubsystemBase {
                 .withKS(0.0)
                 .withKV(0.0)
                 .withKA(0.0);
+
+        // TODO Set intake position limits
+        motorConfig.SoftwareLimitSwitch
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(Degrees.of(90))
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(Degrees.of(0));
 
         motor.getConfigurator().apply(motorConfig);
     }
@@ -138,6 +162,63 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     /**
+     * Gets the hopper level from the left sensor
+     * 
+     * @return hopper level from the left sensor
+     */
+    @AutoLogOutput
+    public Distance getLeftHopperLevel() {
+        return leftHopperLevel.mut_replace(leftLaserCan.getMeasurement().distance_mm, Millimeters);
+    }
+
+    /**
+     * Gets the hopper level from the right sensor
+     * 
+     * @return hopper level from the right sensor
+     */
+    @AutoLogOutput
+    public Distance getRightHopperLevel() {
+        return rightHopperLevel.mut_replace(rightLaserCan.getMeasurement().distance_mm, Millimeters);
+    }
+
+    /**
+     * Gets the maximum hopper level value
+     * 
+     * @return maximum hopper level value
+     */
+    @AutoLogOutput
+    public Distance getMaxHopperLevel() {
+        var leftValue = getLeftHopperLevel();
+        var rightValue = getRightHopperLevel();
+
+        return leftValue.gt(rightValue) ? leftValue : rightValue;
+    }
+
+    /**
+     * Check if the hopper is below a threshold
+     * 
+     * @param threshold low hopper threshold
+     * @return True if the hopper is below a threshold
+     */
+    public boolean isHooperLow(Distance threshold) {
+        return getMaxHopperLevel().gt(threshold);
+    }
+
+    /**
+     * Retracts the intake at a set velocity when a condition is true
+     * 
+     * @param retract    True to retract the intake, false otherwise
+     * @param retractVel Retract velocity
+     */
+    public void autoRetract(boolean retract, AngularVelocity retractVel) {
+        if (retract) {
+            setVelocity(retractVel);
+        } else {
+            setVelocity(RotationsPerSecond.zero());
+        }
+    }
+
+    /**
      * Creates a new command to run the intake at a set target voltage
      * 
      * @param target target voltage
@@ -174,19 +255,36 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     /**
+     * Craetes a new command to automatically retract the intake when the hopper is
+     * low
+     * 
+     * @param lowHopperThresh threshold for a low hopper
+     * @param retractVel      velocity to retract the intake
+     * @return new command to automatically retract the intake when the hopper is
+     *         low
+     */
+    public Command autoRetractCmd(Distance lowHopperThresh, AngularVelocity retractVel) {
+        return Commands.deadline(
+                Commands.waitUntil(() -> motor.getPosition().getValue().gt(Constants.intakeAutoRetractLimit)),
+                this.runEnd(() -> autoRetract(isHooperLow(lowHopperThresh), Constants.intakeAutoRetractVel),
+                        () -> setVelocity(RotationsPerSecond.zero())));
+    }
+
+    /**
      * Create a Quasistatic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Quasistatic SysId command
+     * @return Quasistatic SysId command
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysIdRoutime.quasistatic(direction);
     }
 
-
     /**
      * Create a Dynamic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Dynamic SysId command
+     * @return Dynamic SysId command
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysIdRoutime.dynamic(direction);
@@ -199,7 +297,8 @@ public class IntakeAngle extends SubsystemBase {
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         // SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
-        // SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
+        // SmartDashboard.putNumber("Intake Angle RPM",
+        // getVelocity().in(Rotations.per(Minute)));
     }
 
     @AutoLogOutput
