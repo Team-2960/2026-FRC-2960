@@ -17,6 +17,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,9 +29,58 @@ public class IntakeRoller extends SubsystemBase {
     // Motor
     private final TalonFX motor;
 
+    public class IntakeRollerTest implements Sendable {
+
+        private double velRPM = 0;
+        private double kP = 0;
+        private double kI = 0;
+        private double kD = 0;
+        private double kS = 0;
+        private double kV = 0;
+        private double kA = 0;
+
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            // TODO Auto-generated method stub
+            builder.addDoubleProperty("Intake Roller Test Speed (RPM)", ()->velRPM , (val) -> velRPM = val);
+            builder.addDoubleProperty("Intake Roller Test kP", ()->kP , (val) -> kP = val);
+            builder.addDoubleProperty("Intake Roller Test kI", ()->kI , (val) -> kI = val);
+            builder.addDoubleProperty("Intake Roller Test kD", ()->kD , (val) -> kD = val);
+            builder.addDoubleProperty("Intake Roller Test kS", ()->kS , (val) -> kS = val);
+            builder.addDoubleProperty("Intake Roller Test kV", ()->kV , (val) -> kV = val);
+            builder.addDoubleProperty("Intake Roller Test kA", ()->kA , (val) -> kA = val);
+        }
+
+        /**
+         * Gets a command to control the intake roller from 
+         * @return
+         */
+        public double getkP(){
+            return kP;
+        }
+        public double getkI(){
+            return kI;
+        }
+        public double getkD(){
+            return kD;
+        }
+        public double getkS(){
+            return kS;
+        }
+        public double getkV(){
+            return kV;
+        }
+        public double getkA(){
+            return kA;
+        }
+        
+    }
+
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
     private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
+    private final IntakeRollerTest intakeRollerTest = new IntakeRollerTest();
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     // SysId
     private final SysIdRoutine sysIdRoutime = new SysIdRoutine(
@@ -50,8 +101,6 @@ public class IntakeRoller extends SubsystemBase {
     public IntakeRoller(int motorId, CANBus bus, double gearRatio) {
         motor = new TalonFX(motorId, bus);
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive);
@@ -60,6 +109,14 @@ public class IntakeRoller extends SubsystemBase {
                 .withSensorToMechanismRatio(gearRatio);
 
         motorConfig.Slot0
+                .withKP(0.0)
+                .withKI(0.0)
+                .withKD(0.0)
+                .withKS(0.0)
+                .withKV(0.0)
+                .withKA(0.0);
+
+        motorConfig.Slot2
                 .withKP(0.0)
                 .withKI(0.0)
                 .withKD(0.0)
@@ -158,6 +215,15 @@ public class IntakeRoller extends SubsystemBase {
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         // SmartDashboard.putNumber("Intake RPM", getVelocity().in(Rotations.per(Minute)));
+    
+        motorConfig.Slot2
+        .withKP(intakeRollerTest.getkP())
+        .withKI(intakeRollerTest.getkI())
+        .withKD(intakeRollerTest.getkD())
+        .withKS(intakeRollerTest.getkS())
+        .withKV(intakeRollerTest.getkV())
+        .withKA(intakeRollerTest.getkA());
+        //motor.getConfigurator().refresh(motorConfig);
     }
 
     @AutoLogOutput

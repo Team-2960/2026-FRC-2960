@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.lang.reflect.Array;
 import java.util.function.Supplier;
 import java.util.zip.ZipError;
 
@@ -25,6 +26,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.google.flatbuffers.Table;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -52,11 +54,23 @@ public class ShooterWheel extends SubsystemBase {
     public class ShooterWheelTest implements Sendable {
 
         private double velRPM = 0;
+        private double kP = 0;
+        private double kI = 0;
+        private double kD = 0;
+        private double kS = 0;
+        private double kV = 0;
+        private double kA = 0;
 
         @Override
         public void initSendable(SendableBuilder builder) {
             // TODO Auto-generated method stub
             builder.addDoubleProperty("Shooter Test Speed (RPM)", ()->velRPM , (val) -> velRPM = val);
+            builder.addDoubleProperty("Shooter Test kP", ()->kP , (val) -> kP = val);
+            builder.addDoubleProperty("Shooter Test kI", ()->kI , (val) -> kI = val);
+            builder.addDoubleProperty("Shooter Test kD", ()->kD , (val) -> kD = val);
+            builder.addDoubleProperty("Shooter Test kS", ()->kS , (val) -> kS = val);
+            builder.addDoubleProperty("Shooter Test kV", ()->kV , (val) -> kV = val);
+            builder.addDoubleProperty("Shooter Test kA", ()->kA , (val) -> kA = val);
         }
 
         /**
@@ -66,12 +80,34 @@ public class ShooterWheel extends SubsystemBase {
         public Command getCommand() {
             return setTorqueVelocityCmd(()-> Rotations.per(Minute).of(velRPM));
         }
+
+        public double getkP(){
+            return kP;
+        }
+        public double getkI(){
+            return kI;
+        }
+        public double getkD(){
+            return kD;
+        }
+        public double getkS(){
+            return kS;
+        }
+        public double getkV(){
+            return kV;
+        }
+        public double getkA(){
+            return kA;
+        }
         
     }
 
     // Motors
     private final TalonFX motorLeader;
     private final TalonFX motorFollower;
+
+    // Configure Motors
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0).withEnableFOC(true);
@@ -136,9 +172,6 @@ public class ShooterWheel extends SubsystemBase {
         motorLeader = new TalonFX(motorLeaderID, bus);
         motorFollower = new TalonFX(motorFollowerID, bus);
 
-        // Configure Motors
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);
 
@@ -163,6 +196,14 @@ public class ShooterWheel extends SubsystemBase {
                 .withKV(0)
                 .withKA(0);
 
+        motorConfig.Slot2
+                .withKP(12)
+                .withKI(0.0)
+                .withKD(0.0)
+                .withKS(8)
+                .withKV(0)
+                .withKA(0);
+
         motorLeader.getConfigurator().apply(motorConfig);
 
         motorLeader.getConfigurator().apply(motorConfig);
@@ -179,7 +220,6 @@ public class ShooterWheel extends SubsystemBase {
         // Setup Shooter Testing
         SmartDashboard.putData("Shooter Wheel Test" ,shooterWheelTest);
     }
-
     /**
      * Gets the current voltage of the intake
      * 
@@ -435,6 +475,16 @@ public class ShooterWheel extends SubsystemBase {
         if (DriverStation.isEnabled()) {
             orchestra.stop();
         }
+
+        motorConfig.Slot2
+        .withKP(shooterWheelTest.getkP())
+        .withKI(shooterWheelTest.getkI())
+        .withKD(shooterWheelTest.getkD())
+        .withKS(shooterWheelTest.getkS())
+        .withKV(shooterWheelTest.getkV())
+        .withKA(shooterWheelTest.getkA());
+
+        //motorLeader.getConfigurator().refresh(motorConfig);
     }
 
     /**

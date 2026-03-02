@@ -250,7 +250,6 @@ public class RobotContainer {
     private void shooterBindings() {
 
         operatorCtrl.rightBumper().whileTrue(shooter.hubShotCmd());
-        AngularVelocity shooterVel = Rotations.per(Minute).of(1700);
         operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
         operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
