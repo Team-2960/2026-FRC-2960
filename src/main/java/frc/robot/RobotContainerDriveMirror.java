@@ -181,11 +181,11 @@ public class RobotContainerDriveMirror {
         // );
 
         driverCtrl.leftTrigger(.1).whileTrue(
-                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0),new Translation2d(Inches.zero() ,Inches.of(-40)))
+                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
         );
 
           driverCtrl.rightTrigger(.1).whileTrue(
-                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.zero() ,Inches.of(40)))
+                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15) ,Inches.of(40)))
         );
 
         // Pose Reset
