@@ -111,7 +111,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         .withDriveRequestType(DriveRequestType.Velocity);
 
     private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint()
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withTranslationPID(3, 0, 0);
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
