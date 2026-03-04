@@ -660,11 +660,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         .finallyDo(() -> applyRequest(() -> idleRequest));
     }
 
-    public Command trenchAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation, Translation2d coordinate){
+    public Command xAxisAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation, Translation2d coordinate){
         return applyRequest(() -> xAxisAlignRequest
             .withTravelVelocity(travelVelX.get())
             .withTargetDirection(targetRotation)
             .withXAxisCoordinate(coordinate)
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+    
+    public Command trenchAlignCmd(Supplier<LinearVelocity> travelVelX){
+        return applyRequest(() -> xAxisAlignRequest
+            .withTravelVelocity(travelVelX.get())
+            .withUpdateTargetPose(() -> FieldLayout.Trench.getNearestAllianceTrench(getPose2d()))
             )
             .finallyDo(() -> applyRequest(() -> idleRequest));
     }

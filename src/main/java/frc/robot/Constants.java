@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Revolution;
@@ -26,6 +27,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 
 import edu.wpi.first.units.measure.Voltage;
@@ -37,8 +39,10 @@ public class Constants {
     // Robot Constants
     public static final LinearVelocity maxLinVel = TunerConstants.kSpeedAt12Volts;
     public static final AngularVelocity maxAngVel = RotationsPerSecond.of(2); 
+    public static final LinearAcceleration maxLinAccel = MetersPerSecondPerSecond.of(5.9);
     public static final LinearVelocity slowdownLinVel = maxLinVel.div(2);
     public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(2);
+    public static final Distance linRampDownDist = Meters.of(1.2);
 
     public static final CANBus rioBus = CANBus.roboRIO();
     public static final CANBus canivoreBus = new CANBus("canivore");

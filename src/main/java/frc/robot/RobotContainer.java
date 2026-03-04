@@ -213,7 +213,7 @@ public class RobotContainer {
                         Rotation2d.fromDegrees(90)));
 
         driverCtrl.y().whileTrue(
-                drivetrain.trenchAlignCmd(fullXVelCtrl, Rotation2d.kZero, FieldLayout.blueTrenchRight)
+                drivetrain.xAxisAlignCmd(fullXVelCtrl, new Rotation2d(Degrees.of(90)), FieldLayout.Trench.blueTrenchRight)
         );
 
         // driverCtrl.y().whileTrue(

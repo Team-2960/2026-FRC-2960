@@ -172,8 +172,12 @@ public class RobotContainerDriveMirror {
                 drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
                         Rotation2d.fromDegrees(90)));
 
+        // driverCtrl.y().whileTrue(
+        //         drivetrain.xAxisAlignCmd(fullXVelCtrl, Rotation2d.fromDegrees(90), FieldLayout.Trench.blueTrenchRight)
+        // );
+
         driverCtrl.y().whileTrue(
-                drivetrain.trenchAlignCmd(fullXVelCtrl, Rotation2d.kZero, FieldLayout.blueTrenchRight)
+                drivetrain.trenchAlignCmd(fullXVelCtrl)
         );
 
         // driverCtrl.y().whileTrue(
