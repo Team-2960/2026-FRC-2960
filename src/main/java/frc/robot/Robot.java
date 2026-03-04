@@ -17,7 +17,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
-    private final RobotContainer m_robotContainer;
+    //private final RobotContainer m_robotContainer;
+    private final RobotContainerDriveMirror robotContainer;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -40,7 +41,7 @@ public class Robot extends LoggedRobot {
 
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
 
-        m_robotContainer = new RobotContainer();
+        robotContainer = new RobotContainerDriveMirror();
     }
 
     @Override
@@ -60,7 +61,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        m_autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);

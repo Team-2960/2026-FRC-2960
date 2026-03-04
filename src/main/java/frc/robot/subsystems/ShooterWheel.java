@@ -197,10 +197,10 @@ public class ShooterWheel extends SubsystemBase {
                 .withKA(0);
 
         motorConfig.Slot2
-                .withKP(12)
-                .withKI(0.0)
-                .withKD(0.0)
-                .withKS(8)
+                .withKP(0)
+                .withKI(0)
+                .withKD(0)
+                .withKS(0)
                 .withKV(0)
                 .withKA(0);
 
@@ -320,6 +320,7 @@ public class ShooterWheel extends SubsystemBase {
     public void setVoltage(Voltage volts) {
         motorLeader.setControl(voltCtrl.withOutput(volts));
     }
+    
 
     /**
      * Sets the motor to a duty cycle output.
@@ -410,6 +411,13 @@ public class ShooterWheel extends SubsystemBase {
         return this.runEnd(
                 () -> setTorqueCurrentVel(velocity.get()),
                 () -> setVoltage(Volts.zero()));
+    }
+
+    public Command setTorqueVelocityTestCmd(Supplier<AngularVelocity> velocity){
+        return this.startRun(
+            () -> motorLeader.getConfigurator().refresh(motorConfig.Slot2), 
+            () -> setTorqueCurrentVel(velocity.get()))
+            .finallyDo(() -> setVoltage(Volts.zero()));
     }
 
     /**

@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.CANBus;
@@ -22,12 +24,57 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class IntakeAngle extends SubsystemBase {
+
+    public class IntakeAngleTest implements Sendable {
+
+        private double velRPM = 0;
+        private double kP = 0;
+        private double kI = 0;
+        private double kD = 0;
+        private double kS = 0;
+        private double kV = 0;
+        private double kA = 0;
+
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            // TODO Auto-generated method stub
+            builder.addDoubleProperty("Intake Angle Test Speed (RPM)", ()->velRPM , (val) -> velRPM = val);
+            builder.addDoubleProperty("Intake Angle Test kP", ()->kP , (val) -> kP = val);
+            builder.addDoubleProperty("Intake Angle Test kI", ()->kI , (val) -> kI = val);
+            builder.addDoubleProperty("Intake Angle Test kD", ()->kD , (val) -> kD = val);
+            builder.addDoubleProperty("Intake Angle Test kS", ()->kS , (val) -> kS = val);
+            builder.addDoubleProperty("Intake Angle Test kV", ()->kV , (val) -> kV = val);
+            builder.addDoubleProperty("Intake Angle Test kA", ()->kA , (val) -> kA = val);
+        }
+
+        public double getkP(){
+            return kP;
+        }
+        public double getkI(){
+            return kI;
+        }
+        public double getkD(){
+            return kD;
+        }
+        public double getkS(){
+            return kS;
+        }
+        public double getkV(){
+            return kV;
+        }
+        public double getkA(){
+            return kA;
+        }
+        
+    }
 
     // Motor
     private final TalonFX motor;
@@ -37,6 +84,8 @@ public class IntakeAngle extends SubsystemBase {
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
     private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
     private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0);
+    private final IntakeAngleTest intakeAngleTest = new IntakeAngleTest();
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     // SysId
     private final SysIdRoutine sysIdRoutime = new SysIdRoutine(
@@ -58,8 +107,6 @@ public class IntakeAngle extends SubsystemBase {
         motor = new TalonFX(motorId, bus);
         encoder = new CANcoder(encoderId, bus);
 
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);
 
@@ -70,6 +117,14 @@ public class IntakeAngle extends SubsystemBase {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
 
         motorConfig.Slot0
+                .withKP(0.0)
+                .withKI(0.0)
+                .withKD(0.0)
+                .withKS(0.0)
+                .withKV(0.0)
+                .withKA(0.0);
+
+        motorConfig.Slot2
                 .withKP(0.0)
                 .withKI(0.0)
                 .withKD(0.0)
@@ -161,6 +216,13 @@ public class IntakeAngle extends SubsystemBase {
                 () -> setVelocity(RotationsPerSecond.zero()));
     }
 
+        public Command setVelocityTestCmd(Supplier<AngularVelocity> velocity){
+        return this.startRun(
+            () -> motor.getConfigurator().refresh(motorConfig.Slot2), 
+            () -> setVelocity(velocity.get()))
+            .finallyDo(() -> setVoltage(Volts.zero()));
+    }
+
     /**
      * Creates a new command to run the intake at a set target velocity
      * 
@@ -200,6 +262,14 @@ public class IntakeAngle extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         // SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
         // SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
+
+        motorConfig.Slot2
+        .withKP(intakeAngleTest.getkP())
+        .withKI(intakeAngleTest.getkI())
+        .withKD(intakeAngleTest.getkD())
+        .withKS(intakeAngleTest.getkS())
+        .withKV(intakeAngleTest.getkV())
+        .withKA(intakeAngleTest.getkA());
     }
 
     @AutoLogOutput

@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -97,14 +99,18 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
     @Override
     public StatusCode apply(SwerveControlParameters parameters, SwerveModule<?, ?, ?>... modulesToApply) {
        double yPose = parameters.currentPose.getY();
-       double vy = XAxisCorrectionController.calculate(yPose, YCoordinate, parameters.timestamp);
+       double allianceFlip = 1;
+       if (DriverStation.getAlliance().isPresent()){
+            allianceFlip = DriverStation.getAlliance().get().equals(Alliance.Red) ? -1 : 1;
+       }
+       double vy = allianceFlip * XAxisCorrectionController.calculate(yPose, YCoordinate, parameters.timestamp);
 
        return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)
         .withDeadband(Deadband)
         .withDesaturateWheelSpeeds(DesaturateWheelSpeeds)
         .withDriveRequestType(DriveRequestType)
-        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
         .withHeadingPID(HeadingController.getP(), HeadingController.getI(), HeadingController.getD())
         .withMaxAbsRotationalRate(MaxAbsRotationalRate)
         .withRotationalDeadband(RotationalDeadband)
