@@ -1,6 +1,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -9,6 +10,7 @@ import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Revolution;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -39,6 +41,7 @@ public class Constants {
     // Robot Constants
     public static final LinearVelocity maxLinVel = TunerConstants.kSpeedAt12Volts;
     public static final AngularVelocity maxAngVel = RotationsPerSecond.of(2); 
+    public static final AngularAcceleration maxAngAccel = DegreesPerSecondPerSecond.of(1292);
     public static final LinearAcceleration maxLinAccel = MetersPerSecondPerSecond.of(5.9);
     public static final LinearVelocity slowdownLinVel = maxLinVel.div(2);
     public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(2);

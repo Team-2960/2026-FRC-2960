@@ -180,8 +180,8 @@ public class RobotContainerDriveMirror {
                 drivetrain.trenchAlignCmd(fullXVelCtrl)
         );
 
-        // driverCtrl.y().whileTrue(
-        //         drivetrain.trenchPathAlignCmd(FieldLayout.blueTrenchRight)
+        // driverCtrl.y().onTrue(
+        //         drivetrain.trenchPathAlignCmd(FieldLayout.Trench.blueTrenchLeft)
         // );
 
         driverCtrl.leftTrigger(.1).whileTrue(

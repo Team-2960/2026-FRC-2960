@@ -678,8 +678,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public Command trenchPathAlignCmd(Translation2d targetPose){
-        return applyRequest(() -> goToRequest.withTargetPoint(calcTrenchPoint(GeomUtil.toPose2d(targetPose))));
+        return AutoBuilder.pathfindToPose(new Pose2d(targetPose, Rotation2d.kZero), 
+            new PathConstraints(TunerConstants.kSpeedAt12Volts, Constants.maxLinAccel, Constants.maxAngVel, Constants.maxAngAccel));
     }
+    
 
     public Translation2d calcTrenchPoint(Pose2d targetPoint){
         double maxDistance = Constants.maxRobotTrenchDistance.in(Meters);
