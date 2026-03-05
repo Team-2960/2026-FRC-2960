@@ -54,8 +54,8 @@ public class FieldLayout {
         public static final Distance blueHubFront = startLineToWallOffset.plus(startLineWidth);
         public static final Distance redHubFront = fieldSizeX.minus(blueHubFront);
 
-        public static final Translation2d blueHubCenter = new Translation2d(fieldWidth.div(2), fieldCenterY);
-        public static final Translation2d redHubCenter = new Translation2d(fieldWidth.div(2), fieldCenterY);
+        public static final Translation2d blueHubCenter = new Translation2d(blueHubCenterX, fieldCenterY);
+        public static final Translation2d redHubCenter = new Translation2d(redHubCenterX, fieldCenterY);
 
         public static final Translation2d blueHubCenterFront = new Translation2d(blueHubFront, fieldCenterY);
         public static final Translation2d redHubCenterFront = new Translation2d(redHubFront, fieldCenterY);
