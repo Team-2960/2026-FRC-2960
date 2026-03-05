@@ -60,6 +60,7 @@ import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricGoToPoint;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricXAxisAlign;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricYAxisAlign;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -78,6 +79,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Orchestra orchestra = new Orchestra();
 
     private Optional<SwerveRequest> currentRequest = Optional.empty();
+
+    private Rotation2d initialRotation = new Rotation2d();
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -107,7 +110,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final FieldCentricCircularOrbit orbitRequest = new FieldCentricCircularOrbit()
         .withRadiusCorrectionPID(3, 0, 0)
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
 
     private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint()
@@ -116,13 +119,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
         .withRadiusCorrectionPID(3, 0, 0)
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
 
     private final FieldCentricXAxisAlign xAxisAlignRequest = new FieldCentricXAxisAlign()
         .withDriveRequestType(DriveRequestType.Velocity)
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withXAxisCorrectionPID(4, 0, 0);
+
+    private final FieldCentricYAxisAlign yAxisAlignRequest = new FieldCentricYAxisAlign()
+        .withDriveRequestType(DriveRequestType.Velocity)
+        .withHeadingPID(10, 0, 0)
+        .withYAxisCorrectionPID(4, 0, 0);
 
     private final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.Idle idleRequest = new SwerveRequest.Idle();
@@ -627,12 +635,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Supplier<LinearVelocity> yVel,
             Rotation2d offset) {
 
-        return lookAtPointCmd(xVel, yVel, FieldLayout.getHubCenter(), offset);
+        return lookAtPointCmd(xVel, yVel, FieldLayout.Hub.getHubCenter(), offset);
     }
 
     public Command hubOrbitCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Distance radius){
         return applyRequest(() -> orbitRequest
-            .withOrbitPoint(FieldLayout.getHubCenter())
+            .withOrbitPoint(FieldLayout.Hub.getHubCenter())
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
             .withRadius(radius)
@@ -642,7 +650,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Translation2d PosOffset){
         return applyRequest(() -> goToRequest
-            .withTargetPoint(FieldLayout.getTowerCenter().plus(PosOffset))
+            .withTargetPoint(FieldLayout.Tower.getTowerCenter().plus(PosOffset))
             .withRotationalOffset(offset)
         )
         .finallyDo(() -> applyRequest(() -> idleRequest));
@@ -650,7 +658,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     
     public Command hubOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius){
         return applyRequest(() -> orbitRestricteRadiusRequest
-            .withOrbitPoint(FieldLayout.getHubCenter())
+            .withOrbitPoint(FieldLayout.Hub.getHubCenter())
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
             .withMaxRadius(maxRadius)
@@ -665,6 +673,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withTravelVelocity(travelVelX.get())
             .withTargetDirection(targetRotation)
             .withXAxisCoordinate(coordinate)
+            .withUpdateTargetPose(null)
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+
+    public Command yAxisAlignCmd(Supplier<LinearVelocity> travelVelY, Rotation2d targetRotation, Translation2d coordinate){
+        return applyRequest(() -> yAxisAlignRequest
+            .withTravelVelocity(travelVelY.get())
+            .withTargetDirection(targetRotation)
+            .withYAxisCoordinate(coordinate)
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+    /** */
+    public void initialRotationHelper(Rotation2d rotation){
+        initialRotation = rotation;
+    }
+
+    public Command hubBackAlignCmd(Supplier<LinearVelocity> travelVelY){
+        return applyRequest(() -> 
+            yAxisAlignRequest
+            .withTravelVelocity(travelVelY.get())
+            .withTargetDirection(initialRotation)
+            // .withYAxisCoordinate(coordinate)
+            .withUpdateTargetTranslation(() -> FieldLayout.Hub.getHubBackAlign(getPose2d()))
             )
             .finallyDo(() -> applyRequest(() -> idleRequest));
     }

@@ -158,7 +158,7 @@ public class RobotContainerDriveMirror {
                 drivetrain.lookAtPointCmd(
                         fullXVelCtrl,
                         fullYVelCtrl,
-                        FieldLayout.getHubCenter(),
+                        FieldLayout.Hub.getHubCenter(),
                         Rotation2d.fromDegrees(180)));
 
         driverCtrl.a().whileTrue(
@@ -168,9 +168,23 @@ public class RobotContainerDriveMirror {
                 drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180),
                         Inches.of(147), Meters.of(1.75)));
 
+        // driverCtrl.x().whileTrue(
+        //         drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
+        //                 Rotation2d.fromDegrees(90)));
+
+        // Translation2d offsetBackHub = FieldLayout.Hub.getHubCenterBack(new Translation2d(Inches.of(35.0/2.0 + 10), Meters.zero()));
+        // driverCtrl.x().whileTrue(
+        //         drivetrain.yAxisAlignCmd(
+        //                 fullYVelCtrl, Rotation2d.fromDegrees(90), 
+        //                 offsetBackHub));
+
+
         driverCtrl.x().whileTrue(
-                drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
-                        Rotation2d.fromDegrees(90)));
+                Commands.runOnce(
+                        () -> drivetrain.initialRotationHelper(FieldLayout.getInwardAngle(drivetrain.getPose2d())), 
+                        drivetrain
+                )
+                .andThen(drivetrain.hubBackAlignCmd(fullYVelCtrl)));
 
         // driverCtrl.y().whileTrue(
         //         drivetrain.xAxisAlignCmd(fullXVelCtrl, Rotation2d.fromDegrees(90), FieldLayout.Trench.blueTrenchRight)
@@ -196,7 +210,7 @@ public class RobotContainerDriveMirror {
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(
                 () -> drivetrain.resetPose(
                         new Pose2d(
-                                FieldLayout.getHubCenterFront(),
+                                FieldLayout.Hub.getHubCenterFront(),
                                 Rotation2d.fromDegrees(FieldLayout.getForwardAngle().in(Degrees) + 180)))));
 
         // Idle motors when disabled

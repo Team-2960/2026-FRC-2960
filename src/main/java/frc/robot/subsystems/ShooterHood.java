@@ -341,7 +341,7 @@ public class ShooterHood extends SubsystemBase {
     }
 
     private Angle calcHubShotAngle() {
-        Distance hubDist = FieldLayout.getHubDist(drivetrain.getPose2d().getTranslation());
+        Distance hubDist = FieldLayout.Hub.getHubDist(drivetrain.getPose2d().getTranslation());
 
         // TODO Implement Formula for target shooter hood angle
 

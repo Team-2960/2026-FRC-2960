@@ -29,11 +29,11 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 
-public class FieldCentricXAxisAlign implements SwerveRequest{
+public class FieldCentricYAxisAlign implements SwerveRequest{
 
-    public double TravelVelocityX = 0;
+    public double TravelVelocityY = 0;
 
-    public double YCoordinate = 0;
+    public double XCoordinate = 0;
 
      /**
      * The desired direction to face.
@@ -98,29 +98,29 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      */
     public PhoenixPIDController HeadingController = new PhoenixPIDController(0, 0, 0);
 
-    public PhoenixPIDController XAxisCorrectionController = new PhoenixPIDController(0, 0, 0);
+    public PhoenixPIDController YAxisCorrectionController = new PhoenixPIDController(0, 0, 0);
     public Constraints profileConstraints = new Constraints(TunerConstants.kSpeedAt12Volts.in(MetersPerSecond), Constants.maxLinAccel.in(MetersPerSecondPerSecond));
-    public ProfiledPIDController XAxisProfiledController = new ProfiledPIDController(0, 0, 0, profileConstraints);
+    public ProfiledPIDController YAxisProfiledController = new ProfiledPIDController(0, 0, 0, profileConstraints);
 
     private final FieldCentricFacingAngle m_fieldCentricFacingAngle = new FieldCentricFacingAngle();
 
-    public FieldCentricXAxisAlign(){
+    public FieldCentricYAxisAlign(){
         HeadingController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
 
     @Override
     public StatusCode apply(SwerveControlParameters parameters, SwerveModule<?, ?, ?>... modulesToApply) {
-        XAxisProfiledController.setConstraints(profileConstraints);
-       double yPose = parameters.currentPose.getY();
+        YAxisProfiledController.setConstraints(profileConstraints);
+       double xPose = parameters.currentPose.getX();
        double allianceFlip = 1;
        if (DriverStation.getAlliance().isPresent()){
             allianceFlip = DriverStation.getAlliance().get().equals(Alliance.Red) ? -1 : 1;
        }
-       //double vy = allianceFlip * XAxisCorrectionController.calculate(yPose, YCoordinate, parameters.timestamp);
-        //double vy = allianceFlip * XAxisProfiledController.calculate(yPose, YCoordinate);
+       //double vy = allianceFlip * YAxisCorrectionController.calculate(yPose, XCoordinate, parameters.timestamp);
+        //double vy = allianceFlip * YAxisProfiledController.calculate(yPose, XCoordinate);
         //Pose2d targetPoint = FieldLayout.Trench.getNearestAllianceTrench(parameters.currentPose);
-        double vy = allianceFlip * calcToPoint(yPose, YCoordinate);
+        double vx = allianceFlip * calcToPoint(xPose, XCoordinate);
 
        return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)
@@ -134,8 +134,8 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
         .withSteerRequestType(SteerRequestType)
         .withTargetDirection(TargetDirection)
         .withTargetRateFeedforward(TargetRateFeedforward)
-        .withVelocityX(TravelVelocityX)
-        .withVelocityY(vy)
+        .withVelocityX(vx)
+        .withVelocityY(TravelVelocityY)
         .apply(parameters, modulesToApply);
     }
 
@@ -154,7 +154,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param kD The differential coefficient; must be >= 0
      * @return this object
      */
-    public FieldCentricXAxisAlign withHeadingPID(double kP, double kI, double kD)
+    public FieldCentricYAxisAlign withHeadingPID(double kP, double kI, double kD)
     {
         this.HeadingController.setPID(kP, kI, kD);
         return this;
@@ -165,8 +165,8 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newVelocity The desired velocity for the robot to travel at in Meters Per Second.
      * @return this object
      */
-    public FieldCentricXAxisAlign withTravelVelocity(double newVelocity){
-        this.TravelVelocityX = newVelocity;
+    public FieldCentricYAxisAlign withTravelVelocity(double newVelocity){
+        this.TravelVelocityY = newVelocity;
         return this;
     }
 
@@ -176,24 +176,24 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newVelocity
      * @return
      */
-    public FieldCentricXAxisAlign withTravelVelocity(LinearVelocity newVelocity){
-        this.TravelVelocityX = newVelocity.in(MetersPerSecond);
+    public FieldCentricYAxisAlign withTravelVelocity(LinearVelocity newVelocity){
+        this.TravelVelocityY = newVelocity.in(MetersPerSecond);
         return this;
     }
 
-    public FieldCentricXAxisAlign withXAxisCorrectionPID(double kP, double kI, double kD){
-        //XAxisCorrectionController.setPID(kP, kI, kD);
-        XAxisProfiledController.setPID(kP, kI, kD);
+    public FieldCentricYAxisAlign withYAxisCorrectionPID(double kP, double kI, double kD){
+        //YAxisCorrectionController.setPID(kP, kI, kD);
+        YAxisProfiledController.setPID(kP, kI, kD);
         return this;
     }
 
-    public FieldCentricXAxisAlign withXAxisCoordinate(double xCoord){
-        this.YCoordinate = xCoord;
+    public FieldCentricYAxisAlign withYAxisCoordinate(double coordinate){
+        this.XCoordinate = coordinate;
         return this;
     }
     
-    public FieldCentricXAxisAlign withXAxisCoordinate(Translation2d coordinate){
-        this.YCoordinate = coordinate.getY();
+    public FieldCentricYAxisAlign withYAxisCoordinate(Translation2d coordinate){
+        this.XCoordinate = coordinate.getX();
         return this;
     }
 
@@ -207,7 +207,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newTargetDirection Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withTargetDirection(Rotation2d newTargetDirection) {
+    public FieldCentricYAxisAlign withTargetDirection(Rotation2d newTargetDirection) {
         this.TargetDirection = newTargetDirection;
         return this;
     }
@@ -223,7 +223,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newTargetRateFeedforward Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withTargetRateFeedforward(double newTargetRateFeedforward) {
+    public FieldCentricYAxisAlign withTargetRateFeedforward(double newTargetRateFeedforward) {
         this.TargetRateFeedforward = newTargetRateFeedforward;
         return this;
     }
@@ -238,7 +238,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newTargetRateFeedforward Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withTargetRateFeedforward(AngularVelocity newTargetRateFeedforward) {
+    public FieldCentricYAxisAlign withTargetRateFeedforward(AngularVelocity newTargetRateFeedforward) {
         this.TargetRateFeedforward = newTargetRateFeedforward.in(RadiansPerSecond);
         return this;
     }
@@ -251,7 +251,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newDeadband Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withDeadband(double newDeadband) {
+    public FieldCentricYAxisAlign withDeadband(double newDeadband) {
         this.Deadband = newDeadband;
         return this;
     }
@@ -264,7 +264,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newDeadband Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withDeadband(LinearVelocity newDeadband) {
+    public FieldCentricYAxisAlign withDeadband(LinearVelocity newDeadband) {
         this.Deadband = newDeadband.in(MetersPerSecond);
         return this;
     }
@@ -277,7 +277,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newRotationalDeadband Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withRotationalDeadband(double newRotationalDeadband) {
+    public FieldCentricYAxisAlign withRotationalDeadband(double newRotationalDeadband) {
         this.RotationalDeadband = newRotationalDeadband;
         return this;
     }
@@ -290,7 +290,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newRotationalDeadband Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withRotationalDeadband(AngularVelocity newRotationalDeadband) {
+    public FieldCentricYAxisAlign withRotationalDeadband(AngularVelocity newRotationalDeadband) {
         this.RotationalDeadband = newRotationalDeadband.in(RadiansPerSecond);
         return this;
     }
@@ -304,7 +304,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newMaxAbsRotationalRate Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withMaxAbsRotationalRate(double newMaxAbsRotationalRate) {
+    public FieldCentricYAxisAlign withMaxAbsRotationalRate(double newMaxAbsRotationalRate) {
         this.MaxAbsRotationalRate = newMaxAbsRotationalRate;
         return this;
     }
@@ -318,7 +318,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newMaxAbsRotationalRate Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withMaxAbsRotationalRate(AngularVelocity newMaxAbsRotationalRate) {
+    public FieldCentricYAxisAlign withMaxAbsRotationalRate(AngularVelocity newMaxAbsRotationalRate) {
         this.MaxAbsRotationalRate = newMaxAbsRotationalRate.in(RadiansPerSecond);
         return this;
     }
@@ -332,7 +332,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newCenterOfRotation Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withCenterOfRotation(Translation2d newCenterOfRotation) {
+    public FieldCentricYAxisAlign withCenterOfRotation(Translation2d newCenterOfRotation) {
         this.CenterOfRotation = newCenterOfRotation;
         return this;
     }
@@ -345,7 +345,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newDriveRequestType Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withDriveRequestType(SwerveModule.DriveRequestType newDriveRequestType) {
+    public FieldCentricYAxisAlign withDriveRequestType(SwerveModule.DriveRequestType newDriveRequestType) {
         this.DriveRequestType = newDriveRequestType;
         return this;
     }
@@ -358,7 +358,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newSteerRequestType Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withSteerRequestType(SwerveModule.SteerRequestType newSteerRequestType) {
+    public FieldCentricYAxisAlign withSteerRequestType(SwerveModule.SteerRequestType newSteerRequestType) {
         this.SteerRequestType = newSteerRequestType;
         return this;
     }
@@ -372,7 +372,7 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newDesaturateWheelSpeeds Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withDesaturateWheelSpeeds(boolean newDesaturateWheelSpeeds) {
+    public FieldCentricYAxisAlign withDesaturateWheelSpeeds(boolean newDesaturateWheelSpeeds) {
         this.DesaturateWheelSpeeds = newDesaturateWheelSpeeds;
         return this;
     }
@@ -385,15 +385,22 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
      * @param newForwardPerspective Parameter to modify
      * @return this object
      */
-    public FieldCentricXAxisAlign withForwardPerspective(ForwardPerspectiveValue newForwardPerspective) {
+    public FieldCentricYAxisAlign withForwardPerspective(ForwardPerspectiveValue newForwardPerspective) {
         this.ForwardPerspective = newForwardPerspective;
         return this;
     }
 
-    public FieldCentricXAxisAlign withUpdateTargetPose(Supplier<Pose2d> poseSupplier){
+    public FieldCentricYAxisAlign withUpdateTargetPose(Supplier<Pose2d> poseSupplier){
         if (poseSupplier != null){
             this.TargetDirection = poseSupplier.get().getRotation();
-            this.YCoordinate = poseSupplier.get().getY();
+            this.XCoordinate = poseSupplier.get().getX();
+        }
+        return this;
+    }
+
+    public FieldCentricYAxisAlign withUpdateTargetTranslation(Supplier<Pose2d> poseSupplier){
+        if (poseSupplier != null){
+            this.XCoordinate = poseSupplier.get().getX();
         }
         return this;
     }
