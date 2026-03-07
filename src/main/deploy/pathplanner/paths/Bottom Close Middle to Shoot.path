@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.9,
-        "y": 6.982749999999999
+        "x": 5.724215909090909,
+        "y": 5.508875000000001
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.8752666228149355,
-        "y": 6.733976488441752
+        "x": 5.699482531905844,
+        "y": 5.260101488441753
       },
       "isLocked": false,
-      "linkedName": "TopIntakePos25Deg"
+      "linkedName": "BottomCloseMiddleNeutralZoneFullFuel"
     },
     {
       "anchor": {
-        "x": 7.75,
-        "y": 4.5
+        "x": 2.4260340909090905,
+        "y": 5.488261363636363
       },
       "prevControl": {
-        "x": 7.774968894133408,
-        "y": 4.748749983569356
+        "x": 2.451002985042498,
+        "y": 5.737011347205719
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopMiddleNeutralZone"
+      "linkedName": "TopShootPoint"
     }
   ],
   "rotationTargets": [],
@@ -38,17 +38,17 @@
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
-    "unlimited": false
+    "unlimited": true
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": -90.0
+    "rotation": 142.56
   },
   "reversed": false,
   "folder": "Test Paths",
   "idealStartingState": {
     "velocity": 2.0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

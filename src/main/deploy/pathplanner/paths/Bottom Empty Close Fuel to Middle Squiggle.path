@@ -1,0 +1,95 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.724215909090909,
+        "y": 2.571431818181818
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.699482531905844,
+        "y": 2.3226583066235706
+      },
+      "isLocked": false,
+      "linkedName": "BottomCloseIntakePos"
+    },
+    {
+      "anchor": {
+        "x": 6.3220113636363635,
+        "y": 3.942238636363637
+      },
+      "prevControl": {
+        "x": 6.316587137555938,
+        "y": 3.658333060723824
+      },
+      "nextControl": {
+        "x": 6.327435589716789,
+        "y": 4.22614421200345
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.105568181818182,
+        "y": 5.075988636363636
+      },
+      "prevControl": {
+        "x": 6.906793182525483,
+        "y": 4.766743899248536
+      },
+      "nextControl": {
+        "x": 5.518079545454546,
+        "y": 5.302738636363637
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.724215909090909,
+        "y": 5.508875000000001
+      },
+      "prevControl": {
+        "x": 5.749184803224317,
+        "y": 5.7576249835693565
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "BottomCloseMiddleNeutralZoneFullFuel"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 68.12696375912077
+    },
+    {
+      "waypointRelativePos": 1.647887323943662,
+      "rotationDegrees": 146.5906833523269
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": true
+  },
+  "goalEndState": {
+    "velocity": 3.0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "Test Paths",
+  "idealStartingState": {
+    "velocity": 2.0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}
