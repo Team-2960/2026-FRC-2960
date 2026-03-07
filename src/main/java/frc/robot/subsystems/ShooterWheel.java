@@ -502,7 +502,7 @@ public class ShooterWheel extends SubsystemBase {
      * @return target angular velocity
      */
     private AngularVelocity calcHubShotSpeed() {
-        Distance hubDist = FieldLayout.getHubDist(drivetrain.getPose2d().getTranslation());
+        Distance hubDist = FieldLayout.Hub.getHubDist(drivetrain.getPose2d().getTranslation());
 
         return Constants.shooterWheelTable.get(hubDist);
     }

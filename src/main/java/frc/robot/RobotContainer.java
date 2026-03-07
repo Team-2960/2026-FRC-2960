@@ -198,7 +198,7 @@ public class RobotContainer {
                 drivetrain.lookAtPointCmd(
                         fullXVelCtrl,
                         fullYVelCtrl,
-                        FieldLayout.getHubCenter(),
+                        FieldLayout.Hub.getHubCenter(),
                         Rotation2d.fromDegrees(180)));
 
         driverCtrl.a().whileTrue(
@@ -232,7 +232,7 @@ public class RobotContainer {
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(
                 () -> drivetrain.resetPose(
                         new Pose2d(
-                                FieldLayout.getHubCenterFront(),
+                                FieldLayout.Hub.getHubCenterFront(),
                                 Rotation2d.fromDegrees(FieldLayout.getForwardAngle().in(Degrees) + 180)))));
 
         // Idle motors when disabled

@@ -59,6 +59,64 @@ public class FieldLayout {
 
         public static final Translation2d blueHubCenterFront = new Translation2d(blueHubFront, fieldCenterY);
         public static final Translation2d redHubCenterFront = new Translation2d(redHubFront, fieldCenterY);
+
+        public static final Translation2d blueHubCenterBack = blueHubCenter.plus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
+        public static final Translation2d redHubCenterBack = redHubCenter.minus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
+
+            /**
+         * Gets the center of the hub for the current alliance
+         * 
+         * @return center of the hub for the current alliance. Defaults to blue if
+         *         alliance is not set.
+         */
+        public static Translation2d getHubCenter() {
+            return isRedAlliance() ? Hub.redHubCenter : Hub.blueHubCenter;
+        }
+
+        /**
+         * Gets the front center of the hub for the current alliance
+         * 
+         * @return front center of the hub for the current alliance. Defaults to blue if
+         *         alliance is not set.
+         */
+        public static Translation2d getHubCenterFront() {
+            return isRedAlliance() ? Hub.redHubCenterFront : Hub.blueHubCenterFront;
+        }
+
+        /**
+         * Gets the back center of the hub for the current alliance
+         * 
+         * @return back center of the hub for the current alliance. Defaults to blue if
+         *         alliance is not set.
+         */
+        public static Translation2d getHubCenterBack() {
+            return isRedAlliance() ? Hub.redHubCenterBack : Hub.blueHubCenterBack;
+        }
+
+        /**
+         * Gets the back center of the hub for the current alliance
+         * 
+         * @param offset is relative to the blue alliance, automatically flipped when applied to Red
+         * @return back center of the hub for the current alliance. Defaults to blue if
+         *         alliance is not set.
+         */
+        public static Translation2d getHubCenterBack(Translation2d offset) {
+            return isRedAlliance() ? Hub.redHubCenterBack.minus(offset) : Hub.blueHubCenterBack.plus(offset);
+        }
+
+        /**
+         * Calculates the distance to the current alliance hub from a given position
+         * @param position  position to check to distance of
+         * @return  distance to the current alliance hub 
+         */
+        public static Distance getHubDist(Translation2d position) {
+            return Meters.of(position.getDistance(getHubCenter()));
+        }
+
+        public static Pose2d getHubBackAlign(Pose2d curPose){
+            Translation2d translation = getHubCenterBack(new Translation2d(Inches.of(35.0/2.0 + 10), Meters.zero()));
+            return new Pose2d(translation, getInwardAngle(curPose));
+        }
     }
 
     //Tower Dimensions
@@ -82,6 +140,29 @@ public class FieldLayout {
 
         public static final Translation2d blueTowerCenterFront = new Translation2d(blueTowerFront, blueTowerYOffset);
         public static final Translation2d redTowerCenterFront = new Translation2d(redTowerFront, redTowerYOffset);
+
+        public static Translation2d getTowerCenter() {
+            return isRedAlliance() ? Tower.redTowerCenter : Tower.blueTowerCenter;
+        }
+
+        /**
+         * Gets the front center of the tower for the current alliance
+         * 
+         * @return front center of the tower for the current alliance. Defaults to blue if
+         *         alliance is not set.
+         */
+        public static Translation2d getTowerCenterFront() {
+            return isRedAlliance() ? Tower.redTowerCenterFront : Tower.blueTowerCenterFront;
+        }
+
+        /**
+         * Calculates the distance to the current alliance tower from a given position
+         * @param position  position to check to distance of
+         * @return  distance to the current alliance tower
+         */
+        public static Distance getTowerDist(Translation2d position) {
+            return Meters.of(position.getDistance(getTowerCenter()));
+        }
     }
     //Trench Dimensions
     public static class Trench{
@@ -111,22 +192,17 @@ public class FieldLayout {
 
         public static Pose2d getNearestAllianceTrench(Pose2d curPose){
 
-            Alliance curAlliance = Alliance.Blue;
-            if (DriverStation.getAlliance().isPresent()){
-                curAlliance = DriverStation.getAlliance().get();
-            }
-
-            if (curAlliance.equals(Alliance.Red)){
+            if (isRedAlliance()){
                 if (curPose.getY() < fieldCenterY.in(Meters)){
-                    return new Pose2d(redTrenchLeft, Rotation2d.fromDegrees(-90));
+                    return new Pose2d(redTrenchLeft, getInwardAngle(curPose));
                 }else{
-                    return new Pose2d(redTrenchRight, Rotation2d.fromDegrees(90));
+                    return new Pose2d(redTrenchRight, getInwardAngle(curPose));
                 }
             }else{
                 if (curPose.getY() < fieldCenterY.in(Meters)){
-                    return new Pose2d(blueTrenchRight, Rotation2d.fromDegrees(90));
+                    return new Pose2d(blueTrenchRight, getInwardAngle(curPose));
                 }else{
-                    return new Pose2d(blueTrenchLeft, Rotation2d.fromDegrees(-90));
+                    return new Pose2d(blueTrenchLeft, getInwardAngle(curPose));
                 }
             }
         }
@@ -143,7 +219,7 @@ public class FieldLayout {
      */
     public static boolean isRedAlliance() {
         var alliance = DriverStation.getAlliance();
-        return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+        return alliance.isPresent() && alliance.get().equals(DriverStation.Alliance.Red);
     }
 
     /**
@@ -157,55 +233,20 @@ public class FieldLayout {
         return isRedAlliance() ? redForwardAngle : blueForwardAngle;
     }
 
-    /**
-     * Gets the center of the hub for the current alliance
-     * 
-     * @return center of the hub for the current alliance. Defaults to blue if
-     *         alliance is not set.
-     */
-    public static Translation2d getHubCenter() {
-        return isRedAlliance() ? Hub.redHubCenter : Hub.blueHubCenter;
+    public static Rotation2d getInwardAngle(Pose2d curPose){
+        if (isRedAlliance()){
+                if (curPose.getY() < fieldCenterY.in(Meters)){
+                    return Rotation2d.fromDegrees(-90);
+                }else{
+                    return Rotation2d.fromDegrees(90);
+                }
+            }else{
+                if (curPose.getY() < fieldCenterY.in(Meters)){
+                    return Rotation2d.fromDegrees(90);
+                }else{
+                    return Rotation2d.fromDegrees(-90);
+                }
+            }
     }
 
-    /**
-     * Gets the front center of the hub for the current alliance
-     * 
-     * @return front center of the hub for the current alliance. Defaults to blue if
-     *         alliance is not set.
-     */
-    public static Translation2d getHubCenterFront() {
-        return isRedAlliance() ? Hub.redHubCenterFront : Hub.blueHubCenterFront;
-    }
-
-    /**
-     * Calculates the distance to the current alliance hub from a given position
-     * @param position  position to check to distance of
-     * @return  distance to the current alliance hub 
-     */
-    public static Distance getHubDist(Translation2d position) {
-        return Meters.of(position.getDistance(FieldLayout.getHubCenter()));
-    }
-
-        public static Translation2d getTowerCenter() {
-        return isRedAlliance() ? Tower.redTowerCenter : Tower.blueTowerCenter;
-    }
-
-    /**
-     * Gets the front center of the tower for the current alliance
-     * 
-     * @return front center of the tower for the current alliance. Defaults to blue if
-     *         alliance is not set.
-     */
-    public static Translation2d getTowerCenterFront() {
-        return isRedAlliance() ? Tower.redTowerCenterFront : Tower.blueTowerCenterFront;
-    }
-
-    /**
-     * Calculates the distance to the current alliance tower from a given position
-     * @param position  position to check to distance of
-     * @return  distance to the current alliance tower
-     */
-    public static Distance getTowerDist(Translation2d position) {
-        return Meters.of(position.getDistance(FieldLayout.getTowerCenter()));
-    }
 }
