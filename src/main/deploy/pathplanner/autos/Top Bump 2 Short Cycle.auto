@@ -15,15 +15,21 @@
           "data": {
             "commands": [
               {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Empty Fuel to Middle"
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "IntakeIN Command"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Top Empty Fuel to Middle"
+                  "name": "IntakePivOut Command"
                 }
               }
             ]
@@ -62,6 +68,12 @@
                 "data": {
                   "name": "ShooterWheel Command"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivIn Command"
+                }
               }
             ]
           }
@@ -80,6 +92,12 @@
                 "type": "named",
                 "data": {
                   "name": "IntakeIN Command"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivOut Command"
                 }
               },
               {
@@ -117,6 +135,12 @@
                 "type": "named",
                 "data": {
                   "name": "ShooterWheel Command"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivIn Command"
                 }
               }
             ]

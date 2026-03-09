@@ -28,6 +28,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -250,6 +251,15 @@ public class IntakeAngle extends SubsystemBase {
         return this.runEnd(
                 () -> setPosition(target),
                 () -> setVoltage(Volts.zero()));
+    }
+
+    public Command setOscilateCmd(Angle amplitude, Angle referencePos, Time period){
+        return setPositionCmd(referencePos.plus(amplitude))
+            .withTimeout(period)
+            .andThen(
+                setPositionCmd(referencePos.minus(amplitude))
+            ).withTimeout(period)
+            .repeatedly();
     }
 
     /**
