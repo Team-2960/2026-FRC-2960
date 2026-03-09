@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 5.734522727272727,
-        "y": 5.745931818181819
+        "y": 6.725079545454546
       },
       "prevControl": {
         "x": 4.887183587486165,
-        "y": 5.655075986340741
+        "y": 6.634223713613467
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,7 +59,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -45.0

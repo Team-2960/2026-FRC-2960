@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.8061931818181804,
-        "y": 1.293386363636364
+        "x": 7.8165,
+        "y": 0.9841818181818189
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.966423833220112,
-        "y": 1.1014849870094294
+        "x": 7.976730651401931,
+        "y": 0.7922804415548843
       },
       "isLocked": false,
       "linkedName": "BottomIntakePos25Deg"
@@ -45,7 +45,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0.0,
     "rotation": 90.0

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.837590909090909,
-        "y": 3.8700909090909086
+        "x": 5.734522727272727,
+        "y": 4.4575795454545455
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.812857531905844,
-        "y": 3.6213173975326614
+        "x": 5.709789350087662,
+        "y": 4.208806033896298
       },
       "isLocked": false,
       "linkedName": "TopCloseMiddleNeutralZoneFullFuel"
@@ -61,7 +61,7 @@
     "rotation": 142.56
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 2.0,
     "rotation": -90.0

@@ -70,10 +70,10 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -115.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }
