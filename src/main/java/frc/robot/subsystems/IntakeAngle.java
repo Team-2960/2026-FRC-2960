@@ -276,16 +276,6 @@ public class IntakeAngle extends SubsystemBase {
         }
     }
 
-
-    /**
-     * Create a Quasistatic SysId command
-     * @param direction direction of the command
-     * @return  Quasistatic SysId command
-     */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction, Angle lowerLimit, Angle upperLimit) {
-        return sysIdRoutime.quasistatic(direction);
-    }
-
     /**
      * Create a Dynamic SysId command
      * @param direction direction of the command
