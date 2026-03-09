@@ -85,16 +85,10 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Top Empty Close Fuel to Middle"
+                  "pathName": "Top Empty Close Fuel Loop to Bump"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Top Close Middle to Shoot"
           }
         },
         {

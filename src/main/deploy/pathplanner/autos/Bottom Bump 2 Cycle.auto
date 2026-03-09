@@ -36,6 +36,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Bump to Shoot"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
@@ -63,25 +69,26 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Bump to Shoot"
+            "pathName": "Bottom Shooting to Close Fuel Under Trench"
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Bottom Shooting to Close Fuel Over Bump"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bottom Empty Close Fuel to Middle Squiggle"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bottom Close Middle to Shoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeIN Command"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom Empty Close Fuel Loop to Bump"
+                }
+              }
+            ]
           }
         },
         {

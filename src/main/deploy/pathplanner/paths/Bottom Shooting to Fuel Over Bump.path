@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.6527840909090905,
-        "y": 2.829102272727273
+        "x": 2.8589204545454545,
+        "y": 2.7466477272727277
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.982363636363636,
-        "y": 2.5095909090909094
+        "x": 4.1884999999999994,
+        "y": 2.427136363636364
       },
       "isLocked": false,
       "linkedName": "BottomShootPoint"
@@ -70,7 +70,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -144.92624550665175

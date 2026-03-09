@@ -69,7 +69,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Shooting to Close Fuel Under Trench"
+            "pathName": "Bottom Shooting to Close Fuel Over Bump"
           }
         },
         {
@@ -85,10 +85,16 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bottom Empty Close Fuel Loop to Bump"
+                  "pathName": "Bottom Empty Close Fuel to Middle"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Close Middle to Shoot"
           }
         },
         {

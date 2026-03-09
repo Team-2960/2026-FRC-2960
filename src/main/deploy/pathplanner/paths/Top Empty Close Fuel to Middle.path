@@ -4,24 +4,24 @@
     {
       "anchor": {
         "x": 5.734522727272727,
-        "y": 5.745931818181819
+        "y": 6.725079545454546
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.709789350087662,
-        "y": 5.497158306623572
+        "y": 6.476306033896298
       },
       "isLocked": false,
       "linkedName": "TopCloseIntakePos"
     },
     {
       "anchor": {
-        "x": 5.837590909090909,
-        "y": 3.8700909090909086
+        "x": 5.734522727272727,
+        "y": 4.4575795454545455
       },
       "prevControl": {
-        "x": 5.8625598032243165,
-        "y": 4.118840892660264
+        "x": 5.759491621406134,
+        "y": 4.706329529023901
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 2.0,
     "rotation": -90.0

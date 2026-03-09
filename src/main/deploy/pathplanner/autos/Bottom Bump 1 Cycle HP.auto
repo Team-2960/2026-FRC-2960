@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Trench to Fuel"
+            "pathName": "Bottom Bump to Fuel"
           }
         },
         {
@@ -15,15 +15,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "IntakeIN Command"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "Bottom Empty Fuel to Middle"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeIN Command"
                 }
               }
             ]
@@ -69,26 +69,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Shooting to Close Fuel Under Trench"
+            "pathName": "Bottom Shooting to HP"
           }
         },
         {
-          "type": "race",
+          "type": "wait",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeIN Command"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Bottom Empty Close Fuel Loop to Bump"
-                }
-              }
-            ]
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HP to Bottom Shooting"
           }
         },
         {

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Trench to Fuel"
+            "pathName": "Top Bump to Fuel"
           }
         },
         {
@@ -23,7 +23,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bottom Empty Fuel to Middle"
+                  "pathName": "Top Empty Fuel to Middle"
                 }
               }
             ]
@@ -32,13 +32,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
+            "pathName": "Top Middle Neutral Zone over Bump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Bump to Shoot"
+            "pathName": "Top Bump to Shoot"
           }
         },
         {
@@ -69,7 +69,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Shooting to Close Fuel Under Trench"
+            "pathName": "Top Shooting to Close Fuel Under Trench"
           }
         },
         {
@@ -85,10 +85,16 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bottom Empty Close Fuel Loop to Bump"
+                  "pathName": "Top Empty Close Fuel to Middle"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Close Middle to Shoot"
           }
         },
         {
