@@ -129,6 +129,11 @@ public class RobotContainerDriveMirror {
      */
     private void initPathPlanner() {
         // Initialize Auton chooser
+        
+        NamedCommands.registerCommand("IntakeRollerIN Command", intakeRoller.setVoltageCmd(Constants.intakeInVolt));
+        NamedCommands.registerCommand("IntakePivOut Command", intakeAngle.setPositionCmd(Degrees.of(0)));
+        NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.setPositionCmd(Degrees.of(140)));
+
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auton Chooser", autoChooser);
     }
