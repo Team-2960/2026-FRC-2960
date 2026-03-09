@@ -33,6 +33,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.AprilTagPipeline;
 import frc.robot.subsystems.CameraSim;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.IntakeAngle;
+import frc.robot.subsystems.IntakeRoller;
 
 public class RobotContainerDriveMirror {
 
@@ -41,10 +43,13 @@ public class RobotContainerDriveMirror {
     private final Telemetry logger = new Telemetry(Constants.maxLinVel.in(MetersPerSecond));
 
     private final CommandXboxController driverCtrl = new CommandXboxController(0);
+    private final CommandXboxController operatorCtrl = new CommandXboxController(1);
 
 
     // Physical Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final IntakeAngle intakeAngle = new IntakeAngle(14, 16, TunerConstants.kCANBus, 50);
+    private final IntakeRoller intakeRoller = new IntakeRoller(19, TunerConstants.kCANBus, 24.0/18.0);
 
     // Pathplanner
     SendableChooser<Command> autoChooser;
@@ -58,19 +63,19 @@ public class RobotContainerDriveMirror {
     private Trigger testMode = new Trigger(DriverStation::isTest);
 
     // // Cameras
-    private final AprilTagPipeline leftCamera = new AprilTagPipeline(
-            drivetrain,
-            Constants.leftCameraSettings,
-            "LeftCamera",
-            "LeftCamera");
-    private final AprilTagPipeline rightCamera = new AprilTagPipeline(
-            drivetrain,
-            Constants.rightCameraSettings,
-            "RightCamera",
-            "RightCamera");
+//     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
+//             drivetrain,
+//             Constants.leftCameraSettings,
+//             "LeftCamera",
+//             "LeftCamera");
+//     private final AprilTagPipeline rightCamera = new AprilTagPipeline(
+//             drivetrain,
+//             Constants.rightCameraSettings,
+//             "RightCamera",
+//             "RightCamera");
 
-    @SuppressWarnings("unused")
-    private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
+//     @SuppressWarnings("unused")
+//     private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
 
 
     // Standard Suppliers
@@ -133,6 +138,25 @@ public class RobotContainerDriveMirror {
      */
     private void configureBindings() {
         drivetrainBindings();
+        intakeBindings();
+    }
+
+    private void intakeBindings(){
+        Command intakeAngleSysId = 
+                intakeAngle.sysIdQuasistaticLimited(Direction.kReverse, Degrees.of(0), Degrees.of(90))
+                .andThen(intakeAngle.sysIdQuasistaticLimited(Direction.kForward, Degrees.of(0), Degrees.of(90)))
+                .andThen(intakeAngle.sysIdDynamicLimited(Direction.kReverse))
+                .andThen(intakeAngle.sysIdDynamicLimited(Direction.kForward));
+
+        operatorCtrl.leftTrigger(0.1).whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
+        //operatorCtrl.a().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
+        // operatorCtrl.b().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
+        // operatorCtrl.x().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
+        operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(140)));
+        operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
+        //operatorCtrl.y().onTrue(intakeAngle.setVoltageCmd(Volts.zero()));
+
+        //operatorCtrl.povUp().onTrue(intakeAngleSysId);
     }
 
     /**

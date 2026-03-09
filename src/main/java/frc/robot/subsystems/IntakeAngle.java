@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
@@ -12,6 +15,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -19,6 +23,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
@@ -30,6 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class IntakeAngle extends SubsystemBase {
 
@@ -82,17 +88,17 @@ public class IntakeAngle extends SubsystemBase {
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
+    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0).withAcceleration(RotationsPerSecondPerSecond.of(10));
     private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0);
     private final IntakeAngleTest intakeAngleTest = new IntakeAngleTest();
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     // SysId
-    private final SysIdRoutine sysIdRoutime = new SysIdRoutine(
-            new SysIdRoutine.Config(null,
-                    Volts.of(4),
+    private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(Volts.of(0.5).per(Second),
+                    Volts.of(2),
                     null,
-                    (state) -> SignalLogger.writeString("state", state.toString())),
+                    (state) -> SignalLogger.writeString("IntakeAngle State", state.toString())),
             new SysIdRoutine.Mechanism(
                     this::setVoltage,
                     null,
@@ -108,7 +114,8 @@ public class IntakeAngle extends SubsystemBase {
         encoder = new CANcoder(encoderId, bus);
 
         motorConfig.MotorOutput
-                .withNeutralMode(NeutralModeValue.Brake);
+                .withNeutralMode(NeutralModeValue.Brake)
+                .withInverted(InvertedValue.Clockwise_Positive);
 
         motorConfig.Feedback
                 .withSensorToMechanismRatio(1)
@@ -117,12 +124,13 @@ public class IntakeAngle extends SubsystemBase {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
 
         motorConfig.Slot0
-                .withKP(0.0)
+                .withKP(1.8)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(0.0)
-                .withKV(0.0)
-                .withKA(0.0);
+                .withKS(0.21456)
+                .withKV(4.7628)
+                .withKA(0.18916)
+                .withKG(0.32474);
 
         motorConfig.Slot2
                 .withKP(0.0)
@@ -130,7 +138,14 @@ public class IntakeAngle extends SubsystemBase {
                 .withKD(0.0)
                 .withKS(0.0)
                 .withKV(0.0)
-                .withKA(0.0);
+                .withKA(0.0)
+                .withKG(0.0);
+
+        motorConfig.MotionMagic
+            .withMotionMagicCruiseVelocity(RotationsPerSecond.of(6))
+            .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(12))
+            .withMotionMagicJerk(120);
+
 
         motor.getConfigurator().apply(motorConfig);
     }
@@ -159,7 +174,9 @@ public class IntakeAngle extends SubsystemBase {
      * @param velocity target velocity
      */
     public void setPosition(Angle angle) {
-        motor.setControl(posCtrl.withPosition(angle));
+        motor.setControl(posCtrl.withPosition(angle)
+            .withLimitReverseMotion(getPosition().lte(Degrees.of(-10)))
+            .withLimitForwardMotion(getPosition().gte(Degrees.of(150))));
     }
 
     /**
@@ -229,10 +246,10 @@ public class IntakeAngle extends SubsystemBase {
      * @param target target velocity
      * @return new command to run the intake at a set target velocity
      */
-    public Command setVelocityCmd(Angle target) {
+    public Command setPositionCmd(Angle target) {
         return this.runEnd(
                 () -> setPosition(target),
-                () -> setVelocity(RotationsPerSecond.zero()));
+                () -> setVoltage(Volts.zero()));
     }
 
     /**
@@ -241,7 +258,22 @@ public class IntakeAngle extends SubsystemBase {
      * @return  Quasistatic SysId command
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return sysIdRoutime.quasistatic(direction);
+        return sysIdRoutine.quasistatic(direction);
+    }
+
+    /**
+     * Create a Quasistatic SysId command
+     * @param direction direction of the command
+     * @return  Quasistatic SysId command
+     */
+    public Command sysIdQuasistaticLimited(SysIdRoutine.Direction direction, Angle min, Angle max) {
+        if (direction.equals(Direction.kForward)){
+            return sysIdRoutine.quasistatic(direction)
+                .until(() -> getPosition().lte(min));
+        }else{
+            return sysIdRoutine.quasistatic(direction)
+                .until(() -> getPosition().gte(max));
+        }
     }
 
 
@@ -251,7 +283,17 @@ public class IntakeAngle extends SubsystemBase {
      * @return  Dynamic SysId command
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return sysIdRoutime.dynamic(direction);
+        return sysIdRoutine.dynamic(direction);
+    }
+
+    public Command sysIdDynamicLimited(SysIdRoutine.Direction direction) {
+        if (direction.equals(Direction.kForward)){
+            return sysIdRoutine.dynamic(direction)
+                .until(() -> getPosition().lte(Degrees.of(0)));
+        }else{
+            return sysIdRoutine.dynamic(direction)
+                .until(() -> getPosition().gte(Degrees.of(90)));
+        }
     }
 
     /**
@@ -262,6 +304,8 @@ public class IntakeAngle extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         // SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
         // SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
+        SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
+        SmartDashboard.putData("Intake Angle Tuning", intakeAngleTest);
 
         motorConfig.Slot2
         .withKP(intakeAngleTest.getkP())
