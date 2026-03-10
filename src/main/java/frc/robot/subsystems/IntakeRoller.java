@@ -9,12 +9,15 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
@@ -87,7 +90,7 @@ public class IntakeRoller extends SubsystemBase {
             new SysIdRoutine.Config(null,
                     Volts.of(4),
                     null,
-                    (state) -> Logger.recordOutput("state", state.toString())),
+                    (state) -> Logger.recordOutput("Intake Roller State", state.toString())),
             new SysIdRoutine.Mechanism(
                     this::setVoltage,
                     null,
@@ -109,12 +112,12 @@ public class IntakeRoller extends SubsystemBase {
                 .withSensorToMechanismRatio(gearRatio);
 
         motorConfig.Slot0
-                .withKP(0.0)
+                .withKP(0.16454)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(0.0)
-                .withKV(0.0)
-                .withKA(0.0);
+                .withKS(0.21962)
+                .withKV(0.16367)
+                .withKA(0.019017);
 
         motorConfig.Slot2
                 .withKP(0.0)
@@ -163,6 +166,11 @@ public class IntakeRoller extends SubsystemBase {
     @AutoLogOutput
     public AngularVelocity getVelocity() {
         return motor.getVelocity().getValue();
+    }
+
+    @AutoLogOutput
+    public Angle getPosition(){
+        return motor.getPosition().getValue();
     }
 
     /**
@@ -216,13 +224,13 @@ public class IntakeRoller extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         // SmartDashboard.putNumber("Intake RPM", getVelocity().in(Rotations.per(Minute)));
     
-        motorConfig.Slot2
-        .withKP(intakeRollerTest.getkP())
-        .withKI(intakeRollerTest.getkI())
-        .withKD(intakeRollerTest.getkD())
-        .withKS(intakeRollerTest.getkS())
-        .withKV(intakeRollerTest.getkV())
-        .withKA(intakeRollerTest.getkA());
+        // motorConfig.Slot2
+        // .withKP(intakeRollerTest.getkP())
+        // .withKI(intakeRollerTest.getkI())
+        // .withKD(intakeRollerTest.getkD())
+        // .withKS(intakeRollerTest.getkS())
+        // .withKV(intakeRollerTest.getkV())
+        // .withKA(intakeRollerTest.getkA());
         //motor.getConfigurator().refresh(motorConfig);
     }
 
