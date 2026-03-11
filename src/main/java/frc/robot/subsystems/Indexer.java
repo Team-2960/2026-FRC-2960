@@ -114,6 +114,7 @@ public class Indexer extends SubsystemBase {
                 .withKA(0.0);
 
         motor.getConfigurator().apply(motorConfig);
+        
     }
 
     /**

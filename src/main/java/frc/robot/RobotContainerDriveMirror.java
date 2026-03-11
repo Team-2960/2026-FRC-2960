@@ -120,7 +120,7 @@ public class RobotContainerDriveMirror {
         configureBindings();
 
         // Initialize drivetrain telemetry
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
     }
 
     /**
@@ -168,7 +168,8 @@ public class RobotContainerDriveMirror {
         operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(0), Degrees.of(110), Seconds.of(0.5)));
         //operatorCtrl.y().onTrue(intakeAngle.setVoltageCmd(Volts.zero()));
 
-        operatorCtrl.povUp().onTrue(intakeRollerSysId);
+        //operatorCtrl.povUp().onTrue(intakeRollerSysId);
+        operatorCtrl.rightTrigger(0.1).whileTrue(intakeRoller.setVelocityCmd(Rotations.per(Minute).of(4380)));
     }
 
     /**
