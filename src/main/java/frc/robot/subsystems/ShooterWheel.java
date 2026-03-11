@@ -206,7 +206,7 @@ public class ShooterWheel extends SubsystemBase {
 
         motorLeader.getConfigurator().apply(motorConfig);
 
-        motorLeader.getConfigurator().apply(motorConfig);
+        motorFollower.getConfigurator().apply(motorConfig);
         motorFollower.setControl(new Follower(motorLeaderID, MotorAlignmentValue.Opposed));
 
         motorLeader.getConfigurator().apply(new AudioConfigs().withAllowMusicDurDisable(true));
