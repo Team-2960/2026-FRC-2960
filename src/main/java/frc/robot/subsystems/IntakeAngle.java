@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -15,6 +16,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
@@ -34,6 +36,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -91,8 +94,11 @@ public class IntakeAngle extends SubsystemBase {
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
     private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0).withAcceleration(RotationsPerSecondPerSecond.of(10));
     private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0);
-    private final IntakeAngleTest intakeAngleTest = new IntakeAngleTest();
+    //private final IntakeAngleTest intakeAngleTest = new IntakeAngleTest();
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+    //SmartDashboard Signals
+    StatusSignal<Angle> motorPositionSignal;
 
     // SysId
     private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
@@ -149,6 +155,14 @@ public class IntakeAngle extends SubsystemBase {
 
 
         motor.getConfigurator().apply(motorConfig);
+
+        signalsConfig();
+    }
+
+    public void signalsConfig(){
+        motorPositionSignal = motor.getPosition();
+        motorPositionSignal.setUpdateFrequency(Hertz.of(5));
+
     }
 
     /**
@@ -254,12 +268,24 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command setOscilateCmd(Angle amplitude, Angle referencePos, Time period){
-        return setPositionCmd(referencePos.plus(amplitude))
+        return Commands.sequence(
+            setPositionCmd(referencePos.plus(amplitude))
+            .withTimeout(period),
+
+            setPositionCmd(referencePos.minus(amplitude))
             .withTimeout(period)
-            .andThen(
-                setPositionCmd(referencePos.minus(amplitude))
-            ).withTimeout(period)
-            .repeatedly();
+        ).repeatedly();      
+    }
+
+    public Command setOscilateLimitsCmd(Angle minAngle, Angle maxAngle, Time period){
+        return Commands.sequence(
+            setPositionCmd(maxAngle)
+            .withTimeout(period),
+
+            setPositionCmd(minAngle)
+            .withTimeout(period)
+        ).repeatedly();
+            
     }
 
     /**
@@ -313,16 +339,18 @@ public class IntakeAngle extends SubsystemBase {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         // SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
         // SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
-        SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
-        SmartDashboard.putData("Intake Angle Tuning", intakeAngleTest);
+        //SmartDashboard.putData("Intake Angle Tuning", intakeAngleTest);
 
-        motorConfig.Slot2
-        .withKP(intakeAngleTest.getkP())
-        .withKI(intakeAngleTest.getkI())
-        .withKD(intakeAngleTest.getkD())
-        .withKS(intakeAngleTest.getkS())
-        .withKV(intakeAngleTest.getkV())
-        .withKA(intakeAngleTest.getkA());
+        // SmartDashboard.putNumber("Intake Angle", motorPositionSignal.getValue().in(Degrees));
+
+
+        // motorConfig.Slot2
+        // .withKP(intakeAngleTest.getkP())
+        // .withKI(intakeAngleTest.getkI())
+        // .withKD(intakeAngleTest.getkD())
+        // .withKS(intakeAngleTest.getkS())
+        // .withKV(intakeAngleTest.getkV())
+        // .withKA(intakeAngleTest.getkA());
     }
 
     @AutoLogOutput

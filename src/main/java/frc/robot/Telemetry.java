@@ -85,15 +85,18 @@ public class Telemetry {
     private final double[] m_poseArray = new double[3];
 
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger. */
-    public void telemeterize(SwerveDriveState state) {
-        /* Telemeterize the swerve drive state */
-        drivePose.set(state.Pose);
-        driveSpeeds.set(state.Speeds);
-        driveModuleStates.set(state.ModuleStates);
-        driveModuleTargets.set(state.ModuleTargets);
-        driveModulePositions.set(state.ModulePositions);
-        driveTimestamp.set(state.Timestamp);
-        driveOdometryFrequency.set(1.0 / state.OdometryPeriod);
+    public void telemeterize(SwerveDriveState state, boolean enableTelemetry) {
+
+        if (enableTelemetry){
+            /* Telemeterize the swerve drive state */
+            drivePose.set(state.Pose);
+            driveSpeeds.set(state.Speeds);
+            driveModuleStates.set(state.ModuleStates);
+            driveModuleTargets.set(state.ModuleTargets);
+            driveModulePositions.set(state.ModulePositions);
+            driveTimestamp.set(state.Timestamp);
+            driveOdometryFrequency.set(1.0 / state.OdometryPeriod);
+        }
 
         /* Also write to log file */
         SignalLogger.writeStruct("DriveState/Pose", Pose2d.struct, state.Pose);

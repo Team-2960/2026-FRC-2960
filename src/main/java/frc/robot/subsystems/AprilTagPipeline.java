@@ -113,15 +113,15 @@ public class AprilTagPipeline extends SubsystemBase {
         field = settings.field_layout;
 
         // Setup Shuffleboard
-        var layout = Shuffleboard.getTab("AprilTags")
-                .getLayout(cameraName, BuiltInLayouts.kList)
-                .withSize(1, 4);
-        sb_PoseX = layout.add("Pose X" + cameraName, 0).getEntry();
-        sb_PoseY = layout.add("Pose Y" + cameraName, 0).getEntry();
-        sb_PoseR = layout.add("Pose R" + cameraName, 0).getEntry();
-        sb_lastTimestamp = layout.add("Last Timestamp" + cameraName, last_timestamp).getEntry();
-        sb_lastUpdatePeriod = layout.add("Time Since Last Update" + cameraName, 0).getEntry();
-        sb_aprilTagSeen = layout.add(cameraName + "April Tag Read", false).getEntry();
+        // var layout = Shuffleboard.getTab("AprilTags")
+        //         .getLayout(cameraName, BuiltInLayouts.kList)
+        //         .withSize(1, 4);
+        // sb_PoseX = layout.add("Pose X" + cameraName, 0).getEntry();
+        // sb_PoseY = layout.add("Pose Y" + cameraName, 0).getEntry();
+        // sb_PoseR = layout.add("Pose R" + cameraName, 0).getEntry();
+        // sb_lastTimestamp = layout.add("Last Timestamp" + cameraName, last_timestamp).getEntry();
+        // sb_lastUpdatePeriod = layout.add("Time Since Last Update" + cameraName, 0).getEntry();
+        // sb_aprilTagSeen = layout.add(cameraName + "April Tag Read", false).getEntry();
 
         //Advantage Scope
         as_aprilTags = NetworkTableInstance.getDefault()
@@ -172,7 +172,7 @@ public class AprilTagPipeline extends SubsystemBase {
         for (var change : unreadResults) {
             List<PhotonTrackedTarget> visionEst = change.getTargets();
             int iteration = 0;
-            last_pose = new Pose2d();
+            last_pose = Pose2d.kZero;
             // Check if a pose was estimated
             if (!visionEst.isEmpty()) {
                 double est_timestamp = change.getTimestampSeconds();
@@ -211,7 +211,7 @@ public class AprilTagPipeline extends SubsystemBase {
     }
 
     private void updatePoseTest(){
-        last_pose = new Pose2d();
+        last_pose = Pose2d.kZero;
         aprilTagList = new Pose3d[0];
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
         for (var result : camera.getAllUnreadResults()) {

@@ -62,20 +62,20 @@ public class RobotContainerDriveMirror {
     // Triggers
     private Trigger testMode = new Trigger(DriverStation::isTest);
 
-    // // Cameras
-//     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
-//             drivetrain,
-//             Constants.leftCameraSettings,
-//             "LeftCamera",
-//             "LeftCamera");
-//     private final AprilTagPipeline rightCamera = new AprilTagPipeline(
-//             drivetrain,
-//             Constants.rightCameraSettings,
-//             "RightCamera",
-//             "RightCamera");
+    // Cameras
+    private final AprilTagPipeline leftCamera = new AprilTagPipeline(
+            drivetrain,
+            Constants.leftCameraSettings,
+            "LeftCamera",
+            "LeftCamera");
+    private final AprilTagPipeline rightCamera = new AprilTagPipeline(
+            drivetrain,
+            Constants.rightCameraSettings,
+            "RightCamera",
+            "RightCamera");
 
-//     @SuppressWarnings("unused")
-//     private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
+    @SuppressWarnings("unused")
+    private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
 
 
     // Standard Suppliers
@@ -120,8 +120,7 @@ public class RobotContainerDriveMirror {
         configureBindings();
 
         // Initialize drivetrain telemetry
-        drivetrain.registerTelemetry(logger::telemeterize);
-
+        drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
     }
 
     /**
@@ -158,15 +157,24 @@ public class RobotContainerDriveMirror {
                 .andThen(intakeAngle.sysIdDynamicLimited(Direction.kReverse))
                 .andThen(intakeAngle.sysIdDynamicLimited(Direction.kForward));
 
+        Command intakeRollerSysId = 
+                intakeRoller.sysIdQuasistatic(Direction.kReverse)
+                .andThen(intakeRoller.sysIdQuasistatic(Direction.kForward))
+                .andThen(intakeRoller.sysIdDynamic(Direction.kReverse))
+                .andThen(intakeRoller.sysIdDynamic(Direction.kForward));
+
         operatorCtrl.leftTrigger(0.1).whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
         //operatorCtrl.a().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
         // operatorCtrl.b().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
         // operatorCtrl.x().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
         operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(140)));
         operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
+        // operatorCtrl.y().onTrue(intakeAngle.setOscilateCmd(Degrees.of(50), Degrees.of(60), Seconds.of(1)));
+        operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(0), Degrees.of(110), Seconds.of(0.5)));
         //operatorCtrl.y().onTrue(intakeAngle.setVoltageCmd(Volts.zero()));
 
-        //operatorCtrl.povUp().onTrue(intakeAngleSysId);
+        //operatorCtrl.povUp().onTrue(intakeRollerSysId);
+        operatorCtrl.rightTrigger(0.1).whileTrue(intakeRoller.setVelocityCmd(Rotations.per(Minute).of(4380)));
     }
 
     /**

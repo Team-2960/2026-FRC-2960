@@ -145,7 +145,7 @@ public class RobotContainer {
         configureBindings();
 
         // Initialize drivetrain telemetry
-        drivetrain.registerTelemetry(logger::telemeterize);
+        drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
         DriverStation.silenceJoystickConnectionWarning(true);
 
     }
