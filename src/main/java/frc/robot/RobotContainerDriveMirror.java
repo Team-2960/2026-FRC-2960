@@ -121,6 +121,7 @@ public class RobotContainerDriveMirror {
 
         // Initialize drivetrain telemetry
         drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
+        DriverStation.silenceJoystickConnectionWarning(true);
     }
 
     /**
