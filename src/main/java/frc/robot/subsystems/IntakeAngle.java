@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -10,6 +12,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -34,6 +37,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -100,6 +104,9 @@ public class IntakeAngle extends SubsystemBase {
     //SmartDashboard Signals
     StatusSignal<Angle> motorPositionSignal;
 
+    //Timers
+    private Timer intakeAngleTimer = new Timer();
+
     // SysId
     private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(Volts.of(0.5).per(Second),
@@ -162,7 +169,6 @@ public class IntakeAngle extends SubsystemBase {
     public void signalsConfig(){
         motorPositionSignal = motor.getPosition();
         motorPositionSignal.setUpdateFrequency(Hertz.of(5));
-
     }
 
     /**
@@ -287,6 +293,33 @@ public class IntakeAngle extends SubsystemBase {
         ).repeatedly();
             
     }
+
+    public Command setOscilateProgressionCmd(Angle amplitude, Time period){
+        return Commands.sequence(
+            setOscilateCmd(amplitude, Degrees.of(20), period)
+                .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(10))),
+
+            setOscilateCmd(amplitude, Degrees.of(40), period)
+                .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(5))),
+            
+            setOscilateCmd(amplitude, Degrees.of(60), period)
+                .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3)))
+        );
+    }
+
+    public Command setOscilateProgressionTestCmd(Angle amplitude, Time period, DoubleSupplier testValue){
+        return Commands.sequence(
+            setOscilateCmd(amplitude, Degrees.of(20), period)
+                .onlyWhile(() -> testValue.getAsDouble() >= 10),
+
+            setOscilateCmd(amplitude, Degrees.of(40), period)
+                .onlyWhile(() -> testValue.getAsDouble() >= 5),
+            
+            setOscilateCmd(amplitude, Degrees.of(60), period)
+                .onlyWhile(() -> testValue.getAsDouble() >= 2)
+        );
+    }
+
 
     /**
      * Create a Quasistatic SysId command

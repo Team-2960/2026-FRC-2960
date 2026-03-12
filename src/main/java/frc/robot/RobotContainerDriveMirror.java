@@ -129,7 +129,6 @@ public class RobotContainerDriveMirror {
      */
     private void initPathPlanner() {
         // Initialize Auton chooser
-        
         NamedCommands.registerCommand("IntakeRollerIN Command", intakeRoller.setVoltageCmd(Constants.intakeInVolt));
         NamedCommands.registerCommand("IntakePivOut Command", intakeAngle.setPositionCmd(Degrees.of(0)));
         NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.setPositionCmd(Degrees.of(140)));
@@ -176,6 +175,8 @@ public class RobotContainerDriveMirror {
 
         //operatorCtrl.povUp().onTrue(intakeRollerSysId);
         operatorCtrl.rightTrigger(0.1).whileTrue(intakeRoller.setVelocityCmd(Rotations.per(Minute).of(4380)));
+
+        operatorCtrl.axisGreaterThan(0, 0.1).whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
     }
 
     /**

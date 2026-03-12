@@ -56,6 +56,10 @@ public class Constants {
     public static final int IntakeMotorID = 19;
     public static final int IndexMotorID = 41;
 
+    //Other CAN IDs
+    public static final int leftLaserCanID = 20;
+    public static final int rightLaserCanID = 21;
+
     // Shooter Constants
     public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
     public static final Distance shootingDistance = Inches.of(92);
