@@ -609,7 +609,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         .withVelocityX(xVel.get())
                         .withVelocityY(yVel.get())
                         .withTargetDirection(
-                                getPose2d().getTranslation().minus(target).getAngle().plus(offset)));
+                                getPose2d().getTranslation().minus(target).getAngle().plus(offset)))
+            .withName("Look at Point Command");
     }
 
     public Command travelSetSpeedCmd(Supplier<LinearVelocity> xVel, Supplier<LinearVelocity> yVel, Rotation2d targetAngle){
@@ -618,7 +619,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withVelocityX(xVel.get())
                 .withVelocityY(yVel.get())
                 .withTargetDirection(targetAngle)
-        );
+        ).withName("Travel Set Speed Command");
     }
 
     /**
@@ -645,7 +646,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withRotationalOffset(offset)
             .withRadius(radius)
         )
-        .finallyDo(() -> applyRequest(() -> idleRequest));
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Hub Orbit Command");
     }
 
     public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Translation2d PosOffset){
@@ -653,7 +655,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withTargetPoint(FieldLayout.Tower.getTowerCenter().plus(PosOffset))
             .withRotationalOffset(offset)
         )
-        .finallyDo(() -> applyRequest(() -> idleRequest));
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Tower Align Command");
     }
     
     public Command hubOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius){
@@ -665,7 +668,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withMinRadius(minRadius)
             .withRadiusVelocity(radialVelocity.get())
         )
-        .finallyDo(() -> applyRequest(() -> idleRequest));
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Hub Orbit Restricted Radius Command");
     }
 
     public Command xAxisAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation, Translation2d coordinate){
@@ -675,7 +679,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withXAxisCoordinate(coordinate)
             .withUpdateTargetPose(null)
             )
-            .finallyDo(() -> applyRequest(() -> idleRequest));
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("X-Axis Align Command");
     }
 
     public Command yAxisAlignCmd(Supplier<LinearVelocity> travelVelY, Rotation2d targetRotation, Translation2d coordinate){
@@ -684,7 +689,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withTargetDirection(targetRotation)
             .withYAxisCoordinate(coordinate)
             )
-            .finallyDo(() -> applyRequest(() -> idleRequest));
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Y-Axis Align Command");
     }
     /** */
     public void initialRotationHelper(Rotation2d rotation){
@@ -699,7 +705,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             // .withYAxisCoordinate(coordinate)
             .withUpdateTargetTranslation(() -> FieldLayout.Hub.getHubBackAlign(getPose2d()))
             )
-            .finallyDo(() -> applyRequest(() -> idleRequest));
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Hub Back Align Command");
     }
     
     public Command trenchAlignCmd(Supplier<LinearVelocity> travelVelX){
@@ -707,7 +714,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withTravelVelocity(travelVelX.get())
             .withUpdateTargetPose(() -> FieldLayout.Trench.getNearestAllianceTrench(getPose2d()))
             )
-            .finallyDo(() -> applyRequest(() -> idleRequest));
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Trench Align Command");
     }
 
     public Command trenchPathAlignCmd(Translation2d targetPose){
