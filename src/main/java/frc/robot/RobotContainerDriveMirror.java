@@ -131,7 +131,8 @@ public class RobotContainerDriveMirror {
         // Initialize Auton chooser
         NamedCommands.registerCommand("IntakeRollerIN Command", intakeRoller.setVoltageCmd(Constants.intakeInVolt));
         NamedCommands.registerCommand("IntakePivOut Command", intakeAngle.setPositionCmd(Degrees.of(0)));
-        NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.setPositionCmd(Degrees.of(140)));
+        NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.setPositionCmd(Degrees.of(130)));
+        NamedCommands.registerCommand("IntakePivShake Command", intakeAngle.setOscilateLimitsCmd(Degrees.of(30), Degrees.of(75),Seconds.of(0.5)));
         NamedCommands.registerCommand("ClimberDeploy Command", intakeAngle.setPositionCmd(Degrees.of(140)));
         NamedCommands.registerCommand("ClimberRetract Command", intakeAngle.setPositionCmd(Degrees.of(140)));
         NamedCommands.registerCommand("LeftTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40))));

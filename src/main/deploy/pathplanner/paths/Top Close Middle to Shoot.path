@@ -44,7 +44,16 @@
       "linkedName": "TopShootPoint"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0205066344993965,
+      "rotationDegrees": -45.0
+    },
+    {
+      "waypointRelativePos": 1.5488540410132674,
+      "rotationDegrees": -45.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],

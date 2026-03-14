@@ -214,7 +214,7 @@ public class ShooterWheel extends SubsystemBase {
 
         orchestra.addInstrument(motorLeader);
         orchestra.addInstrument(motorFollower);
-        orchestra.loadMusic("cry_for_me_ironmouse2.chrp");
+        orchestra.loadMusic("washingMachine.chrp");
         // orchestra.play();
         
         // Setup Shooter Testing
