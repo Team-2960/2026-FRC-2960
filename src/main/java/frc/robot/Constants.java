@@ -96,18 +96,18 @@ public class Constants {
 
     // Camera Constants
     public static final Transform3d leftCameraOffsets = new Transform3d(
-        Inches.of(-23.5/2).plus(Millimeters.of(37.492)), 
-        Inches.of(30/2).minus(Millimeters.of(55.321)), 
-        Inches.of(5.375), 
-        new Rotation3d(0, Math.toRadians(-30), Math.toRadians(-135))
+        Inches.of(-11.274), 
+        Inches.of(13.476), 
+        Inches.of(7.553), 
+        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(-130))
     );
 
     public static final Transform3d rightCameraOffsets = new Transform3d(
-        Inches.of(-23.5/2).plus(Millimeters.of(37.492)), 
-        Inches.of(-30/2).plus(Millimeters.of(55.321)), 
-        Inches.of(5.375), 
+         Inches.of(-11.274), 
+        Inches.of(-13.476), 
+        Inches.of(7.553), 
         //new Rotation3d(37.8, 37.8, -45)
-        new Rotation3d(0, Math.toRadians(-30), Math.toRadians(135))
+        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(130))
     );
 
     public static final Vector<N3> singleStds = VecBuilder.fill(4, 4, 16);
