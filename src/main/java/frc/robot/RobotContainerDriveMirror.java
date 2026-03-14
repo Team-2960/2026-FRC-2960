@@ -164,21 +164,23 @@ public class RobotContainerDriveMirror {
                 .andThen(intakeRoller.sysIdDynamic(Direction.kForward));
 
         operatorCtrl.leftBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
+
         operatorCtrl.rightBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
-        //operatorCtrl.a().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
+
         operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
+
         operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
+
         operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
+
         operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(130)));
-        // operatorCtrl.y().onTrue(intakeAngle.setOscilateCmd(Degrees.of(50), Degrees.of(60), Seconds.of(1)));
+
         operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(60), Degrees.of(110), Seconds.of(0.5)));
+
         operatorCtrl.a().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(20), Degrees.of(60), Seconds.of(0.5)));
-        //operatorCtrl.y().onTrue(intakeAngle.setVoltageCmd(Volts.zero()));
 
-        //operatorCtrl.povUp().onTrue(intakeRollerSysId);
-        //operatorCtrl.rightTrigger(0.1).whileTrue(intakeRoller.setVelocityCmd(Rotations.per(Minute).of(4380)));
-
-        operatorCtrl.axisGreaterThan(0, 0.1).whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
+        //operatorCtrl.axisGreaterThan(0, 0.1)
+        // .whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
     }
 
     /**
@@ -224,7 +226,6 @@ public class RobotContainerDriveMirror {
         //                 fullYVelCtrl, Rotation2d.fromDegrees(90), 
         //                 offsetBackHub));
 
-
         driverCtrl.x().whileTrue(
                 Commands.runOnce(
                         () -> drivetrain.initialRotationHelper(FieldLayout.getInwardAngle(drivetrain.getPose2d())), 
@@ -239,10 +240,6 @@ public class RobotContainerDriveMirror {
         driverCtrl.y().whileTrue(
                 drivetrain.trenchAlignCmd(fullXVelCtrl)
         );
-
-        // driverCtrl.y().onTrue(
-        //         drivetrain.trenchPathAlignCmd(FieldLayout.Trench.blueTrenchLeft)
-        // );
 
         driverCtrl.leftTrigger(.1).whileTrue(
                 drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
