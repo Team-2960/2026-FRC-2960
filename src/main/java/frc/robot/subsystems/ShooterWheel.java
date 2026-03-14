@@ -173,7 +173,7 @@ public class ShooterWheel extends SubsystemBase {
         motorFollower = new TalonFX(motorFollowerID, bus);
 
         motorConfig.MotorOutput
-                .withNeutralMode(NeutralModeValue.Brake);
+                .withNeutralMode(NeutralModeValue.Coast);
 
         motorConfig.Feedback
                 .withSensorToMechanismRatio(gearRatio);
