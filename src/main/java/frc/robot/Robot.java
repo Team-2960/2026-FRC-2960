@@ -20,7 +20,7 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
     //private final RobotContainer m_robotContainer;
-    private final RobotContainerDriveMirror robotContainer;
+    private final RobotContainer robotContainer;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -43,7 +43,7 @@ public class Robot extends LoggedRobot {
 
         //Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
 
-        robotContainer = new RobotContainerDriveMirror();
+        robotContainer = new RobotContainer();
     }
 
     @Override

@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.FieldLayout;
 
 public class ShooterHood extends SubsystemBase {
@@ -122,7 +123,7 @@ public class ShooterHood extends SubsystemBase {
                 .withNeutralMode(NeutralModeValue.Brake);
 
         motorConfig.Feedback
-                .withSensorToMechanismRatio(1)
+                .withSensorToMechanismRatio(25.0)
                 .withRemoteCANcoder(encoder)
                 .withRotorToSensorRatio(gearRatio)
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
@@ -319,6 +320,26 @@ public class ShooterHood extends SubsystemBase {
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysIdRoutime.dynamic(direction);
+    }
+
+    public Command sysIdQuasistaticLimited(SysIdRoutine.Direction direction) {
+        if (direction.equals(Direction.kForward)){
+            return sysIdRoutime.quasistatic(direction)
+                .until(() -> getPosition().lte((Degrees.of(0))));//EDIT
+        }else{
+            return sysIdRoutime.quasistatic(direction)
+                .until(() -> getPosition().gte((Degrees.of(0))));//EDIT
+        }
+    }
+
+    public Command sysIdDynamicLimited(SysIdRoutine.Direction direction) {
+        if (direction.equals(Direction.kForward)){
+            return sysIdRoutime.dynamic(direction)
+                .until(() -> getPosition().lte(Degrees.of(0)));//EDIT
+        }else{
+            return sysIdRoutime.dynamic(direction)
+                .until(() -> getPosition().gte(Degrees.of(0)));//EDIT
+        }
     }
 
     /**
