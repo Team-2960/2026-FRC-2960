@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutLinearVelocity;
@@ -53,11 +54,11 @@ public class RobotContainer {
 
     // Physical Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final IntakeAngle intakeAngle = new IntakeAngle(14, 16, TunerConstants.kCANBus, 50);
-    private final IntakeRoller intakeRoller = new IntakeRoller(19, TunerConstants.kCANBus, 24.0/18.0);
+    private final IntakeAngle intakeAngle = new IntakeAngle(Constants.intakeAngleID, Constants.intakeAngleEncoderID, TunerConstants.kCANBus, 50);
+    private final IntakeRoller intakeRoller = new IntakeRoller(Constants.intakeMotorID, TunerConstants.kCANBus, 24.0/18.0);
     private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, .2, drivetrain);
-    private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID, Constants.shooterMotorFollowerID, TunerConstants.kCANBus, 1, drivetrain);
-    private final ShooterHood shooterHood = new ShooterHood(999, 0, TunerConstants.kCANBus, 25.0, drivetrain);
+    private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID, Constants.shooterMotorFollowerID, TunerConstants.kCANBus, 20.0/12.0, drivetrain);
+    private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor, Constants.shooterHoodEncoderID, TunerConstants.kCANBus, 29.3333333, drivetrain);
     private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer,shooterWheel,null);
     //private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
 
@@ -90,11 +91,11 @@ public class RobotContainer {
 
     // Standard Suppliers
     private Supplier<LinearVelocity> fullXVelCtrl = () -> xVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftY(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftY(), 0.0));
     private Supplier<LinearVelocity> fullYVelCtrl = () -> yVel.mut_replace(Constants.maxLinVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftX(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftX(), 0.0));
     private Supplier<AngularVelocity> fullRVelCtrl = () -> rVel.mut_replace(Constants.maxAngVel)
-            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getRightX(), 0.02));
+            .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getRightX(), 0.0));
 
     private Supplier<LinearVelocity> slowXVelCtrl = () -> xVel.mut_replace(Constants.slowdownLinVel)
             .mut_times(-driverCtrl.getHID().getLeftY());
@@ -194,7 +195,7 @@ public class RobotContainer {
 
         operatorCtrl.leftBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
 
-        operatorCtrl.rightBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
+        //operatorCtrl.rightBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
 
         operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
 
@@ -202,9 +203,9 @@ public class RobotContainer {
 
         operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
 
-        operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(130)));
+        operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(110)));
 
-        operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(60), Degrees.of(110), Seconds.of(0.5)));
+        operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(60), Degrees.of(90), Seconds.of(0.5)));
 
         operatorCtrl.a().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(20), Degrees.of(60), Seconds.of(0.5)));
 
@@ -212,30 +213,39 @@ public class RobotContainer {
 
         //operatorCtrl.axisGreaterThan(0, 0.1)
         // .whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
+        operatorCtrl.rightTrigger(.1).whileTrue(indexer.setVoltageCmd(Volts.of(6)));
+        operatorCtrl.rightBumper().whileTrue(indexer.setVoltageCmd(Volts.of(-6)));
     }
-
-        private void shooterBindings(){
+    
+    private void shooterBindings(){
         Command shooterHoodSysId = 
-                shooterHood.sysIdQuasistaticLimited(Direction.kReverse)
-                .andThen(shooterHood.sysIdQuasistaticLimited(Direction.kForward))
-                .andThen(shooterHood.sysIdDynamicLimited(Direction.kReverse))
-                .andThen(shooterHood.sysIdDynamicLimited(Direction.kForward));
+                shooterHood.sysIdQuasistaticLimited(Direction.kForward)
+                .andThen(shooterHood.sysIdQuasistaticLimited(Direction.kReverse))
+                .andThen(shooterHood.sysIdDynamicLimited(Direction.kForward))
+                .andThen(shooterHood.sysIdDynamicLimited(Direction.kReverse));
 
         Command shooterWheelSysId = 
-                shooterWheel.sysIdQuasistatic(Direction.kReverse)
-                .andThen(shooterWheel.sysIdQuasistatic(Direction.kForward))
-                .andThen(shooterWheel.sysIdDynamic(Direction.kReverse))
-                .andThen(shooterWheel.sysIdDynamic(Direction.kForward));
+                shooterWheel.sysIdQuasistatic(Direction.kForward)
+                .andThen(shooterWheel.sysIdQuasistatic(Direction.kReverse))
+                .andThen(shooterWheel.sysIdDynamic(Direction.kForward))
+                .andThen(shooterWheel.sysIdDynamic(Direction.kReverse));
 
         //TEST CONTROLS
 
-        operatorCtrl.back().onTrue(shooterHoodSysId);
+        // operatorCtrl.back().onTrue(shooterHoodSysId);
         
-        operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
-        //operatorCtrl.rightBumper().whileTrue(shooter.setTorqueVelocityTestCmd(() -> RotationsPerSecond.of(60)));
-        operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
-        operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
-        operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        //operatorCtrl.rightTrigger(0.1).whileTrue(shooterWheel.setVoltageCmd(Volts.of(2)));
+        operatorCtrl.rightTrigger(.1).whileTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(1600)));
+        //operatorCtrl.povLeft().onTrue(shooterWheel.setCurrentCmd(() -> Amps.of(60 * operatorCtrl.getLeftY())));
+        // operatorCtrl.povLeft().onTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getLeftY())));
+        operatorCtrl.povLeft().onTrue(shooterHood.setPositionCmd(Degrees.of(70)));
+        operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(50)));
+        // operatorCtrl.povLeft().whileTrue(shooterHood.setVoltageCmd(Volts.of(2)));
+        // operatorCtrl.povRight().whileTrue(shooterHood.setVoltageCmd(Volts.of(-2)));
+        // //operatorCtrl.rightBumper().whileTrue(shooter.setTorqueVelocityTestCmd(() -> RotationsPerSecond.of(60)));
+        // operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
+        // operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
+        // operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
 
         // Test Bindings
         testMode.and(operatorCtrl.back()).whileTrue(shooterTestCmds.runCommandCmd());

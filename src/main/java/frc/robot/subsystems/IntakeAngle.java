@@ -33,6 +33,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -364,7 +365,7 @@ public class IntakeAngle extends SubsystemBase {
     @Override
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
-        // SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
+        SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
         // SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
         //SmartDashboard.putData("Intake Angle Tuning", intakeAngleTest);
 

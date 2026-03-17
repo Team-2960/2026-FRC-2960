@@ -1,14 +1,18 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
@@ -25,6 +29,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -149,7 +154,17 @@ public class ShooterWheel extends SubsystemBase {
                     null,
                     this));
 
-    private SysIdRoutine currentSysIdRoutine = sysIdRoutine3;
+    private final SysIdRoutine sysIdRoutine4 = new SysIdRoutine(
+            new SysIdRoutine.Config(Volts.of(5).per(Second),
+                    Volts.of(20),
+                    Seconds.of(5),
+                    (state) -> Logger.recordOutput("ShooterWheel", state.toString())),
+            new SysIdRoutine.Mechanism(
+                    (volts) -> setCurrent(Amps.of(volts.in(Volts))),
+                    null,
+                    this));
+
+    private SysIdRoutine currentSysIdRoutine = sysIdRoutine4;
 
     /**
      * Constructor
@@ -166,6 +181,7 @@ public class ShooterWheel extends SubsystemBase {
         // Initialize Motors
         motorLeader = new TalonFX(motorLeaderID, bus);
         motorFollower = new TalonFX(motorFollowerID, bus);
+        
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Coast);
@@ -184,11 +200,11 @@ public class ShooterWheel extends SubsystemBase {
                 .withKA(0.0067811);
 
         motorConfig.Slot1
-                .withKP(12)
+                .withKP(12.0)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(8)
-                .withKV(0)
+                .withKS(1.5)
+                .withKV(0.8)
                 .withKA(0);
 
         motorConfig.Slot2
@@ -266,6 +282,11 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     @AutoLogOutput
+    public Angle getPosition(){
+        return motorLeader.getPosition().getValue();
+    }
+
+    @AutoLogOutput
     public double getRPM() {
         double rpm = motorLeader.getVelocity().getValue().in(Rotations.per(Minute));
         SignalLogger.writeDouble("ShooterWheel RPM", rpm);
@@ -315,6 +336,10 @@ public class ShooterWheel extends SubsystemBase {
     public void setVoltage(Voltage volts) {
         motorLeader.setControl(voltCtrl.withOutput(volts));
     }
+
+    public void setCurrent(Current amps) {
+        motorLeader.setControl(currentCtrl.withOutput(amps));
+    }
     
 
     /**
@@ -358,6 +383,18 @@ public class ShooterWheel extends SubsystemBase {
         return this.runEnd(
                 () -> setVoltage(input),
                 () -> setVoltage(Volts.zero()));
+    }
+
+    public Command setCurrentCmd(Current amps) {
+        return this.runEnd(
+            () -> setCurrent(amps), 
+            () -> setVoltage(Volts.zero()));
+    }
+
+    public Command setCurrentCmd(Supplier<Current> amps) {
+        return this.runEnd(
+            () -> setCurrent(amps.get()), 
+            () -> setVoltage(Volts.zero()));
     }
 
     /**

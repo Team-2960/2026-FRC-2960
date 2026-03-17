@@ -77,7 +77,7 @@ public class ShooterManagement {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
                 //shooterHood.hubShotCmd(),
-                indexer.autoIndexCmd(this:: isShooterReady));
+                indexer.autoIndexCmd(this::isShooterReady));
     }
 
     /**

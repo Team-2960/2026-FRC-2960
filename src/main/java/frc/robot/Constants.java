@@ -51,11 +51,14 @@ public class Constants {
     public static final CANBus canivoreBus = new CANBus("canivore");
 
     // Motor IDs
-    public static final int shooterMotorLeaderID = 31;
-    public static final int shooterMotorFollowerID = 32;
+    public static final int shooterMotorLeaderID = 20;
+    public static final int shooterMotorFollowerID = 23;
+    public static final int shooterHoodMotor = 18;
     public static final int intakeMotorID = 19;
     public static final int intakeAngleID = 14;
-    public static final int indexMotorID = 41;
+    public static final int indexMotorID = 22;
+    public static final int leftClimbMotorID = 17;
+    public static final int rightClimbMotorID = 15;
 
     //Other CAN IDs
     public static final int leftLaserCanID = 20;

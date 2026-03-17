@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
@@ -12,6 +14,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -20,6 +24,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.spark.config.EncoderConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
@@ -86,20 +92,23 @@ public class ShooterHood extends SubsystemBase {
     private final CANcoder encoder;
 
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    private MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0);
-    private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0);
+    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0)
+        .withAcceleration(Degrees.of(60).per(Second).per(Second));
+    private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0)
+        .withSlot(0);
 
     private final CommandSwerveDrivetrain drivetrain;
 
     // SysId
     private final SysIdRoutine sysIdRoutime = new SysIdRoutine(
             new SysIdRoutine.Config(null,
-                    Volts.of(4),
+                    Volts.of(2),
                     null,
-                    (state) -> Logger.recordOutput("state", state.toString())),
+                    (state) -> SignalLogger.writeString("state", state.toString())),
             new SysIdRoutine.Mechanism(
                     this::setVoltage,
                     null,
@@ -118,22 +127,24 @@ public class ShooterHood extends SubsystemBase {
         motor = new TalonFX(motorId, bus);
         encoder = new CANcoder(encoderId, bus);
 
+        encoderConfig.withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);
 
         motorConfig.Feedback
-                .withSensorToMechanismRatio(25.0)
-                .withRemoteCANcoder(encoder)
-                .withRotorToSensorRatio(gearRatio)
-                .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
+                //.withSensorToMechanismRatio(2.5)
+                .withSensorToMechanismRatio(gearRatio)
+                // .withRemoteCANcoder(encoder)
+                //.withRotorToSensorRatio(gearRatio);
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
         motorConfig.Slot0
                 .withKP(0.0)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(0.0)
-                .withKV(0.0)
+                .withKS(0.4)
+                .withKV(2)
                 .withKA(0.0);
 
         motorConfig.Slot2
@@ -144,9 +155,9 @@ public class ShooterHood extends SubsystemBase {
             .withKV(0.0)
             .withKA(0.0);
 
+        
         motor.getConfigurator().apply(motorConfig);
-
-
+        encoder.getConfigurator().apply(encoderConfig);
     }
 
     /**
@@ -233,7 +244,7 @@ public class ShooterHood extends SubsystemBase {
      * @param velocity target velocity
      */
     public void setPosition(Angle angle) {
-        motor.setControl(posCtrl.withPosition(angle));
+        motor.setControl(posCtrl.withPosition(angle).withSlot(0));
     }
 
     /**
@@ -245,6 +256,18 @@ public class ShooterHood extends SubsystemBase {
     public Command setVoltageCmd(Voltage target) {
         return this.runEnd(
                 () -> setVoltage(target),
+                () -> setVoltage(Volts.zero()));
+    }
+
+    /**
+     * Creates a new command to run the shooter hood at a set target voltage
+     * 
+     * @param target target voltage
+     * @return new command to run the shooter hood at a set target voltage
+     */
+    public Command setVoltageCmd(Supplier<Voltage> target) {
+        return this.runEnd(
+                () -> setVoltage(target.get()),
                 () -> setVoltage(Volts.zero()));
     }
 
@@ -323,22 +346,22 @@ public class ShooterHood extends SubsystemBase {
     }
 
     public Command sysIdQuasistaticLimited(SysIdRoutine.Direction direction) {
-        if (direction.equals(Direction.kForward)){
+        if (direction.equals(Direction.kReverse)){
             return sysIdRoutime.quasistatic(direction)
-                .until(() -> getPosition().lte((Degrees.of(0))));//EDIT
+                .until(() -> getPosition().lte((Degrees.of(52))));//TODO EDIT
         }else{
             return sysIdRoutime.quasistatic(direction)
-                .until(() -> getPosition().gte((Degrees.of(0))));//EDIT
+                .until(() -> getPosition().gte((Degrees.of(80))));//EDIT
         }
     }
 
     public Command sysIdDynamicLimited(SysIdRoutine.Direction direction) {
-        if (direction.equals(Direction.kForward)){
+        if (direction.equals(Direction.kReverse)){
             return sysIdRoutime.dynamic(direction)
-                .until(() -> getPosition().lte(Degrees.of(0)));//EDIT
+                .until(() -> getPosition().lte(Degrees.of(52)));//EDIT
         }else{
             return sysIdRoutime.dynamic(direction)
-                .until(() -> getPosition().gte(Degrees.of(0)));//EDIT
+                .until(() -> getPosition().gte(Degrees.of(80)));//EDIT
         }
     }
 
