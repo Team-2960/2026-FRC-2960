@@ -510,7 +510,7 @@ public class ShooterWheel extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        // SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
+        SmartDashboard.putNumber("Shooter RPM", getVelocity().in(Rotations.per(Minute)));
 
         if (DriverStation.isEnabled()) {
             orchestra.stop();

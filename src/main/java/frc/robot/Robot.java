@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,7 +30,7 @@ public class Robot extends LoggedRobot {
 
     public Robot() {
         Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
-
+        
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
@@ -42,6 +43,9 @@ public class Robot extends LoggedRobot {
         // }
 
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
+        CanBridge.runTCP();
+
 
         robotContainer = new RobotContainer();
     }

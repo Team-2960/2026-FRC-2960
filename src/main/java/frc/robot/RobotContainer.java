@@ -199,7 +199,7 @@ public class RobotContainer {
 
         operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
 
-        operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
+        //operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
 
         operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
 
@@ -207,14 +207,15 @@ public class RobotContainer {
 
         operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(60), Degrees.of(90), Seconds.of(0.5)));
 
-        operatorCtrl.a().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(20), Degrees.of(60), Seconds.of(0.5)));
+        operatorCtrl.a().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(20), Degrees.of(45), Seconds.of(0.25)));
 
         //TEST CONTROLS
 
         //operatorCtrl.axisGreaterThan(0, 0.1)
         // .whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
-        operatorCtrl.rightTrigger(.1).whileTrue(indexer.setVoltageCmd(Volts.of(6)));
-        operatorCtrl.rightBumper().whileTrue(indexer.setVoltageCmd(Volts.of(-6)));
+        //operatorCtrl.rightTrigger(.1).whileTrue(indexer.setVoltageCmd(Volts.of(6)));
+        operatorCtrl.povRight().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.povLeft().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
     }
     
     private void shooterBindings(){
@@ -232,23 +233,25 @@ public class RobotContainer {
 
         //TEST CONTROLS
 
-        // operatorCtrl.back().onTrue(shooterHoodSysId);
+        //operatorCtrl.back().onTrue(shooterHoodSysId);
         
         //operatorCtrl.rightTrigger(0.1).whileTrue(shooterWheel.setVoltageCmd(Volts.of(2)));
-        operatorCtrl.rightTrigger(.1).whileTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(1600)));
+        operatorCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
+        driverCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
         //operatorCtrl.povLeft().onTrue(shooterWheel.setCurrentCmd(() -> Amps.of(60 * operatorCtrl.getLeftY())));
         // operatorCtrl.povLeft().onTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getLeftY())));
-        operatorCtrl.povLeft().onTrue(shooterHood.setPositionCmd(Degrees.of(70)));
-        operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(50)));
+        //operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(-20)));
+        //operatorCtrl.povLeft().onTrue(shooterHood.setPositionCmd(Degrees.of(-40)));
+        //operatorCtrl.povDown().whileTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getRightY())));
         // operatorCtrl.povLeft().whileTrue(shooterHood.setVoltageCmd(Volts.of(2)));
         // operatorCtrl.povRight().whileTrue(shooterHood.setVoltageCmd(Volts.of(-2)));
         // //operatorCtrl.rightBumper().whileTrue(shooter.setTorqueVelocityTestCmd(() -> RotationsPerSecond.of(60)));
-        // operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
+        //operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
         // operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         // operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
 
         // Test Bindings
-        testMode.and(operatorCtrl.back()).whileTrue(shooterTestCmds.runCommandCmd());
+        operatorCtrl.back().whileTrue(shooterTestCmds.runCommandCmd()); //TODO take out after testing
     }
 
     /**
@@ -309,13 +312,13 @@ public class RobotContainer {
                 drivetrain.trenchAlignCmd(fullXVelCtrl)
         );
 
-        driverCtrl.leftTrigger(.1).whileTrue(
-                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
-        );
+        // driverCtrl.leftTrigger(.1).whileTrue(
+        //         drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
+        // );
 
-          driverCtrl.rightTrigger(.1).whileTrue(
-                drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15) ,Inches.of(40)))
-        );
+        //   driverCtrl.rightTrigger(.1).whileTrue(
+        //         drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15) ,Inches.of(40)))
+        // );
 
         // Pose Reset
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(

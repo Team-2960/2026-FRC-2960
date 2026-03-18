@@ -17,12 +17,15 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.config.EncoderConfig;
@@ -30,6 +33,7 @@ import com.revrobotics.spark.config.EncoderConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
@@ -101,14 +105,16 @@ public class ShooterHood extends SubsystemBase {
     private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0)
         .withSlot(0);
 
+    private final MotionMagicTorqueCurrentFOC posCtrl2 = new MotionMagicTorqueCurrentFOC(0)
+        .withSlot(1);
     private final CommandSwerveDrivetrain drivetrain;
 
     // SysId
     private final SysIdRoutine sysIdRoutime = new SysIdRoutine(
-            new SysIdRoutine.Config(null,
-                    Volts.of(2),
+            new SysIdRoutine.Config(Volts.of(0.25).per(Second),
+                    Volts.of(2.0),
                     null,
-                    (state) -> SignalLogger.writeString("state", state.toString())),
+                    (state) -> SignalLogger.writeString("Shooter Hood State", state.toString())),
             new SysIdRoutine.Mechanism(
                     this::setVoltage,
                     null,
@@ -140,12 +146,23 @@ public class ShooterHood extends SubsystemBase {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
         motorConfig.Slot0
-                .withKP(0.0)
+                .withKP(10.0)
                 .withKI(0.0)
-                .withKD(0.0)
-                .withKS(0.4)
-                .withKV(2)
-                .withKA(0.0);
+                .withKD(2.0)
+                .withKS(0.3)
+                .withKV(4)
+                .withKA(0.0)
+                .withKG(0.6);
+
+        motorConfig.Slot1
+            .withKP(2.0)
+            .withKI(0.0)
+            .withKD(0.0)
+            .withKS(12)
+            .withKV(0)
+            .withKA(0)
+            .withKG(5)
+            .withGravityType(GravityTypeValue.Arm_Cosine);
 
         motorConfig.Slot2
             .withKP(0.0)
@@ -155,8 +172,13 @@ public class ShooterHood extends SubsystemBase {
             .withKV(0.0)
             .withKA(0.0);
 
+        motorConfig.MotionMagic
+            .withMotionMagicCruiseVelocity(Degrees.of(120).per(Second))
+            .withMotionMagicAcceleration(Degrees.of(240).per(Second).per(Second))
+            .withMotionMagicJerk(Degrees.of(480).per(Second).per(Second).per(Second));
         
         motor.getConfigurator().apply(motorConfig);
+        motor.getConfigurator().setPosition(Degrees.of(-40));
         encoder.getConfigurator().apply(encoderConfig);
     }
 
@@ -168,6 +190,11 @@ public class ShooterHood extends SubsystemBase {
     @AutoLogOutput
     public Voltage getVoltage() {
         return motor.getMotorVoltage().getValue();
+    }
+
+    @AutoLogOutput
+    public Current getCurrent(){
+        return motor.getSupplyCurrent().getValue();
     }
 
     /**
@@ -244,7 +271,8 @@ public class ShooterHood extends SubsystemBase {
      * @param velocity target velocity
      */
     public void setPosition(Angle angle) {
-        motor.setControl(posCtrl.withPosition(angle).withSlot(0));
+        //motor.setControl(posCtrl.withPosition(angle).withSlot(0));
+        motor.setControl(posCtrl2.withPosition(angle).withSlot(1));
     }
 
     /**
@@ -292,7 +320,7 @@ public class ShooterHood extends SubsystemBase {
     public Command setPositionCmd(Angle target) {
         return this.runEnd(
                 () -> setPosition(target),
-                () -> setVelocity(RotationsPerSecond.zero()));
+                () -> setVoltage(Volts.zero()));
     }
 
     /**
@@ -304,7 +332,7 @@ public class ShooterHood extends SubsystemBase {
     public Command setPositionCmd(Supplier<Angle> target) {
         return this.runEnd(
                 () -> setPosition(target.get()),
-                () -> setVelocity(RotationsPerSecond.zero()));
+                () -> setVoltage(Volts.zero()));
     }
 
     public Command setPositionTestCmd(Supplier<Angle> target) {
@@ -348,20 +376,20 @@ public class ShooterHood extends SubsystemBase {
     public Command sysIdQuasistaticLimited(SysIdRoutine.Direction direction) {
         if (direction.equals(Direction.kReverse)){
             return sysIdRoutime.quasistatic(direction)
-                .until(() -> getPosition().lte((Degrees.of(52))));//TODO EDIT
+                .until(() -> getPosition().lte((Degrees.of(-42))));//TODO EDIT
         }else{
             return sysIdRoutime.quasistatic(direction)
-                .until(() -> getPosition().gte((Degrees.of(80))));//EDIT
+                .until(() -> getPosition().gte((Degrees.of(-10))));//EDIT
         }
     }
 
     public Command sysIdDynamicLimited(SysIdRoutine.Direction direction) {
         if (direction.equals(Direction.kReverse)){
             return sysIdRoutime.dynamic(direction)
-                .until(() -> getPosition().lte(Degrees.of(52)));//EDIT
+                .until(() -> getPosition().lte(Degrees.of(-42)));//EDIT
         }else{
             return sysIdRoutime.dynamic(direction)
-                .until(() -> getPosition().gte(Degrees.of(80)));//EDIT
+                .until(() -> getPosition().gte(Degrees.of(-10)));//EDIT
         }
     }
 

@@ -55,34 +55,39 @@ public class IntakeAngle extends SubsystemBase {
         @Override
         public void initSendable(SendableBuilder builder) {
             // TODO Auto-generated method stub
-            builder.addDoubleProperty("Intake Angle Test Speed (RPM)", ()->velRPM , (val) -> velRPM = val);
-            builder.addDoubleProperty("Intake Angle Test kP", ()->kP , (val) -> kP = val);
-            builder.addDoubleProperty("Intake Angle Test kI", ()->kI , (val) -> kI = val);
-            builder.addDoubleProperty("Intake Angle Test kD", ()->kD , (val) -> kD = val);
-            builder.addDoubleProperty("Intake Angle Test kS", ()->kS , (val) -> kS = val);
-            builder.addDoubleProperty("Intake Angle Test kV", ()->kV , (val) -> kV = val);
-            builder.addDoubleProperty("Intake Angle Test kA", ()->kA , (val) -> kA = val);
+            builder.addDoubleProperty("Intake Angle Test Speed (RPM)", () -> velRPM, (val) -> velRPM = val);
+            builder.addDoubleProperty("Intake Angle Test kP", () -> kP, (val) -> kP = val);
+            builder.addDoubleProperty("Intake Angle Test kI", () -> kI, (val) -> kI = val);
+            builder.addDoubleProperty("Intake Angle Test kD", () -> kD, (val) -> kD = val);
+            builder.addDoubleProperty("Intake Angle Test kS", () -> kS, (val) -> kS = val);
+            builder.addDoubleProperty("Intake Angle Test kV", () -> kV, (val) -> kV = val);
+            builder.addDoubleProperty("Intake Angle Test kA", () -> kA, (val) -> kA = val);
         }
 
-        public double getkP(){
+        public double getkP() {
             return kP;
         }
-        public double getkI(){
+
+        public double getkI() {
             return kI;
         }
-        public double getkD(){
+
+        public double getkD() {
             return kD;
         }
-        public double getkS(){
+
+        public double getkS() {
             return kS;
         }
-        public double getkV(){
+
+        public double getkV() {
             return kV;
         }
-        public double getkA(){
+
+        public double getkA() {
             return kA;
         }
-        
+
     }
 
     // Motor
@@ -91,15 +96,16 @@ public class IntakeAngle extends SubsystemBase {
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0).withAcceleration(RotationsPerSecondPerSecond.of(10));
+    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0)
+            .withAcceleration(RotationsPerSecondPerSecond.of(10));
     private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0);
-    //private final IntakeAngleTest intakeAngleTest = new IntakeAngleTest();
+    // private final IntakeAngleTest intakeAngleTest = new IntakeAngleTest();
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-    //SmartDashboard Signals
+    // SmartDashboard Signals
     StatusSignal<Angle> motorPositionSignal;
 
-    //Timers
+    // Timers
     private Timer intakeAngleTimer = new Timer();
 
     // SysId
@@ -151,17 +157,18 @@ public class IntakeAngle extends SubsystemBase {
                 .withKG(0.0);
 
         motorConfig.MotionMagic
-            .withMotionMagicCruiseVelocity(RotationsPerSecond.of(6))
-            .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(12))
-            .withMotionMagicJerk(120);
-
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(6))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(12))
+                .withMotionMagicJerk(120);
 
         motor.getConfigurator().apply(motorConfig);
 
         signalsConfig();
+
+        setDefaultCommand(holdPositionCmd());
     }
 
-    public void signalsConfig(){
+    public void signalsConfig() {
         motorPositionSignal = motor.getPosition();
         motorPositionSignal.setUpdateFrequency(Hertz.of(5));
     }
@@ -191,8 +198,8 @@ public class IntakeAngle extends SubsystemBase {
      */
     public void setPosition(Angle angle) {
         motor.setControl(posCtrl.withPosition(angle)
-            .withLimitReverseMotion(getPosition().lte(Degrees.of(-10)))
-            .withLimitForwardMotion(getPosition().gte(Degrees.of(150))));
+                .withLimitReverseMotion(getPosition().lte(Degrees.of(-10)))
+                .withLimitForwardMotion(getPosition().gte(Degrees.of(150))));
     }
 
     /**
@@ -249,11 +256,11 @@ public class IntakeAngle extends SubsystemBase {
                 () -> setVelocity(RotationsPerSecond.zero()));
     }
 
-        public Command setVelocityTestCmd(Supplier<AngularVelocity> velocity){
+    public Command setVelocityTestCmd(Supplier<AngularVelocity> velocity) {
         return this.startRun(
-            () -> motor.getConfigurator().refresh(motorConfig.Slot2), 
-            () -> setVelocity(velocity.get()))
-            .finallyDo(() -> setVoltage(Volts.zero()));
+                () -> motor.getConfigurator().refresh(motorConfig.Slot2),
+                () -> setVelocity(velocity.get()))
+                .finallyDo(() -> setVoltage(Volts.zero()));
     }
 
     /**
@@ -268,58 +275,62 @@ public class IntakeAngle extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
-    public Command setOscilateCmd(Angle amplitude, Angle referencePos, Time period){
-        return Commands.sequence(
-            setPositionCmd(referencePos.plus(amplitude))
-            .withTimeout(period),
-
-            setPositionCmd(referencePos.minus(amplitude))
-            .withTimeout(period)
-        ).repeatedly();      
+    public Command holdPositionCmd() {
+        return this.startEnd(
+                () -> setPosition(getPosition()),
+                () -> setVoltage(Volts.zero()));
     }
 
-    public Command setOscilateLimitsCmd(Angle minAngle, Angle maxAngle, Time period){
+    public Command setOscilateCmd(Angle amplitude, Angle referencePos, Time period) {
         return Commands.sequence(
-            setPositionCmd(maxAngle)
-            .withTimeout(period),
+                setPositionCmd(referencePos.plus(amplitude))
+                        .withTimeout(period),
 
-            setPositionCmd(minAngle)
-            .withTimeout(period)
-        ).repeatedly();
-            
+                setPositionCmd(referencePos.minus(amplitude))
+                        .withTimeout(period))
+                .repeatedly();
     }
 
-    public Command setOscilateProgressionCmd(Angle amplitude, Time period){
+    public Command setOscilateLimitsCmd(Angle minAngle, Angle maxAngle, Time period) {
         return Commands.sequence(
-            setOscilateCmd(amplitude, Degrees.of(20), period)
-                .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(10))),
+                setPositionCmd(maxAngle)
+                        .withTimeout(period),
 
-            setOscilateCmd(amplitude, Degrees.of(40), period)
-                .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(5))),
-            
-            setOscilateCmd(amplitude, Degrees.of(60), period)
-                .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3)))
-        );
+                setPositionCmd(minAngle)
+                        .withTimeout(period))
+                .repeatedly();
+
     }
 
-    public Command setOscilateProgressionTestCmd(Angle amplitude, Time period, DoubleSupplier testValue){
+    public Command setOscilateProgressionCmd(Angle amplitude, Time period) {
         return Commands.sequence(
-            setOscilateCmd(amplitude, Degrees.of(20), period)
-                .onlyWhile(() -> testValue.getAsDouble() >= 10),
+                setOscilateCmd(amplitude, Degrees.of(20), period)
+                        .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(10))),
 
-            setOscilateCmd(amplitude, Degrees.of(40), period)
-                .onlyWhile(() -> testValue.getAsDouble() >= 5),
-            
-            setOscilateCmd(amplitude, Degrees.of(60), period)
-                .onlyWhile(() -> testValue.getAsDouble() >= 2)
-        );
+                setOscilateCmd(amplitude, Degrees.of(40), period)
+                        .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(5))),
+
+                setOscilateCmd(amplitude, Degrees.of(60), period)
+                        .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3))));
     }
 
+    public Command setOscilateProgressionTestCmd(Angle amplitude, Time period, DoubleSupplier testValue) {
+        return Commands.sequence(
+                setOscilateCmd(amplitude, Degrees.of(20), period)
+                        .onlyWhile(() -> testValue.getAsDouble() >= 10),
+
+                setOscilateCmd(amplitude, Degrees.of(40), period)
+                        .onlyWhile(() -> testValue.getAsDouble() >= 5),
+
+                setOscilateCmd(amplitude, Degrees.of(60), period)
+                        .onlyWhile(() -> testValue.getAsDouble() >= 2));
+    }
 
     /**
      * Create a Quasistatic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Quasistatic SysId command
+     * @return Quasistatic SysId command
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysIdRoutine.quasistatic(direction);
@@ -327,35 +338,37 @@ public class IntakeAngle extends SubsystemBase {
 
     /**
      * Create a Quasistatic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Quasistatic SysId command
+     * @return Quasistatic SysId command
      */
     public Command sysIdQuasistaticLimited(SysIdRoutine.Direction direction, Angle min, Angle max) {
-        if (direction.equals(Direction.kForward)){
+        if (direction.equals(Direction.kForward)) {
             return sysIdRoutine.quasistatic(direction)
-                .until(() -> getPosition().lte(min));
-        }else{
+                    .until(() -> getPosition().lte(min));
+        } else {
             return sysIdRoutine.quasistatic(direction)
-                .until(() -> getPosition().gte(max));
+                    .until(() -> getPosition().gte(max));
         }
     }
 
     /**
      * Create a Dynamic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Dynamic SysId command
+     * @return Dynamic SysId command
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysIdRoutine.dynamic(direction);
     }
 
     public Command sysIdDynamicLimited(SysIdRoutine.Direction direction) {
-        if (direction.equals(Direction.kForward)){
+        if (direction.equals(Direction.kForward)) {
             return sysIdRoutine.dynamic(direction)
-                .until(() -> getPosition().lte(Degrees.of(0)));
-        }else{
+                    .until(() -> getPosition().lte(Degrees.of(0)));
+        } else {
             return sysIdRoutine.dynamic(direction)
-                .until(() -> getPosition().gte(Degrees.of(90)));
+                    .until(() -> getPosition().gte(Degrees.of(90)));
         }
     }
 
@@ -366,11 +379,12 @@ public class IntakeAngle extends SubsystemBase {
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
-        // SmartDashboard.putNumber("Intake Angle RPM", getVelocity().in(Rotations.per(Minute)));
-        //SmartDashboard.putData("Intake Angle Tuning", intakeAngleTest);
+        // SmartDashboard.putNumber("Intake Angle RPM",
+        // getVelocity().in(Rotations.per(Minute)));
+        // SmartDashboard.putData("Intake Angle Tuning", intakeAngleTest);
 
-        // SmartDashboard.putNumber("Intake Angle", motorPositionSignal.getValue().in(Degrees));
-
+        // SmartDashboard.putNumber("Intake Angle",
+        // motorPositionSignal.getValue().in(Degrees));
 
         // motorConfig.Slot2
         // .withKP(intakeAngleTest.getkP())
