@@ -5,11 +5,13 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.function.Supplier;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.FieldLayout;
 
 public class ShooterManagement {
 
@@ -31,6 +33,12 @@ public class ShooterManagement {
         this.indexer = indexer;
         this.shooterWheel = shooterWheel;
         this.shooterHood = shooterHood;
+    }
+
+    private AngularVelocity calcHubShotSpeed() {
+        Distance hubDist = FieldLayout.Hub.getHubDist(drivetrain.getPose2d().getTranslation());
+
+        return Constants.shooterWheelTable.get(hubDist);
     }
 
     /**
@@ -76,7 +84,7 @@ public class ShooterManagement {
     public Command hubShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                //shooterHood.hubShotCmd(),
+                // shooterHood.hubShotCmd(),
                 indexer.autoIndexCmd(this::isShooterReady));
     }
 
@@ -96,24 +104,23 @@ public class ShooterManagement {
                 shooterWheel.hubShotCmd(),
                 shooterHood.hubShotCmd(),
                 drivetrain.lookAtHubCmd(xVel, yVel, Constants.shooterOrientation),
-                indexer.autoIndexCmd(() -> isShooterReady() && isRobotAligned())
-            );
+                indexer.autoIndexCmd(() -> isShooterReady() && isRobotAligned()));
     }
 
-    public Command hubNoHoodShotCmd(Supplier<AngularVelocity> shootVel, AngularVelocity velTolerance, Supplier<Voltage> indexerVolt){
+    public Command hubNoHoodShotCmd(AngularVelocity velTolerance, Voltage indexerVolt){
         return Commands.parallel(
-            shooterWheel.setVelocityCmd(shootVel),
-            Commands.either(indexer.setVoltageCmd(indexerVolt.get()), 
+            shooterWheel.hubShotCmd(),
+            Commands.either(indexer.setVoltageCmd(indexerVolt), 
             indexer.setVoltageCmd(Volts.zero()), 
-                () -> shooterWheel.getVelocity().gte(shootVel.get().minus(velTolerance)) && shootVel.get().plus(velTolerance).gt(shooterWheel.getVelocity()))
+                () -> shooterWheel.getVelocity().gte(calcHubShotSpeed().minus(velTolerance)) && calcHubShotSpeed().plus(velTolerance).gt(shooterWheel.getVelocity()))
         );
     }
 
-    public Command phaseShotIndexerCtrlCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+    public Command phaseShotIndexerCtrlCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold,
+            AngularVelocity ceilingThreshold) {
         return Commands.parallel(
-            shooterWheel.hubPhaseShotCmd(targetVel, floorThreshold, ceilingThreshold),
-            indexer.autoIndexCmd(() -> isShooterReady(floorThreshold, ceilingThreshold))
-        );
+                shooterWheel.hubPhaseShotCmd(targetVel, floorThreshold, ceilingThreshold),
+                indexer.autoIndexCmd(() -> isShooterReady(floorThreshold, ceilingThreshold)));
     }
 
     /**
@@ -123,10 +130,10 @@ public class ShooterManagement {
      */
     private boolean isShooterReady() {
         return shooterWheel.atVelocity(Constants.shooterWheelTol);
-        //&& shooterHood.atPosition(Constants.shooterHoodTol);
+        // && shooterHood.atPosition(Constants.shooterHoodTol);
     }
 
-    private boolean isShooterReady(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+    private boolean isShooterReady(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold) {
         return shooterWheel.atVelocity(floorThreshold, ceilingThreshold);
     }
 

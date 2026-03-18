@@ -193,6 +193,8 @@ public class RobotContainer {
                 .andThen(intakeRoller.sysIdDynamic(Direction.kReverse))
                 .andThen(intakeRoller.sysIdDynamic(Direction.kForward));
 
+        //OPERATOR
+
         operatorCtrl.leftBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
 
         operatorCtrl.start().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
@@ -212,6 +214,12 @@ public class RobotContainer {
         operatorCtrl.povRight().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
 
         operatorCtrl.povLeft().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
+
+        //DRIVER
+
+        
+        driverCtrl.rightBumper().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
+        driverCtrl.rightTrigger(.1).whileTrue(intakeAngle.setVoltageCmd(Volts.of(12)));
 
         //TEST CONTROLS
 
@@ -233,11 +241,17 @@ public class RobotContainer {
                 .andThen(shooterWheel.sysIdDynamic(Direction.kForward))
                 .andThen(shooterWheel.sysIdDynamic(Direction.kReverse));
 
+        //OPERATOR
+
         operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
 
-        operatorCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
+        operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
 
-        driverCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
+        //DRIVER
+
+        driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
+
+        driverCtrl.leftBumper().whileTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(1500)));
 
         //TEST CONTROLS
 
