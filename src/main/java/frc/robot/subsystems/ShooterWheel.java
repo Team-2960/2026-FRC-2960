@@ -64,42 +64,48 @@ public class ShooterWheel extends SubsystemBase {
         @Override
         public void initSendable(SendableBuilder builder) {
             // TODO Auto-generated method stub
-            builder.addDoubleProperty("Shooter Test Speed (RPM)", ()->velRPM , (val) -> velRPM = val);
-            builder.addDoubleProperty("Shooter Test kP", ()->kP , (val) -> kP = val);
-            builder.addDoubleProperty("Shooter Test kI", ()->kI , (val) -> kI = val);
-            builder.addDoubleProperty("Shooter Test kD", ()->kD , (val) -> kD = val);
-            builder.addDoubleProperty("Shooter Test kS", ()->kS , (val) -> kS = val);
-            builder.addDoubleProperty("Shooter Test kV", ()->kV , (val) -> kV = val);
-            builder.addDoubleProperty("Shooter Test kA", ()->kA , (val) -> kA = val);
+            builder.addDoubleProperty("Shooter Test Speed (RPM)", () -> velRPM, (val) -> velRPM = val);
+            builder.addDoubleProperty("Shooter Test kP", () -> kP, (val) -> kP = val);
+            builder.addDoubleProperty("Shooter Test kI", () -> kI, (val) -> kI = val);
+            builder.addDoubleProperty("Shooter Test kD", () -> kD, (val) -> kD = val);
+            builder.addDoubleProperty("Shooter Test kS", () -> kS, (val) -> kS = val);
+            builder.addDoubleProperty("Shooter Test kV", () -> kV, (val) -> kV = val);
+            builder.addDoubleProperty("Shooter Test kA", () -> kA, (val) -> kA = val);
         }
 
         /**
-         * Gets a command to control the shooter from 
+         * Gets a command to control the shooter from
+         * 
          * @return
          */
         public Command getCommand() {
-            return setTorqueVelocityCmd(()-> Rotations.per(Minute).of(velRPM));
+            return hubPhaseShotCmd(()->Rotations.per(Minute).of(velRPM), Rotations.per(Minute).of(200), Rotations.per(Minute).of(150));
         }
 
-        public double getkP(){
+        public double getkP() {
             return kP;
         }
-        public double getkI(){
+
+        public double getkI() {
             return kI;
         }
-        public double getkD(){
+
+        public double getkD() {
             return kD;
         }
-        public double getkS(){
+
+        public double getkS() {
             return kS;
         }
-        public double getkV(){
+
+        public double getkV() {
             return kV;
         }
-        public double getkA(){
+
+        public double getkA() {
             return kA;
         }
-        
+
     }
 
     // Motors
@@ -181,7 +187,6 @@ public class ShooterWheel extends SubsystemBase {
         // Initialize Motors
         motorLeader = new TalonFX(motorLeaderID, bus);
         motorFollower = new TalonFX(motorFollowerID, bus);
-        
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Coast);
@@ -227,10 +232,11 @@ public class ShooterWheel extends SubsystemBase {
         orchestra.addInstrument(motorFollower);
         orchestra.loadMusic("washingMachine.chrp");
         // orchestra.play();
-        
+
         // Setup Shooter Testing
-        SmartDashboard.putData("Shooter Wheel Test" ,shooterWheelTest);
+        SmartDashboard.putData("Shooter Wheel Test", shooterWheelTest);
     }
+
     /**
      * Gets the current voltage of the intake
      * 
@@ -282,7 +288,7 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     @AutoLogOutput
-    public Angle getPosition(){
+    public Angle getPosition() {
         return motorLeader.getPosition().getValue();
     }
 
@@ -302,13 +308,14 @@ public class ShooterWheel extends SubsystemBase {
      */
     public boolean atVelocity(AngularVelocity tol) {
         // SmartDashboard.putNumber("Shot Tolerance (RPS)", tol.in(RotationsPerSecond));
-        // SmartDashboard.putNumber("Shot Velocity (RPS)", getVelocity().in(RotationsPerSecond));
+        // SmartDashboard.putNumber("Shot Velocity (RPS)",
+        // getVelocity().in(RotationsPerSecond));
         // SmartDashboard.putNumber("Shot Target (RPS)", torqueCtrl.Velocity);
 
         boolean isNearVel = MathUtil.isNear(
-                        torqueCtrl.Velocity,
-                        getVelocity().in(RotationsPerSecond),
-                        tol.in(RotationsPerSecond));
+                torqueCtrl.Velocity,
+                getVelocity().in(RotationsPerSecond),
+                tol.in(RotationsPerSecond));
 
         boolean isTorqueCtrl = motorLeader.getAppliedControl() == torqueCtrl;
 
@@ -320,11 +327,12 @@ public class ShooterWheel extends SubsystemBase {
 
     /**
      * 
-     * @param floorThreshold The maximum angular velocity of the shooter threhold
+     * @param floorThreshold   The maximum angular velocity of the shooter threhold
      * @param ceilingThreshold The minimum angular velocity of the shooter threhold
-     * @return returns true if shooter velocity is greater than floor and less than ceiling
+     * @return returns true if shooter velocity is greater than floor and less than
+     *         ceiling
      */
-    public boolean atVelocity(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+    public boolean atVelocity(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold) {
         return getVelocity().gt(floorThreshold) && ceilingThreshold.gt(getVelocity());
     }
 
@@ -340,14 +348,15 @@ public class ShooterWheel extends SubsystemBase {
     public void setCurrent(Current amps) {
         motorLeader.setControl(currentCtrl.withOutput(amps));
     }
-    
 
     /**
      * Sets the motor to a duty cycle output.
-     * Useful for trying to get an output based on the possible max voltage output (battery wise)
+     * Useful for trying to get an output based on the possible max voltage output
+     * (battery wise)
+     * 
      * @param output
      */
-    public void setDutyCyle(double output){
+    public void setDutyCyle(double output) {
         motorLeader.setControl(dutyCycleCtrl.withOutput(output));
     }
 
@@ -387,14 +396,14 @@ public class ShooterWheel extends SubsystemBase {
 
     public Command setCurrentCmd(Current amps) {
         return this.runEnd(
-            () -> setCurrent(amps), 
-            () -> setVoltage(Volts.zero()));
+                () -> setCurrent(amps),
+                () -> setVoltage(Volts.zero()));
     }
 
     public Command setCurrentCmd(Supplier<Current> amps) {
         return this.runEnd(
-            () -> setCurrent(amps.get()), 
-            () -> setVoltage(Volts.zero()));
+                () -> setCurrent(amps.get()),
+                () -> setVoltage(Volts.zero()));
     }
 
     /**
@@ -445,11 +454,11 @@ public class ShooterWheel extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
-    public Command setTorqueVelocityTestCmd(Supplier<AngularVelocity> velocity){
+    public Command setTorqueVelocityTestCmd(Supplier<AngularVelocity> velocity) {
         return this.startRun(
-            () -> motorLeader.getConfigurator().refresh(motorConfig.Slot2), 
-            () -> setTorqueCurrentVel(velocity.get()))
-            .finallyDo(() -> setVoltage(Volts.zero()));
+                () -> motorLeader.getConfigurator().refresh(motorConfig.Slot2),
+                () -> setTorqueCurrentVel(velocity.get()))
+                .finallyDo(() -> setVoltage(Volts.zero()));
     }
 
     /**
@@ -458,24 +467,32 @@ public class ShooterWheel extends SubsystemBase {
      * @return new command to set the shooter for shooting at the hub
      */
     public Command hubShotCmd() {
-        return setTorqueVelocityCmd(this::calcHubShotSpeed);
+        return hubPhaseShotCmd(this::calcHubShotSpeed, Rotations.of(200).per(Minute), Rotations.of(150).per(Minute));
     }
 
-    public Command hubPhaseShotCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold, AngularVelocity ceilingThreshold){
+    /**
+     * 
+     * @param targetVel
+     * @param floorThreshold
+     * @param ceilingThreshold
+     * @return
+     */
+    public Command hubPhaseShotCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold,
+            AngularVelocity ceilingThreshold) {
         return this.runEnd(
-            () -> {
-                AngularVelocity curVel = getVelocity();
-                if (floorThreshold.gt(curVel)){
-                    setDutyCyle(1);;
-                } else if(curVel.gt(ceilingThreshold)){
-                    setVoltage(Volts.zero());
-                } else{
-                    setTorqueCurrentVel(targetVel.get());
-                }
-            },
-            () -> setVoltage(Volts.zero()));
+                () -> {
+                    AngularVelocity curVel = getVelocity();
+                    AngularVelocity targetVelVal = targetVel.get();
+                    if (targetVelVal.minus(floorThreshold).gt(curVel)) {
+                        setDutyCyle(1);
+                    } else if (targetVelVal.plus(ceilingThreshold).lt(curVel)) {
+                        setVoltage(Volts.zero());
+                    } else {
+                        setTorqueCurrentVel(targetVel.get());
+                    }
+                },
+                () -> setVoltage(Volts.zero()));
     }
-
 
     /**
      * Create a Quasistatic SysId command
@@ -499,6 +516,7 @@ public class ShooterWheel extends SubsystemBase {
 
     /**
      * Creates a new test command
+     * 
      * @return
      */
     public Command getTestCommand() {
@@ -517,14 +535,14 @@ public class ShooterWheel extends SubsystemBase {
         }
 
         motorConfig.Slot2
-        .withKP(shooterWheelTest.getkP())
-        .withKI(shooterWheelTest.getkI())
-        .withKD(shooterWheelTest.getkD())
-        .withKS(shooterWheelTest.getkS())
-        .withKV(shooterWheelTest.getkV())
-        .withKA(shooterWheelTest.getkA());
+                .withKP(shooterWheelTest.getkP())
+                .withKI(shooterWheelTest.getkI())
+                .withKD(shooterWheelTest.getkD())
+                .withKS(shooterWheelTest.getkS())
+                .withKV(shooterWheelTest.getkV())
+                .withKA(shooterWheelTest.getkA());
 
-        //motorLeader.getConfigurator().refresh(motorConfig);
+        // motorLeader.getConfigurator().refresh(motorConfig);
     }
 
     /**

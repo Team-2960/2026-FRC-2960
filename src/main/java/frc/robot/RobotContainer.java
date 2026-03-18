@@ -195,27 +195,29 @@ public class RobotContainer {
 
         operatorCtrl.leftBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
 
-        //operatorCtrl.rightBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
+        operatorCtrl.start().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
 
         operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
 
-        //operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
+        operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
 
         operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
 
         operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(110)));
 
-        operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(60), Degrees.of(90), Seconds.of(0.5)));
+        operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(45), Degrees.of(70), Seconds.of(0.25)));
 
         operatorCtrl.a().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(20), Degrees.of(45), Seconds.of(0.25)));
+
+        operatorCtrl.povRight().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+
+        operatorCtrl.povLeft().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
 
         //TEST CONTROLS
 
         //operatorCtrl.axisGreaterThan(0, 0.1)
         // .whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
         //operatorCtrl.rightTrigger(.1).whileTrue(indexer.setVoltageCmd(Volts.of(6)));
-        operatorCtrl.povRight().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
-        operatorCtrl.povLeft().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
     }
     
     private void shooterBindings(){
@@ -231,13 +233,17 @@ public class RobotContainer {
                 .andThen(shooterWheel.sysIdDynamic(Direction.kForward))
                 .andThen(shooterWheel.sysIdDynamic(Direction.kReverse));
 
+        operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
+
+        operatorCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
+
+        driverCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
+
         //TEST CONTROLS
 
         //operatorCtrl.back().onTrue(shooterHoodSysId);
         
         //operatorCtrl.rightTrigger(0.1).whileTrue(shooterWheel.setVoltageCmd(Volts.of(2)));
-        operatorCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
-        driverCtrl.rightTrigger(.1).whileTrue(shooterWheel.hubShotCmd());
         //operatorCtrl.povLeft().onTrue(shooterWheel.setCurrentCmd(() -> Amps.of(60 * operatorCtrl.getLeftY())));
         // operatorCtrl.povLeft().onTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getLeftY())));
         //operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(-20)));
