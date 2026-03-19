@@ -53,6 +53,14 @@ public class ShooterManagement {
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
 
+    public Command passShotCmd() {
+        return Commands.parallel(
+                shooterWheel.passVelocityCmd(),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.lowOscillate(),
+                indexer.autoIndexCmd(() -> isShooterReady()));
+    }
+
     public Command setVelocityShotCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold,
             AngularVelocity ceilingThreshold) {
         return Commands.parallel(

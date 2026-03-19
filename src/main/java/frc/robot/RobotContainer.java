@@ -266,7 +266,7 @@ public class RobotContainer {
 
         driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 
-        driverCtrl.leftBumper().whileTrue(shooterWheel.passVelocityCmd());
+        driverCtrl.leftBumper().whileTrue(shooterMngt.passShotCmd());
 
         // TEST CONTROLS
 
