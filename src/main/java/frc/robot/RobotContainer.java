@@ -54,14 +54,14 @@ public class RobotContainer {
     // Physical Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final IntakeAngle intakeAngle = new IntakeAngle(Constants.intakeAngleID, Constants.intakeAngleEncoderID,
-            TunerConstants.kCANBus, 50.0);
+            TunerConstants.kCANBus, Constants.intakeAngleGearRatio);
     private final IntakeRoller intakeRoller = new IntakeRoller(Constants.intakeMotorID, TunerConstants.kCANBus,
-            24.0 / 18.0);
-    private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, 5, drivetrain);
+            Constants.intakeRollerGearRatio);
+    private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, Constants.indexerGearRatio, drivetrain);
     private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID,
-            Constants.shooterMotorFollowerID, TunerConstants.kCANBus, 20.0 / 12.0, drivetrain);
+            Constants.shooterMotorFollowerID, TunerConstants.kCANBus, Constants.shooterWheelGearRatio, drivetrain);
     private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor,
-            Constants.shooterHoodEncoderID, TunerConstants.kCANBus, 29.3333333, drivetrain);
+            Constants.shooterHoodEncoderID, TunerConstants.kCANBus, Constants.shooterHoodGearRatio, drivetrain);
     private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer, shooterWheel, shooterHood, intakeRoller, intakeAngle);
     // private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
 
@@ -232,7 +232,7 @@ public class RobotContainer {
 
         // DRIVER
 
-        driverCtrl.rightBumper().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
+        driverCtrl.rightBumper().onTrue(intakeAngle.setPositionCmd(Constants.intakeOutAngle));
         driverCtrl.rightTrigger(.1).whileTrue(intakeAngle.setVoltageCmd(Volts.of(12)));
 
         // TEST CONTROLS

@@ -83,21 +83,21 @@
           "data": {
             "commands": [
               {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Empty Close Fuel Loop to Bump"
+                }
+              },
+              {
                 "type": "named",
                 "data": {
-                  "name": "IntakeIN Command"
+                  "name": "IntakeRollerIN Command"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "IntakePivOut Command"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Top Empty Close Fuel Loop to Bump"
                 }
               }
             ]

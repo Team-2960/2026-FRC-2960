@@ -87,23 +87,29 @@ public class Constants {
     public static final AngularVelocity idleVelocity = Rotations.per(Minute).of(1000);
     public static final AngularAcceleration shooterMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
+    public static final double shooterWheelGearRatio = 20.0/12.0;
+    public static final double shooterHoodGearRatio = 29.0 + (1.0/3.0);
+
     // Indexer Constants
     public static final Voltage indexerForwardVolt = Volts.of(12);
     public static final Voltage indexerReverseVolt = Volts.of(-12);
     public static final AngularAcceleration indexerMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
+    public static final double indexerGearRatio = 5.0;
+
     // Intake Constants
-    public static final double intakeGearRatio = 1;
     public static final Angle intakeOutAngle = Degrees.of(0);
     public static final Angle intakeInAngle = Degrees.of(110);
 
     public static final Voltage intakeRollerInVolt = Volts.of(12.0);
     public static final Voltage intakeRollerOutVolt = Volts.of(-12.0);
 
+    public static final double intakeRollerGearRatio = 24.0 / 18.0;
+    public static final double intakeAngleGearRatio = 50.0;
+
     // Drivetrain Constants
     public static final LinearVelocity linDeadband = maxLinVel.times(.07); 
-    public static final AngularVelocity angDeadband = maxAngVel.times(.07
-    );
+    public static final AngularVelocity angDeadband = maxAngVel.times(.07);
 
     // Camera Constants
     public static final Transform3d leftCameraOffsets = new Transform3d(

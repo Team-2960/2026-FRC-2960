@@ -64,5 +64,6 @@
     "Deadband",
     "teleop"
 ],
-"wpilib.selectDefaultSimulateExtension": true
+"wpilib.selectDefaultSimulateExtension": true,
+"wpilib.skipSelectSimulateExtension": false
 }
