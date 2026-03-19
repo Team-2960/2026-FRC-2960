@@ -220,6 +220,10 @@ public class Indexer extends SubsystemBase {
         return setVoltageCmd(Constants.indexerFeedVolt);
     }
 
+    public Command reverseCmd() {
+        return setVoltageCmd(Constants.indexerRevVolt);
+    }
+
     public Command stopShooterFeedCmd() {
         return setVoltageCmd(Volts.zero());
     }

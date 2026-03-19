@@ -23,8 +23,11 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
 
@@ -44,43 +47,50 @@ public class IntakeRoller extends SubsystemBase {
         @Override
         public void initSendable(SendableBuilder builder) {
             // TODO Auto-generated method stub
-            builder.addDoubleProperty("Intake Roller Test Speed (RPM)", ()->velRPM , (val) -> velRPM = val);
-            builder.addDoubleProperty("Intake Roller Test kP", ()->kP , (val) -> kP = val);
-            builder.addDoubleProperty("Intake Roller Test kI", ()->kI , (val) -> kI = val);
-            builder.addDoubleProperty("Intake Roller Test kD", ()->kD , (val) -> kD = val);
-            builder.addDoubleProperty("Intake Roller Test kS", ()->kS , (val) -> kS = val);
-            builder.addDoubleProperty("Intake Roller Test kV", ()->kV , (val) -> kV = val);
-            builder.addDoubleProperty("Intake Roller Test kA", ()->kA , (val) -> kA = val);
+            builder.addDoubleProperty("Intake Roller Test Speed (RPM)", () -> velRPM, (val) -> velRPM = val);
+            builder.addDoubleProperty("Intake Roller Test kP", () -> kP, (val) -> kP = val);
+            builder.addDoubleProperty("Intake Roller Test kI", () -> kI, (val) -> kI = val);
+            builder.addDoubleProperty("Intake Roller Test kD", () -> kD, (val) -> kD = val);
+            builder.addDoubleProperty("Intake Roller Test kS", () -> kS, (val) -> kS = val);
+            builder.addDoubleProperty("Intake Roller Test kV", () -> kV, (val) -> kV = val);
+            builder.addDoubleProperty("Intake Roller Test kA", () -> kA, (val) -> kA = val);
         }
 
         /**
-         * Gets a command to control the intake roller from 
+         * Gets a command to control the intake roller from
+         * 
          * @return
          */
-        public double getkP(){
+        public double getkP() {
             return kP;
         }
-        public double getkI(){
+
+        public double getkI() {
             return kI;
         }
-        public double getkD(){
+
+        public double getkD() {
             return kD;
         }
-        public double getkS(){
+
+        public double getkS() {
             return kS;
         }
-        public double getkV(){
+
+        public double getkV() {
             return kV;
         }
-        public double getkA(){
+
+        public double getkA() {
             return kA;
         }
-        
+
     }
 
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
-    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0).withAcceleration(Rotations.per(Minute).per(Second).of(10000));
+    private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0)
+            .withAcceleration(Rotations.per(Minute).per(Second).of(10000));
     private final IntakeRollerTest intakeRollerTest = new IntakeRollerTest();
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
@@ -168,7 +178,7 @@ public class IntakeRoller extends SubsystemBase {
     }
 
     @AutoLogOutput
-    public Angle getPosition(){
+    public Angle getPosition() {
         return motor.getPosition().getValue();
     }
 
@@ -196,23 +206,40 @@ public class IntakeRoller extends SubsystemBase {
                 () -> setVelocity(RotationsPerSecond.zero()));
     }
 
+    public Command intakeCmd() {
+        return setVoltageCmd(Constants.intakeInVolt);
+    }
+
+    public Command ejectCommand() {
+        return setVoltageCmd(Constants.intakeOutVolt);
+    }
+
     /**
      * Create a Quasistatic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Quasistatic SysId command
+     * @return Quasistatic SysId command
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysIdRoutime.quasistatic(direction);
     }
 
-
     /**
      * Create a Dynamic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Dynamic SysId command
+     * @return Dynamic SysId command
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysIdRoutime.dynamic(direction);
+    }
+
+    public Command sysIDSequence() {
+        return Commands.sequence(
+                sysIdQuasistatic(Direction.kReverse),
+                sysIdQuasistatic(Direction.kForward),
+                sysIdDynamic(Direction.kReverse),
+                sysIdDynamic(Direction.kForward));
     }
 
     /**
@@ -221,8 +248,9 @@ public class IntakeRoller extends SubsystemBase {
     @Override
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
-        // SmartDashboard.putNumber("Intake RPM", getVelocity().in(Rotations.per(Minute)));
-    
+        // SmartDashboard.putNumber("Intake RPM",
+        // getVelocity().in(Rotations.per(Minute)));
+
         // motorConfig.Slot2
         // .withKP(intakeRollerTest.getkP())
         // .withKI(intakeRollerTest.getkI())
@@ -230,7 +258,7 @@ public class IntakeRoller extends SubsystemBase {
         // .withKS(intakeRollerTest.getkS())
         // .withKV(intakeRollerTest.getkV())
         // .withKA(intakeRollerTest.getkA());
-        //motor.getConfigurator().refresh(motorConfig);
+        // motor.getConfigurator().refresh(motorConfig);
     }
 
     @AutoLogOutput

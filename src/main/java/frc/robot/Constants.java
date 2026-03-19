@@ -5,12 +5,10 @@ import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Revolution;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -67,6 +65,8 @@ public class Constants {
     public static final int shooterHoodEncoderID = 21;
 
     // Shooter Constants
+    public static final double shooterWheelGearRatio = 20.0/12.0;
+    public static final double shooterHoodGearRatio = 29.0 + 1.0/3.0;
     public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
     public static final Distance shootingDistance = Inches.of(92);
 
@@ -82,21 +82,25 @@ public class Constants {
             .addEntry(Meters.of(3.702), Revolution.per(Minute).of(2200));
 
 
-    public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);
+    public static final AngularVelocity idleVelocity = Rotations.per(Minute).of(1000);
+    public static final AngularVelocity setShotVelocity = Rotations.per(Minute).of(1500);
     public static final AngularAcceleration shooterMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
     // Indexer Constants
+    public static final double indexerGearRatio = 5;
     public static final Voltage indexerFeedVolt = Volts.of(12);
+    public static final Voltage indexerRevVolt = Volts.of(-12);
     public static final AngularAcceleration indexerMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
     // Intake Constants
-    public static final double intakeGearRatio = 1;
+    public static final double intakeAngleGearRatio = 50;
+    public static final double intakeRollerGearRatio =  24.0/18.0;
 
     public static final Voltage intakeInVolt = Volts.of(12.0);
     public static final Voltage intakeOutVolt = Volts.of(-12.0);
 
     public static final Angle intakeDownAngle = Degrees.of(0);
-    public static final Angle intakeUpAngle = Degrees.of(90);
+    public static final Angle intakeUpAngle = Degrees.of(110);
     public static final Angle intakeAutoRetractLimit = Degrees.of(80);
     public static final AngularVelocity intakeAutoRetractVel = RotationsPerSecond.of(.25);
 

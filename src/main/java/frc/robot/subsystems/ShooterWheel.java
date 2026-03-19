@@ -16,7 +16,6 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -43,6 +42,7 @@ import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
 
@@ -79,7 +79,8 @@ public class ShooterWheel extends SubsystemBase {
          * @return
          */
         public Command getCommand() {
-            return hubPhaseShotCmd(()->Rotations.per(Minute).of(velRPM), Rotations.per(Minute).of(200), Rotations.per(Minute).of(150));
+            return hubPhaseShotCmd(() -> Rotations.per(Minute).of(velRPM), Rotations.per(Minute).of(200),
+                    Rotations.per(Minute).of(150));
         }
 
         public double getkP() {
@@ -307,20 +308,12 @@ public class ShooterWheel extends SubsystemBase {
      *         False otherwise
      */
     public boolean atVelocity(AngularVelocity tol) {
-        // SmartDashboard.putNumber("Shot Tolerance (RPS)", tol.in(RotationsPerSecond));
-        // SmartDashboard.putNumber("Shot Velocity (RPS)",
-        // getVelocity().in(RotationsPerSecond));
-        // SmartDashboard.putNumber("Shot Target (RPS)", torqueCtrl.Velocity);
-
         boolean isNearVel = MathUtil.isNear(
                 torqueCtrl.Velocity,
                 getVelocity().in(RotationsPerSecond),
                 tol.in(RotationsPerSecond));
 
         boolean isTorqueCtrl = motorLeader.getAppliedControl() == torqueCtrl;
-
-        // SmartDashboard.putBoolean("Shot isTorqueCtrl", isTorqueCtrl);
-        // SmartDashboard.putBoolean("Shot isNearVel", isNearVel);
 
         return isTorqueCtrl && isNearVel;
     }
@@ -471,6 +464,24 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     /**
+     * Creates a command that sets the shooter to the idle speed
+     * 
+     * @return a command that sets the shooter to the idle speed
+     */
+    public Command idleSpeedCmd() {
+        return setTorqueVelocityCmd(Constants.idleVelocity);
+    }
+
+    /**
+     * Creates a command that sets the shooter output to zero volts
+     * 
+     * @return a command that sets the shooter output to zero volts
+     */
+    public Command stopCmd() {
+        return setVoltageCmd(Volts.zero());
+    }
+
+    /**
      * 
      * @param targetVel
      * @param floorThreshold
@@ -512,6 +523,13 @@ public class ShooterWheel extends SubsystemBase {
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return currentSysIdRoutine.dynamic(direction);
+    }
+    
+    public Command sysIDSequence() {
+        return sysIdQuasistatic(Direction.kForward)
+                .andThen(sysIdQuasistatic(Direction.kReverse))
+                .andThen(sysIdDynamic(Direction.kForward))
+                .andThen(sysIdDynamic(Direction.kReverse));
     }
 
     /**

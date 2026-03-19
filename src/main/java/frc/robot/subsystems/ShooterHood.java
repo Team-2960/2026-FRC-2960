@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
@@ -11,7 +10,6 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
@@ -20,7 +18,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -28,7 +25,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.spark.config.EncoderConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
@@ -47,8 +43,8 @@ import frc.robot.FieldLayout;
 
 public class ShooterHood extends SubsystemBase {
 
-    public class FeedbackControllerTuning implements Sendable{
-        
+    public class FeedbackControllerTuning implements Sendable {
+
         private double kP = 0;
         private double kI = 0;
         private double kD = 0;
@@ -57,7 +53,7 @@ public class ShooterHood extends SubsystemBase {
         private double kA = 0;
 
         @Override
-        public void initSendable(SendableBuilder builder){
+        public void initSendable(SendableBuilder builder) {
             builder.addDoubleProperty("kP", () -> kP, (num) -> kP = num);
             builder.addDoubleProperty("kI", () -> kI, (num) -> kI = num);
             builder.addDoubleProperty("kD", () -> kD, (num) -> kD = num);
@@ -66,7 +62,7 @@ public class ShooterHood extends SubsystemBase {
             builder.addDoubleProperty("kA", () -> kA, (num) -> kA = num);
         }
 
-        public double getkP(){
+        public double getkP() {
             return kP;
         }
 
@@ -101,12 +97,12 @@ public class ShooterHood extends SubsystemBase {
     // Motor Control Requests
     private final VoltageOut voltCtrl = new VoltageOut(0.0);
     private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0)
-        .withAcceleration(Degrees.of(60).per(Second).per(Second));
+            .withAcceleration(Degrees.of(60).per(Second).per(Second));
     private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0)
-        .withSlot(0);
+            .withSlot(0);
 
     private final MotionMagicTorqueCurrentFOC posCtrl2 = new MotionMagicTorqueCurrentFOC(0)
-        .withSlot(1);
+            .withSlot(1);
     private final CommandSwerveDrivetrain drivetrain;
 
     // SysId
@@ -139,10 +135,10 @@ public class ShooterHood extends SubsystemBase {
                 .withNeutralMode(NeutralModeValue.Brake);
 
         motorConfig.Feedback
-                //.withSensorToMechanismRatio(2.5)
+                // .withSensorToMechanismRatio(2.5)
                 .withSensorToMechanismRatio(gearRatio)
                 // .withRemoteCANcoder(encoder)
-                //.withRotorToSensorRatio(gearRatio);
+                // .withRotorToSensorRatio(gearRatio);
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
         motorConfig.Slot0
@@ -155,28 +151,28 @@ public class ShooterHood extends SubsystemBase {
                 .withKG(0.6);
 
         motorConfig.Slot1
-            .withKP(2.0)
-            .withKI(0.0)
-            .withKD(0.0)
-            .withKS(12)
-            .withKV(0)
-            .withKA(0)
-            .withKG(5)
-            .withGravityType(GravityTypeValue.Arm_Cosine);
+                .withKP(2.0)
+                .withKI(0.0)
+                .withKD(0.0)
+                .withKS(12)
+                .withKV(0)
+                .withKA(0)
+                .withKG(5)
+                .withGravityType(GravityTypeValue.Arm_Cosine);
 
         motorConfig.Slot2
-            .withKP(0.0)
-            .withKI(0.0)
-            .withKD(0.0)
-            .withKS(0.0)
-            .withKV(0.0)
-            .withKA(0.0);
+                .withKP(0.0)
+                .withKI(0.0)
+                .withKD(0.0)
+                .withKS(0.0)
+                .withKV(0.0)
+                .withKA(0.0);
 
         motorConfig.MotionMagic
-            .withMotionMagicCruiseVelocity(Degrees.of(120).per(Second))
-            .withMotionMagicAcceleration(Degrees.of(240).per(Second).per(Second))
-            .withMotionMagicJerk(Degrees.of(480).per(Second).per(Second).per(Second));
-        
+                .withMotionMagicCruiseVelocity(Degrees.of(120).per(Second))
+                .withMotionMagicAcceleration(Degrees.of(240).per(Second).per(Second))
+                .withMotionMagicJerk(Degrees.of(480).per(Second).per(Second).per(Second));
+
         motor.getConfigurator().apply(motorConfig);
         motor.getConfigurator().setPosition(Degrees.of(-40));
         encoder.getConfigurator().apply(encoderConfig);
@@ -193,7 +189,7 @@ public class ShooterHood extends SubsystemBase {
     }
 
     @AutoLogOutput
-    public Current getCurrent(){
+    public Current getCurrent() {
         return motor.getSupplyCurrent().getValue();
     }
 
@@ -271,7 +267,7 @@ public class ShooterHood extends SubsystemBase {
      * @param velocity target velocity
      */
     public void setPosition(Angle angle) {
-        //motor.setControl(posCtrl.withPosition(angle).withSlot(0));
+        // motor.setControl(posCtrl.withPosition(angle).withSlot(0));
         motor.setControl(posCtrl2.withPosition(angle).withSlot(1));
     }
 
@@ -337,12 +333,10 @@ public class ShooterHood extends SubsystemBase {
 
     public Command setPositionTestCmd(Supplier<Angle> target) {
         return this.startRun(
-            () -> motor.getConfigurator().refresh(motorConfig.Slot2), 
-            () -> setPosition(target.get())
-        )
-        .finallyDo(() -> setVelocity(RotationsPerSecond.zero()));
+                () -> motor.getConfigurator().refresh(motorConfig.Slot2),
+                () -> setPosition(target.get()))
+                .finallyDo(() -> setVelocity(RotationsPerSecond.zero()));
     }
-
 
     /**
      * Creates a new command to set the shooter hood for shooting at the hub
@@ -374,23 +368,30 @@ public class ShooterHood extends SubsystemBase {
     }
 
     public Command sysIdQuasistaticLimited(SysIdRoutine.Direction direction) {
-        if (direction.equals(Direction.kReverse)){
+        if (direction.equals(Direction.kReverse)) {
             return sysIdRoutime.quasistatic(direction)
-                .until(() -> getPosition().lte((Degrees.of(-42))));//TODO EDIT
-        }else{
+                    .until(() -> getPosition().lte((Degrees.of(-42))));// TODO EDIT
+        } else {
             return sysIdRoutime.quasistatic(direction)
-                .until(() -> getPosition().gte((Degrees.of(-10))));//EDIT
+                    .until(() -> getPosition().gte((Degrees.of(-10))));// EDIT
         }
     }
 
     public Command sysIdDynamicLimited(SysIdRoutine.Direction direction) {
-        if (direction.equals(Direction.kReverse)){
+        if (direction.equals(Direction.kReverse)) {
             return sysIdRoutime.dynamic(direction)
-                .until(() -> getPosition().lte(Degrees.of(-42)));//EDIT
-        }else{
+                    .until(() -> getPosition().lte(Degrees.of(-42)));// EDIT
+        } else {
             return sysIdRoutime.dynamic(direction)
-                .until(() -> getPosition().gte(Degrees.of(-10)));//EDIT
+                    .until(() -> getPosition().gte(Degrees.of(-10)));// EDIT
         }
+    }
+
+    public Command sysIDSequence() {
+        return sysIdQuasistaticLimited(Direction.kForward)
+                .andThen(sysIdQuasistaticLimited(Direction.kReverse))
+                .andThen(sysIdDynamicLimited(Direction.kForward))
+                .andThen(sysIdDynamicLimited(Direction.kReverse));
     }
 
     /**
@@ -402,17 +403,18 @@ public class ShooterHood extends SubsystemBase {
         SmartDashboard.putNumber("Shooter Hood Angle", getPosition().in(Degrees));
         SmartDashboard.putNumber("Shooter Hood Angle RPM", getVelocity().in(Rotations.per(Minute)));
         SmartDashboard.putData("Tuning", feedbackControllerTuning);
-        
+
         motorConfig.Slot2
-            .withKP(feedbackControllerTuning.getkP())
-            .withKI(feedbackControllerTuning.getkI())
-            .withKD(feedbackControllerTuning.getkD())
-            .withKS(feedbackControllerTuning.getkS())
-            .withKV(feedbackControllerTuning.getkV())
-            .withKA(feedbackControllerTuning.getkA());
+                .withKP(feedbackControllerTuning.getkP())
+                .withKI(feedbackControllerTuning.getkI())
+                .withKD(feedbackControllerTuning.getkD())
+                .withKS(feedbackControllerTuning.getkS())
+                .withKV(feedbackControllerTuning.getkV())
+                .withKA(feedbackControllerTuning.getkA());
     }
 
     private Angle calcHubShotAngle() {
+        @SuppressWarnings("unused")
         Distance hubDist = FieldLayout.Hub.getHubDist(drivetrain.getPose2d().getTranslation());
 
         // TODO Implement Formula for target shooter hood angle

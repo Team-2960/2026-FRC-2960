@@ -13,9 +13,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutLinearVelocity;
@@ -24,7 +22,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -54,12 +51,12 @@ public class RobotContainer {
 
     // Physical Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final IntakeAngle intakeAngle = new IntakeAngle(Constants.intakeAngleID, Constants.intakeAngleEncoderID, TunerConstants.kCANBus, 50);
-    private final IntakeRoller intakeRoller = new IntakeRoller(Constants.intakeMotorID, TunerConstants.kCANBus, 24.0/18.0);
-    private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, .2, drivetrain);
-    private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID, Constants.shooterMotorFollowerID, TunerConstants.kCANBus, 20.0/12.0, drivetrain);
-    private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor, Constants.shooterHoodEncoderID, TunerConstants.kCANBus, 29.3333333, drivetrain);
-    private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer,shooterWheel,null);
+    private final IntakeAngle intakeAngle = new IntakeAngle(Constants.intakeAngleID, Constants.intakeAngleEncoderID, TunerConstants.kCANBus, Constants.intakeAngleGearRatio);
+    private final IntakeRoller intakeRoller = new IntakeRoller(Constants.intakeMotorID, TunerConstants.kCANBus, Constants.intakeRollerGearRatio);
+    private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, Constants.indexerGearRatio, drivetrain);
+    private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID, Constants.shooterMotorFollowerID, TunerConstants.kCANBus, Constants.shooterWheelGearRatio, drivetrain);
+    private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor, Constants.shooterHoodEncoderID, TunerConstants.kCANBus, Constants.shooterHoodGearRatio, drivetrain);
+    private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, intakeAngle, intakeRoller, indexer, shooterWheel, shooterHood);
     //private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
 
     // Pathplanner
@@ -158,17 +155,11 @@ public class RobotContainer {
      */
     private void initPathPlanner() {
         // Initialize Auton chooser
-        NamedCommands.registerCommand("IntakeRollerIN Command", intakeRoller.setVoltageCmd(Constants.intakeInVolt));
-        NamedCommands.registerCommand("IntakePivOut Command", intakeAngle.setPositionCmd(Degrees.of(0)));
-        NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.setPositionCmd(Degrees.of(130)));
-        NamedCommands.registerCommand("IntakePivShake Command", );
-        NamedCommands.registerCommand("ClimberDeploy Command", intakeAngle.setPositionCmd(Degrees.of(140)));
-        NamedCommands.registerCommand("ClimberRetract Command", intakeAngle.setPositionCmd(Degrees.of(140)));
-        NamedCommands.registerCommand("LeftTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40))));
-        NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15) ,Inches.of(40))));
-        NamedCommands.registerCommand("Hub Orbit Command", drivetrain.hubOrbitCommand(() -> MetersPerSecond.zero(),
-                Rotation2d.fromDegrees(180), Constants.shootingDistance));
-        NamedCommands.registerCommand("ShooterWheel Command", shooterWheel.setVelocityCmd(Rotations.per(Minute).of(1900)));
+        NamedCommands.registerCommand("IntakeRollerIN Command", intakeRoller.intakeCmd());
+        NamedCommands.registerCommand("IntakePivOut Command", intakeAngle.extendIntakeCmd());
+        NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.retractIntakeCmd());
+        NamedCommands.registerCommand("ShooterWheel Command", shooterWheel.idleSpeedCmd());
+        NamedCommands.registerCommand("Shooter Sequence Command", shooterMngt.hubAlignedShotCmd(()->MetersPerSecond.zero(), ()->MetersPerSecond.zero()));
 
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -185,96 +176,47 @@ public class RobotContainer {
     }
 
     private void intakeBindings(){
-        Command intakeAngleSysId = 
-                intakeAngle.sysIdQuasistaticLimited(Direction.kReverse, Degrees.of(0), Degrees.of(90))
-                .andThen(intakeAngle.sysIdQuasistaticLimited(Direction.kForward, Degrees.of(0), Degrees.of(90)))
-                .andThen(intakeAngle.sysIdDynamicLimited(Direction.kReverse))
-                .andThen(intakeAngle.sysIdDynamicLimited(Direction.kForward));
-
-        Command intakeRollerSysId = 
-                intakeRoller.sysIdQuasistatic(Direction.kReverse)
-                .andThen(intakeRoller.sysIdQuasistatic(Direction.kForward))
-                .andThen(intakeRoller.sysIdDynamic(Direction.kReverse))
-                .andThen(intakeRoller.sysIdDynamic(Direction.kForward));
 
         //OPERATOR
 
-        operatorCtrl.leftBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.leftBumper().whileTrue(intakeRoller.intakeCmd());
 
-        operatorCtrl.start().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
+        operatorCtrl.start().whileTrue(intakeRoller.ejectCommand());
 
         operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
 
         operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
 
-        operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
+        operatorCtrl.b().onTrue(intakeAngle.extendIntakeCmd());
 
-        operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(110)));
+        operatorCtrl.x().onTrue(intakeAngle.retractIntakeCmd());
 
-        operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(45), Degrees.of(70), Seconds.of(0.25)));
+        operatorCtrl.y().onTrue(intakeAngle.highOscillate());
 
-        operatorCtrl.a().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(20), Degrees.of(45), Seconds.of(0.25)));
+        operatorCtrl.a().onTrue(intakeAngle.lowOscillate());
 
-        operatorCtrl.povRight().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.povRight().whileTrue(indexer.runShooterFeedCmd());
 
-        operatorCtrl.povLeft().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
+        operatorCtrl.povLeft().whileTrue(indexer.reverseCmd());
 
         //DRIVER
-
-        
-        driverCtrl.rightBumper().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
-        driverCtrl.rightTrigger(.1).whileTrue(intakeAngle.setVoltageCmd(Volts.of(12)));
-
-        //TEST CONTROLS
-
-        //operatorCtrl.axisGreaterThan(0, 0.1)
-        // .whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
-        //operatorCtrl.rightTrigger(.1).whileTrue(indexer.setVoltageCmd(Volts.of(6)));
+        driverCtrl.rightBumper().onTrue(intakeAngle.extendIntakeCmd());
+        driverCtrl.rightTrigger(.1).whileTrue(intakeRoller.intakeCmd());
     }
     
     private void shooterBindings(){
-        Command shooterHoodSysId = 
-                shooterHood.sysIdQuasistaticLimited(Direction.kForward)
-                .andThen(shooterHood.sysIdQuasistaticLimited(Direction.kReverse))
-                .andThen(shooterHood.sysIdDynamicLimited(Direction.kForward))
-                .andThen(shooterHood.sysIdDynamicLimited(Direction.kReverse));
-
-        Command shooterWheelSysId = 
-                shooterWheel.sysIdQuasistatic(Direction.kForward)
-                .andThen(shooterWheel.sysIdQuasistatic(Direction.kReverse))
-                .andThen(shooterWheel.sysIdDynamic(Direction.kForward))
-                .andThen(shooterWheel.sysIdDynamic(Direction.kReverse));
-
         //OPERATOR
-
         operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
 
-        operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
+        operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubShotCmd());
 
-        operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(600)));
+        operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.idleSpeedCmd());
 
         //DRIVER
 
-        driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
+        driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubShotCmd());
 
-        driverCtrl.leftBumper().whileTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(1500)));
-
-        //TEST CONTROLS
-
-        //operatorCtrl.back().onTrue(shooterHoodSysId);
-        
-        //operatorCtrl.rightTrigger(0.1).whileTrue(shooterWheel.setVoltageCmd(Volts.of(2)));
-        //operatorCtrl.povLeft().onTrue(shooterWheel.setCurrentCmd(() -> Amps.of(60 * operatorCtrl.getLeftY())));
-        // operatorCtrl.povLeft().onTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getLeftY())));
-        //operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(-20)));
-        //operatorCtrl.povLeft().onTrue(shooterHood.setPositionCmd(Degrees.of(-40)));
-        //operatorCtrl.povDown().whileTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getRightY())));
-        // operatorCtrl.povLeft().whileTrue(shooterHood.setVoltageCmd(Volts.of(2)));
-        // operatorCtrl.povRight().whileTrue(shooterHood.setVoltageCmd(Volts.of(-2)));
-        // //operatorCtrl.rightBumper().whileTrue(shooter.setTorqueVelocityTestCmd(() -> RotationsPerSecond.of(60)));
-        //operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
-        // operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
-        // operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        driverCtrl.leftBumper().whileTrue(shooterWheel.setTorqueVelocityCmd(Constants.setShotVelocity));
 
         // Test Bindings
         operatorCtrl.back().whileTrue(shooterTestCmds.runCommandCmd()); //TODO take out after testing
@@ -317,16 +259,6 @@ public class RobotContainer {
                 drivetrain.passOrbitRestrictedRadiusCommand(() -> fullYVelCtrl.get().times(-1), () -> fullXVelCtrl.get().times(-1), Rotation2d.fromDegrees(180),
                         FieldLayout.fieldCenterX, FieldLayout.fieldCenterX.minus(Inches.of(130))));
 
-        // driverCtrl.x().whileTrue(
-        //         drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
-        //                 Rotation2d.fromDegrees(90)));
-
-        // Translation2d offsetBackHub = FieldLayout.Hub.getHubCenterBack(new Translation2d(Inches.of(35.0/2.0 + 10), Meters.zero()));
-        // driverCtrl.x().whileTrue(
-        //         drivetrain.yAxisAlignCmd(
-        //                 fullYVelCtrl, Rotation2d.fromDegrees(90), 
-        //                 offsetBackHub));
-
         driverCtrl.x().whileTrue(
                 Commands.runOnce(
                         () -> drivetrain.initialRotationHelper(FieldLayout.getInwardAngle(drivetrain.getPose2d())), 
@@ -334,21 +266,9 @@ public class RobotContainer {
                 )
                 .andThen(drivetrain.hubBackAlignCmd(fullYVelCtrl)));
 
-        // driverCtrl.y().whileTrue(
-        //         drivetrain.xAxisAlignCmd(fullXVelCtrl, Rotation2d.fromDegrees(90), FieldLayout.Trench.blueTrenchRight)
-        // );
-
         driverCtrl.y().whileTrue(
                 drivetrain.trenchAlignCmd(fullXVelCtrl)
         );
-
-        // driverCtrl.leftTrigger(.1).whileTrue(
-        //         drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
-        // );
-
-        //   driverCtrl.rightTrigger(.1).whileTrue(
-        //         drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15) ,Inches.of(40)))
-        // );
 
         // Pose Reset
         driverCtrl.pov(0).onTrue(drivetrain.runOnce(

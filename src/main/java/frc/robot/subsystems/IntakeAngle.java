@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.DoubleSupplier;
@@ -39,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants;
 
 public class IntakeAngle extends SubsystemBase {
 
@@ -314,7 +316,7 @@ public class IntakeAngle extends SubsystemBase {
                         .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3))));
     }
 
-    public Command setOscilateProgressionTestCmd(Angle amplitude, Time period, DoubleSupplier testValue) {
+    public Command setOscillateProgressionTestCmd(Angle amplitude, Time period, DoubleSupplier testValue) {
         return Commands.sequence(
                 setOscilateCmd(amplitude, Degrees.of(20), period)
                         .onlyWhile(() -> testValue.getAsDouble() >= 10),
@@ -324,6 +326,22 @@ public class IntakeAngle extends SubsystemBase {
 
                 setOscilateCmd(amplitude, Degrees.of(60), period)
                         .onlyWhile(() -> testValue.getAsDouble() >= 2));
+    }
+
+    public Command lowOscillate() {
+        return setOscilateLimitsCmd(Degrees.of(20), Degrees.of(45), Seconds.of(0.25));
+    }
+
+    public Command highOscillate() {
+        return setOscilateLimitsCmd(Degrees.of(45), Degrees.of(70), Seconds.of(0.25));
+    }
+
+    public Command extendIntakeCmd() {
+        return setPositionCmd(Constants.intakeDownAngle);
+    }
+
+    public Command retractIntakeCmd() {
+        return setPositionCmd(Constants.intakeUpAngle);
     }
 
     /**
@@ -370,6 +388,14 @@ public class IntakeAngle extends SubsystemBase {
             return sysIdRoutine.dynamic(direction)
                     .until(() -> getPosition().gte(Degrees.of(90)));
         }
+    }
+
+    public Command getSysIdSequence() {
+        return Commands.sequence(
+                sysIdQuasistaticLimited(Direction.kReverse, Degrees.of(0), Degrees.of(90)),
+                sysIdQuasistaticLimited(Direction.kForward, Degrees.of(0), Degrees.of(90)),
+                sysIdDynamicLimited(Direction.kReverse),
+                sysIdDynamicLimited(Direction.kForward));
     }
 
     /**
