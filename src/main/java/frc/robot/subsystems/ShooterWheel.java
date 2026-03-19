@@ -79,7 +79,8 @@ public class ShooterWheel extends SubsystemBase {
          * @return
          */
         public Command getCommand() {
-            return hubPhaseShotCmd(()->Rotations.per(Minute).of(velRPM), Rotations.per(Minute).of(200), Rotations.per(Minute).of(150));
+            return hubPhaseShotCmd(() -> Rotations.per(Minute).of(velRPM), Rotations.per(Minute).of(200),
+                    Rotations.per(Minute).of(150));
         }
 
         public double getkP() {
@@ -459,6 +460,14 @@ public class ShooterWheel extends SubsystemBase {
                 () -> motorLeader.getConfigurator().refresh(motorConfig.Slot2),
                 () -> setTorqueCurrentVel(velocity.get()))
                 .finallyDo(() -> setVoltage(Volts.zero()));
+    }
+
+    public Command idleVelocityCmd() {
+        return setTorqueVelocityCmd((Constants.idleVelocity));
+    }
+
+    public Command passVelocityCmd() {
+        return setTorqueVelocityCmd((Constants.passVelocity));
     }
 
     /**

@@ -72,20 +72,8 @@
                       "data": {
                         "name": "ShooterWheel Command"
                       }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "IntakePivShake"
-                      }
                     }
                   ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakePivIn Command"
                 }
               }
             ]
@@ -153,20 +141,8 @@
                       "data": {
                         "name": "ShooterWheel Command"
                       }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "IntakePivShake"
-                      }
                     }
                   ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakePivIn Command"
                 }
               }
             ]

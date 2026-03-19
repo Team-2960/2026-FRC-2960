@@ -68,12 +68,6 @@
                 "data": {
                   "name": "ShooterWheel Command"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakePivIn Command"
-                }
               }
             ]
           }
@@ -116,12 +110,6 @@
                 "type": "named",
                 "data": {
                   "name": "ShooterWheel Command"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakePivIn Command"
                 }
               }
             ]

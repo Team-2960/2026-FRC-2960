@@ -19,6 +19,8 @@ public class ShooterManagement {
     private final Indexer indexer;
     private final ShooterWheel shooterWheel;
     private final ShooterHood shooterHood;
+    private final IntakeRoller intakeRoller;
+    private final IntakeAngle intakeAngle;
 
     /**
      * Constructor
@@ -28,98 +30,35 @@ public class ShooterManagement {
      * @param shooterHood  shooter hood subsystem instance
      */
     public ShooterManagement(CommandSwerveDrivetrain drivetrain, Indexer indexer, ShooterWheel shooterWheel,
-            ShooterHood shooterHood) {
+            ShooterHood shooterHood, IntakeRoller intakeRoller, IntakeAngle intakeAngle) {
         this.drivetrain = drivetrain;
         this.indexer = indexer;
         this.shooterWheel = shooterWheel;
         this.shooterHood = shooterHood;
+        this.intakeRoller = intakeRoller;
+        this.intakeAngle = intakeAngle;
     }
 
-    private AngularVelocity calcHubShotSpeed() {
-        Distance hubDist = FieldLayout.Hub.getHubDist(drivetrain.getPose2d().getTranslation());
-
-        return Constants.shooterWheelTable.get(hubDist);
-    }
-
-    /**
-     * Creates a command to set the shooter wheel and hood to be ready to shoot at
-     * the hub
-     * 
-     * @return command to set the shooter and hood to be ready to shoot at the hub
-     */
-    public Command hubShotPrepCmd() {
+    public Command hubNoIntakeShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                shooterHood.hubShotCmd());
+                indexer.autoIndexCmd(() -> isShooterReady()));
     }
 
-    /**
-     * Creates a command to set the robot orientation, shooter wheel and shooter
-     * hood to be ready to shoot at the hub
-     * 
-     * @param xVel target x velocity
-     * @param yVel target y velocity
-     * 
-     * @return command to set the robot orientation, shooter wheel and shooter hood
-     *         to be ready to shoot at the hub
-     */
-    public Command hubAlignCmd(
-            Supplier<LinearVelocity> xVel,
-            Supplier<LinearVelocity> yVel) {
+    public Command hubAutoShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                shooterHood.hubShotCmd(),
-                drivetrain.lookAtHubCmd(xVel, yVel, Constants.shooterOrientation));
+                intakeRoller.intakeInCmd(),
+                intakeAngle.lowOscillate(),
+                indexer.autoIndexCmd(() -> isShooterReady()));
     }
 
-    /**
-     * Creates a command to align the shooter to the hub, set the shooter wheel and
-     * hood to shoot at the hub, and feed game pieces when ready.
-     * 
-     * @param xVel target x velocity
-     * @param yVel target y velocity
-     * @return command to align the shooter to the hub, set the shooter wheel and
-     *         hood to shoot at the hub, and feed game pieces when ready.
-     */
-    public Command hubShotCmd() {
-        return Commands.parallel(
-                shooterWheel.hubShotCmd(),
-                // shooterHood.hubShotCmd(),
-                indexer.autoIndexCmd(this::isShooterReady));
-    }
-
-    /**
-     * Creates a command to align the shooter to the hub, set the shooter wheel and
-     * hood to shoot at the hub, and feed game pieces when ready.
-     * 
-     * @param xVel target x velocity
-     * @param yVel target y velocity
-     * @return command to align the shooter to the hub, set the shooter wheel and
-     *         hood to shoot at the hub, and feed game pieces when ready.
-     */
-    public Command hubAlignedShotCmd(
-            Supplier<LinearVelocity> xVel,
-            Supplier<LinearVelocity> yVel) {
-        return Commands.parallel(
-                shooterWheel.hubShotCmd(),
-                shooterHood.hubShotCmd(),
-                drivetrain.lookAtHubCmd(xVel, yVel, Constants.shooterOrientation),
-                indexer.autoIndexCmd(() -> isShooterReady() && isRobotAligned()));
-    }
-
-    public Command hubNoHoodShotCmd(AngularVelocity velTolerance, Voltage indexerVolt){
-        return Commands.parallel(
-            shooterWheel.hubShotCmd(),
-            Commands.either(indexer.setVoltageCmd(indexerVolt), 
-            indexer.setVoltageCmd(Volts.zero()), 
-                () -> shooterWheel.getVelocity().gte(calcHubShotSpeed().minus(velTolerance)) && calcHubShotSpeed().plus(velTolerance).gt(shooterWheel.getVelocity()))
-        );
-    }
-
-    public Command phaseShotIndexerCtrlCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold,
+    public Command setVelocityShotCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold,
             AngularVelocity ceilingThreshold) {
         return Commands.parallel(
                 shooterWheel.hubPhaseShotCmd(targetVel, floorThreshold, ceilingThreshold),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.lowOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady(floorThreshold, ceilingThreshold)));
     }
 

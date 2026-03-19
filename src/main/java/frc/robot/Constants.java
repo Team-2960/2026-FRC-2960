@@ -83,17 +83,22 @@ public class Constants {
 
 
     public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);
+    public static final AngularVelocity passVelocity = Rotations.per(Minute).of(1500);
+    public static final AngularVelocity idleVelocity = Rotations.per(Minute).of(1000);
     public static final AngularAcceleration shooterMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
     // Indexer Constants
-    public static final Voltage indexerFeedVolt = Volts.of(12);
+    public static final Voltage indexerForwardVolt = Volts.of(12);
+    public static final Voltage indexerReverseVolt = Volts.of(-12);
     public static final AngularAcceleration indexerMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
     // Intake Constants
     public static final double intakeGearRatio = 1;
+    public static final Angle intakeOutAngle = Degrees.of(0);
+    public static final Angle intakeInAngle = Degrees.of(110);
 
-    public static final Voltage intakeInVolt = Volts.of(12.0);
-    public static final Voltage intakeOutVolt = Volts.of(-12.0);
+    public static final Voltage intakeRollerInVolt = Volts.of(12.0);
+    public static final Voltage intakeRollerOutVolt = Volts.of(-12.0);
 
     // Drivetrain Constants
     public static final LinearVelocity linDeadband = maxLinVel.times(.07); 

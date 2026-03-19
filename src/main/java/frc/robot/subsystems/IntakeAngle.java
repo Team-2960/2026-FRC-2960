@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.DoubleSupplier;
@@ -39,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants;
 
 public class IntakeAngle extends SubsystemBase {
 
@@ -275,6 +277,14 @@ public class IntakeAngle extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
+    public Command extendCmd(){
+        return setPositionCmd(Constants.intakeOutAngle);
+    }
+
+    public Command retractCmd(){
+        return setPositionCmd(Constants.intakeInAngle);
+    }
+
     public Command holdPositionCmd() {
         return this.startEnd(
                 () -> setPosition(getPosition()),
@@ -324,6 +334,14 @@ public class IntakeAngle extends SubsystemBase {
 
                 setOscilateCmd(amplitude, Degrees.of(60), period)
                         .onlyWhile(() -> testValue.getAsDouble() >= 2));
+    }
+
+    public Command lowOscillate() {
+        return setOscilateLimitsCmd(Degrees.of(20), Degrees.of(45), Seconds.of(0.25));
+    }
+
+    public Command highOscillate() {
+        return setOscilateLimitsCmd(Degrees.of(45), Degrees.of(75), Seconds.of(0.25));
     }
 
     /**

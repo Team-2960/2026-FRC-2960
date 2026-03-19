@@ -41,7 +41,7 @@ public class Indexer extends SubsystemBase {
     private final MotionMagicVelocityTorqueCurrentFOC torqueCtrl = new MotionMagicVelocityTorqueCurrentFOC(0)
             .withAcceleration(Constants.indexerMaxAccel)
             .withSlot(1);
-            
+
     private final TorqueCurrentFOC currentCtrl = new TorqueCurrentFOC(0);
 
     private final CommandSwerveDrivetrain drivetrain;
@@ -72,6 +72,7 @@ public class Indexer extends SubsystemBase {
                     this));
 
     private SysIdRoutine currentSysIdRoutine = sysIdRoutine3;
+
     /**
      * Constructor
      * 
@@ -109,7 +110,7 @@ public class Indexer extends SubsystemBase {
                 .withKA(0.0);
 
         motor.getConfigurator().apply(motorConfig);
-        
+
     }
 
     /**
@@ -119,6 +120,14 @@ public class Indexer extends SubsystemBase {
      */
     public void setVoltage(Voltage volts) {
         motor.setControl(voltCtrl.withOutput(volts));
+    }
+
+    public Command indexForwardCmd() {
+        return setVoltageCmd(Constants.indexerForwardVolt);
+    }
+
+    public Command indexReverseCmd() {
+        return setVoltageCmd(Constants.indexerReverseVolt);
     }
 
     /**
@@ -150,7 +159,7 @@ public class Indexer extends SubsystemBase {
      * @return
      */
     @AutoLogOutput
-    public Current getStatorCurrent(){
+    public Current getStatorCurrent() {
         return motor.getStatorCurrent().getValue();
     }
 
@@ -160,7 +169,7 @@ public class Indexer extends SubsystemBase {
      * @return
      */
     @AutoLogOutput
-    public Current getSupplyCurrent(){
+    public Current getSupplyCurrent() {
         return motor.getSupplyCurrent().getValue();
     }
 
@@ -198,7 +207,7 @@ public class Indexer extends SubsystemBase {
                 () -> setVelocity(RotationsPerSecond.zero()));
     }
 
-        public Command setTorqueVelocityCmd(AngularVelocity velocity) {
+    public Command setTorqueVelocityCmd(AngularVelocity velocity) {
         return this.runEnd(
                 () -> setTorqueCurrentVel(velocity),
                 () -> setVoltage(Volts.zero()));
@@ -216,40 +225,32 @@ public class Indexer extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
-    public Command runShooterFeedCmd() {
-        return setVoltageCmd(Constants.indexerFeedVolt);
-    }
-
-    public Command stopShooterFeedCmd() {
-        return setVoltageCmd(Volts.zero());
-    }
-
-
-    public Command autoIndexCmd(BooleanSupplier enabled){
+    public Command autoIndexCmd(BooleanSupplier enabled) {
         return this.runEnd(() -> {
             if (enabled.getAsBoolean()) {
-                setVoltage(Constants.indexerFeedVolt);
-            }else{
+                setVoltage(Constants.indexerForwardVolt);
+            } else {
                 setVoltage(Volts.zero());
             }
-        }, 
-        () -> setVoltage(Volts.zero()));
+        },
+                () -> setVoltage(Volts.zero()));
     }
 
     /**
      * Create a Quasistatic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Quasistatic SysId command
+     * @return Quasistatic SysId command
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return currentSysIdRoutine.quasistatic(direction);
     }
 
-
     /**
      * Create a Dynamic SysId command
+     * 
      * @param direction direction of the command
-     * @return  Dynamic SysId command
+     * @return Dynamic SysId command
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return currentSysIdRoutine.dynamic(direction);
@@ -261,7 +262,8 @@ public class Indexer extends SubsystemBase {
     @Override
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
-        // SmartDashboard.putNumber("Indexer RPM", getVelocity().in(Rotations.per(Minute)));
+        // SmartDashboard.putNumber("Indexer RPM",
+        // getVelocity().in(Rotations.per(Minute)));
     }
 
     @AutoLogOutput

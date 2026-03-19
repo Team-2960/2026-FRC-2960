@@ -51,19 +51,22 @@ public class RobotContainer {
     private final CommandXboxController driverCtrl = new CommandXboxController(0);
     private final CommandXboxController operatorCtrl = new CommandXboxController(1);
 
-
     // Physical Subsystems
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final IntakeAngle intakeAngle = new IntakeAngle(Constants.intakeAngleID, Constants.intakeAngleEncoderID, TunerConstants.kCANBus, 50);
-    private final IntakeRoller intakeRoller = new IntakeRoller(Constants.intakeMotorID, TunerConstants.kCANBus, 24.0/18.0);
-    private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, .2, drivetrain);
-    private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID, Constants.shooterMotorFollowerID, TunerConstants.kCANBus, 20.0/12.0, drivetrain);
-    private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor, Constants.shooterHoodEncoderID, TunerConstants.kCANBus, 29.3333333, drivetrain);
-    private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer,shooterWheel,null);
-    //private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
+    private final IntakeAngle intakeAngle = new IntakeAngle(Constants.intakeAngleID, Constants.intakeAngleEncoderID,
+            TunerConstants.kCANBus, 50.0);
+    private final IntakeRoller intakeRoller = new IntakeRoller(Constants.intakeMotorID, TunerConstants.kCANBus,
+            24.0 / 18.0);
+    private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, 5, drivetrain);
+    private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID,
+            Constants.shooterMotorFollowerID, TunerConstants.kCANBus, 20.0 / 12.0, drivetrain);
+    private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor,
+            Constants.shooterHoodEncoderID, TunerConstants.kCANBus, 29.3333333, drivetrain);
+    private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer, shooterWheel, shooterHood, intakeRoller, intakeAngle);
+    // private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
 
     // Pathplanner
-    SendableChooser <Command> autoChooser;
+    SendableChooser<Command> autoChooser;
 
     // Mutable Units
     private MutLinearVelocity xVel = MetersPerSecond.mutable(0);
@@ -88,7 +91,6 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
 
-
     // Standard Suppliers
     private Supplier<LinearVelocity> fullXVelCtrl = () -> xVel.mut_replace(Constants.maxLinVel)
             .mut_times(MathUtil.applyDeadband(-driverCtrl.getHID().getLeftY(), 0.0));
@@ -106,33 +108,40 @@ public class RobotContainer {
 
     // Test Command Lists
     private final CommandSelector drivetrainTestCmds = new CommandSelector()
-        .addEntry("SysID Translation Quasistatic Forward", drivetrain.sysIdTranslationQuasistatic(Direction.kForward))
-        .addEntry("SysID Translation Quasistatic Reverse", drivetrain.sysIdTranslationQuasistatic(Direction.kReverse))
-        .addEntry("SysID Translation Dynamic Forward", drivetrain.sysIdTranslationDynamic(Direction.kForward))
-        .addEntry("SysID Translation Dynamic Forward", drivetrain.sysIdTranslationDynamic(Direction.kReverse))
-        .addEntry("SysID Steer Quasistatic Forward", drivetrain.sysIdSteerQuasistatic(Direction.kForward))
-        .addEntry("SysID Steer Quasistatic Reverse", drivetrain.sysIdSteerQuasistatic(Direction.kReverse))
-        .addEntry("SysID Steer Dynamic Forward", drivetrain.sysIdSteerDynamic(Direction.kForward))
-        .addEntry("SysID Steer Dynamic Forward", drivetrain.sysIdSteerDynamic(Direction.kReverse))
-        .addEntry("SysID Rotation Quasistatic Forward", drivetrain.sysIdRotationQuasistatic(Direction.kForward))
-        .addEntry("SysID Rotation Quasistatic Reverse", drivetrain.sysIdRotationQuasistatic(Direction.kReverse))
-        .addEntry("SysID Rotation Dynamic Forward", drivetrain.sysIdRotationDynamic(Direction.kForward))
-        .addEntry("SysID Rotation Dynamic Forward", drivetrain.sysIdRotationDynamic(Direction.kReverse))
-        .sendToDashboard("Drivetrain Test Commands");
+            .addEntry("SysID Translation Quasistatic Forward",
+                    drivetrain.sysIdTranslationQuasistatic(Direction.kForward))
+            .addEntry("SysID Translation Quasistatic Reverse",
+                    drivetrain.sysIdTranslationQuasistatic(Direction.kReverse))
+            .addEntry("SysID Translation Dynamic Forward",
+                    drivetrain.sysIdTranslationDynamic(Direction.kForward))
+            .addEntry("SysID Translation Dynamic Forward",
+                    drivetrain.sysIdTranslationDynamic(Direction.kReverse))
+            .addEntry("SysID Steer Quasistatic Forward",
+                    drivetrain.sysIdSteerQuasistatic(Direction.kForward))
+            .addEntry("SysID Steer Quasistatic Reverse",
+                    drivetrain.sysIdSteerQuasistatic(Direction.kReverse))
+            .addEntry("SysID Steer Dynamic Forward", drivetrain.sysIdSteerDynamic(Direction.kForward))
+            .addEntry("SysID Steer Dynamic Forward", drivetrain.sysIdSteerDynamic(Direction.kReverse))
+            .addEntry("SysID Rotation Quasistatic Forward",
+                    drivetrain.sysIdRotationQuasistatic(Direction.kForward))
+            .addEntry("SysID Rotation Quasistatic Reverse",
+                    drivetrain.sysIdRotationQuasistatic(Direction.kReverse))
+            .addEntry("SysID Rotation Dynamic Forward", drivetrain.sysIdRotationDynamic(Direction.kForward))
+            .addEntry("SysID Rotation Dynamic Forward", drivetrain.sysIdRotationDynamic(Direction.kReverse))
+            .sendToDashboard("Drivetrain Test Commands");
 
-        private final CommandSelector shooterTestCmds = new CommandSelector()
-        .addEntry("SysID Quasistatic Forward", shooterWheel.sysIdQuasistatic(Direction.kForward))
-        .addEntry("SysID Quasistatic Reverse", shooterWheel.sysIdQuasistatic(Direction.kReverse))
-        .addEntry("SysID Dynamic Forward", shooterWheel.sysIdDynamic(Direction.kForward))
-        .addEntry("SysID Dynamic Reverse", shooterWheel.sysIdDynamic(Direction.kReverse))
-        .addEntry("SysID Full", Commands.sequence(
-                shooterWheel.sysIdQuasistatic(Direction.kForward),
-                shooterWheel.sysIdQuasistatic(Direction.kReverse),
-                shooterWheel.sysIdDynamic(Direction.kForward),
-                shooterWheel.sysIdDynamic(Direction.kReverse)))
-        .addEntry("Shooter Speed Test", shooterWheel.getTestCommand())
-        .sendToDashboard("Shooter Test Commands");
-
+    private final CommandSelector shooterTestCmds = new CommandSelector()
+            .addEntry("SysID Quasistatic Forward", shooterWheel.sysIdQuasistatic(Direction.kForward))
+            .addEntry("SysID Quasistatic Reverse", shooterWheel.sysIdQuasistatic(Direction.kReverse))
+            .addEntry("SysID Dynamic Forward", shooterWheel.sysIdDynamic(Direction.kForward))
+            .addEntry("SysID Dynamic Reverse", shooterWheel.sysIdDynamic(Direction.kReverse))
+            .addEntry("SysID Full", Commands.sequence(
+                    shooterWheel.sysIdQuasistatic(Direction.kForward),
+                    shooterWheel.sysIdQuasistatic(Direction.kReverse),
+                    shooterWheel.sysIdDynamic(Direction.kForward),
+                    shooterWheel.sysIdDynamic(Direction.kReverse)))
+            .addEntry("Shooter Speed Test", shooterWheel.getTestCommand())
+            .sendToDashboard("Shooter Test Commands");
 
     /**
      * Constructor
@@ -145,10 +154,12 @@ public class RobotContainer {
         configureBindings();
 
         // Initialize drivetrain telemetry
-        if (Robot.isSimulation()){
-                drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, true));
-        }else{
-                drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
+        if (Robot.isSimulation()) {
+            drivetrain.registerTelemetry(
+                    (telemetryFunction) -> logger.telemeterize(telemetryFunction, true));
+        } else {
+            drivetrain.registerTelemetry(
+                    (telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
         }
         DriverStation.silenceJoystickConnectionWarning(true);
     }
@@ -158,18 +169,18 @@ public class RobotContainer {
      */
     private void initPathPlanner() {
         // Initialize Auton chooser
-        NamedCommands.registerCommand("IntakeRollerIN Command", intakeRoller.setVoltageCmd(Constants.intakeInVolt));
-        NamedCommands.registerCommand("IntakePivOut Command", intakeAngle.setPositionCmd(Degrees.of(0)));
-        NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.setPositionCmd(Degrees.of(130)));
-        NamedCommands.registerCommand("IntakePivShake Command", intakeAngle.setOscilateLimitsCmd(Degrees.of(30), Degrees.of(75),Seconds.of(0.5)));
+        NamedCommands.registerCommand("IntakeRollerIN Command", intakeRoller.intakeInCmd());
+        NamedCommands.registerCommand("IntakePivOut Command", intakeAngle.extendCmd());
+        NamedCommands.registerCommand("IntakePivIn Command", intakeAngle.retractCmd());
+        NamedCommands.registerCommand("IntakePivShake Command", intakeAngle.lowOscillate());
         NamedCommands.registerCommand("ClimberDeploy Command", intakeAngle.setPositionCmd(Degrees.of(140)));
         NamedCommands.registerCommand("ClimberRetract Command", intakeAngle.setPositionCmd(Degrees.of(140)));
-        NamedCommands.registerCommand("LeftTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40))));
-        NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15) ,Inches.of(40))));
-        NamedCommands.registerCommand("Hub Orbit Command", drivetrain.hubOrbitCommand(() -> MetersPerSecond.zero(),
-                Rotation2d.fromDegrees(180), Constants.shootingDistance));
-        NamedCommands.registerCommand("ShooterWheel Command", shooterWheel.setVelocityCmd(Rotations.per(Minute).of(1900)));
-
+        NamedCommands.registerCommand("LeftTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl,
+                Rotation2d.fromDegrees(180), new Translation2d(Inches.of(-11.25), Inches.of(-40))));
+        NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl,
+                Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15), Inches.of(40))));
+        NamedCommands.registerCommand("Hub Orbit Command",hubOrbitRangeCmd());
+        NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubAutoShotCmd());
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auton Chooser", autoChooser);
@@ -184,100 +195,102 @@ public class RobotContainer {
         shooterBindings();
     }
 
-    private void intakeBindings(){
-        Command intakeAngleSysId = 
-                intakeAngle.sysIdQuasistaticLimited(Direction.kReverse, Degrees.of(0), Degrees.of(90))
-                .andThen(intakeAngle.sysIdQuasistaticLimited(Direction.kForward, Degrees.of(0), Degrees.of(90)))
+    private void intakeBindings() {
+        Command intakeAngleSysId = intakeAngle
+                .sysIdQuasistaticLimited(Direction.kReverse, Degrees.of(0), Degrees.of(90))
+                .andThen(intakeAngle.sysIdQuasistaticLimited(Direction.kForward, Degrees.of(0),
+                        Degrees.of(90)))
                 .andThen(intakeAngle.sysIdDynamicLimited(Direction.kReverse))
                 .andThen(intakeAngle.sysIdDynamicLimited(Direction.kForward));
 
-        Command intakeRollerSysId = 
-                intakeRoller.sysIdQuasistatic(Direction.kReverse)
+        Command intakeRollerSysId = intakeRoller.sysIdQuasistatic(Direction.kReverse)
                 .andThen(intakeRoller.sysIdQuasistatic(Direction.kForward))
                 .andThen(intakeRoller.sysIdDynamic(Direction.kReverse))
                 .andThen(intakeRoller.sysIdDynamic(Direction.kForward));
 
-        //OPERATOR
+        // OPERATOR
 
-        operatorCtrl.leftBumper().whileTrue(intakeRoller.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.leftBumper().whileTrue(intakeRoller.intakeInCmd());
 
-        operatorCtrl.start().whileTrue(intakeRoller.setVoltageCmd(Volts.of(-12)));
+        operatorCtrl.start().whileTrue(intakeRoller.intakeOutCmd());
 
         operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
 
         operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
 
-        operatorCtrl.b().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
+        operatorCtrl.b().onTrue(intakeAngle.extendCmd());
 
-        operatorCtrl.x().onTrue(intakeAngle.setPositionCmd(Degrees.of(110)));
+        operatorCtrl.x().onTrue(intakeAngle.retractCmd());
 
-        operatorCtrl.y().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(45), Degrees.of(70), Seconds.of(0.25)));
+        operatorCtrl.y().onTrue(intakeAngle.highOscillate());
 
-        operatorCtrl.a().onTrue(intakeAngle.setOscilateLimitsCmd(Degrees.of(20), Degrees.of(45), Seconds.of(0.25)));
+        operatorCtrl.a().onTrue(intakeAngle.lowOscillate());
 
-        operatorCtrl.povRight().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
+        operatorCtrl.povRight().whileTrue(indexer.indexForwardCmd());
 
-        operatorCtrl.povLeft().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
+        operatorCtrl.povLeft().whileTrue(indexer.indexReverseCmd());
 
-        //DRIVER
+        // DRIVER
 
-        
         driverCtrl.rightBumper().onTrue(intakeAngle.setPositionCmd(Degrees.of(0)));
         driverCtrl.rightTrigger(.1).whileTrue(intakeAngle.setVoltageCmd(Volts.of(12)));
 
-        //TEST CONTROLS
+        // TEST CONTROLS
 
-        //operatorCtrl.axisGreaterThan(0, 0.1)
-        // .whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20), Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
-        //operatorCtrl.rightTrigger(.1).whileTrue(indexer.setVoltageCmd(Volts.of(6)));
+        // operatorCtrl.axisGreaterThan(0, 0.1)
+        // .whileTrue(intakeAngle.setOscilateProgressionTestCmd(Degrees.of(20),
+        // Seconds.of(0.5),() -> operatorCtrl.getRawAxis(0)));
+        // operatorCtrl.rightTrigger(.1).whileTrue(indexer.setVoltageCmd(Volts.of(6)));
     }
-    
-    private void shooterBindings(){
-        Command shooterHoodSysId = 
-                shooterHood.sysIdQuasistaticLimited(Direction.kForward)
+
+    private void shooterBindings() {
+        Command shooterHoodSysId = shooterHood.sysIdQuasistaticLimited(Direction.kForward)
                 .andThen(shooterHood.sysIdQuasistaticLimited(Direction.kReverse))
                 .andThen(shooterHood.sysIdDynamicLimited(Direction.kForward))
                 .andThen(shooterHood.sysIdDynamicLimited(Direction.kReverse));
 
-        Command shooterWheelSysId = 
-                shooterWheel.sysIdQuasistatic(Direction.kForward)
+        Command shooterWheelSysId = shooterWheel.sysIdQuasistatic(Direction.kForward)
                 .andThen(shooterWheel.sysIdQuasistatic(Direction.kReverse))
                 .andThen(shooterWheel.sysIdDynamic(Direction.kForward))
                 .andThen(shooterWheel.sysIdDynamic(Direction.kReverse));
 
-        //OPERATOR
+        // OPERATOR
 
         operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
 
-        operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
+        operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 
-        operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(600)));
+        operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.idleVelocityCmd());
 
-        //DRIVER
+        // DRIVER
 
-        driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
+        driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 
-        driverCtrl.leftBumper().whileTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(1500)));
+        driverCtrl.leftBumper().whileTrue(shooterWheel.passVelocityCmd());
 
-        //TEST CONTROLS
+        // TEST CONTROLS
 
-        //operatorCtrl.back().onTrue(shooterHoodSysId);
-        
-        //operatorCtrl.rightTrigger(0.1).whileTrue(shooterWheel.setVoltageCmd(Volts.of(2)));
-        //operatorCtrl.povLeft().onTrue(shooterWheel.setCurrentCmd(() -> Amps.of(60 * operatorCtrl.getLeftY())));
-        // operatorCtrl.povLeft().onTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getLeftY())));
-        //operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(-20)));
-        //operatorCtrl.povLeft().onTrue(shooterHood.setPositionCmd(Degrees.of(-40)));
-        //operatorCtrl.povDown().whileTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 * operatorCtrl.getRightY())));
+        // operatorCtrl.back().onTrue(shooterHoodSysId);
+
+        // operatorCtrl.rightTrigger(0.1).whileTrue(shooterWheel.setVoltageCmd(Volts.of(2)));
+        // operatorCtrl.povLeft().onTrue(shooterWheel.setCurrentCmd(() -> Amps.of(60 *
+        // operatorCtrl.getLeftY())));
+        // operatorCtrl.povLeft().onTrue(shooterHood.setVoltageCmd(() -> Volts.of(12 *
+        // operatorCtrl.getLeftY())));
+        // operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(-20)));
+        // operatorCtrl.povLeft().onTrue(shooterHood.setPositionCmd(Degrees.of(-40)));
+        // operatorCtrl.povDown().whileTrue(shooterHood.setVoltageCmd(() -> Volts.of(12
+        // * operatorCtrl.getRightY())));
         // operatorCtrl.povLeft().whileTrue(shooterHood.setVoltageCmd(Volts.of(2)));
         // operatorCtrl.povRight().whileTrue(shooterHood.setVoltageCmd(Volts.of(-2)));
-        // //operatorCtrl.rightBumper().whileTrue(shooter.setTorqueVelocityTestCmd(() -> RotationsPerSecond.of(60)));
-        //operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
+        // //operatorCtrl.rightBumper().whileTrue(shooter.setTorqueVelocityTestCmd(() ->
+        // RotationsPerSecond.of(60)));
+        // operatorCtrl.rightTrigger(0.1).whileTrue(shooterMngt.hubShotCmd());
         // operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         // operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
 
         // Test Bindings
-        operatorCtrl.back().whileTrue(shooterTestCmds.runCommandCmd()); //TODO take out after testing
+        operatorCtrl.back().whileTrue(shooterTestCmds.runCommandCmd()); // TODO take out after testing
     }
 
     /**
@@ -309,45 +322,44 @@ public class RobotContainer {
         driverCtrl.a().whileTrue(
                 drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92)));
 
-        driverCtrl.b().whileTrue(
-                drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180),
-                        Inches.of(147), Meters.of(1.75)));
+        driverCtrl.b().whileTrue(hubOrbitRangeCmd());
 
-        driverCtrl.x().whileTrue(
-                drivetrain.passOrbitRestrictedRadiusCommand(() -> fullYVelCtrl.get().times(-1), () -> fullXVelCtrl.get().times(-1), Rotation2d.fromDegrees(180),
-                        FieldLayout.fieldCenterX, FieldLayout.fieldCenterX.minus(Inches.of(130))));
-
+        driverCtrl.x().whileTrue(passOrbitCmd());
         // driverCtrl.x().whileTrue(
-        //         drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),
-        //                 Rotation2d.fromDegrees(90)));
+        // drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () ->
+        // MetersPerSecond.of(2),
+        // Rotation2d.fromDegrees(90)));
 
-        // Translation2d offsetBackHub = FieldLayout.Hub.getHubCenterBack(new Translation2d(Inches.of(35.0/2.0 + 10), Meters.zero()));
+        // Translation2d offsetBackHub = FieldLayout.Hub.getHubCenterBack(new
+        // Translation2d(Inches.of(35.0/2.0 + 10), Meters.zero()));
         // driverCtrl.x().whileTrue(
-        //         drivetrain.yAxisAlignCmd(
-        //                 fullYVelCtrl, Rotation2d.fromDegrees(90), 
-        //                 offsetBackHub));
+        // drivetrain.yAxisAlignCmd(
+        // fullYVelCtrl, Rotation2d.fromDegrees(90),
+        // offsetBackHub));
 
         driverCtrl.x().whileTrue(
                 Commands.runOnce(
-                        () -> drivetrain.initialRotationHelper(FieldLayout.getInwardAngle(drivetrain.getPose2d())), 
-                        drivetrain
-                )
-                .andThen(drivetrain.hubBackAlignCmd(fullYVelCtrl)));
+                        () -> drivetrain.initialRotationHelper(
+                                FieldLayout.getInwardAngle(drivetrain.getPose2d())),
+                        drivetrain)
+                        .andThen(drivetrain.hubBackAlignCmd(fullYVelCtrl)));
 
         // driverCtrl.y().whileTrue(
-        //         drivetrain.xAxisAlignCmd(fullXVelCtrl, Rotation2d.fromDegrees(90), FieldLayout.Trench.blueTrenchRight)
+        // drivetrain.xAxisAlignCmd(fullXVelCtrl, Rotation2d.fromDegrees(90),
+        // FieldLayout.Trench.blueTrenchRight)
         // );
 
         driverCtrl.y().whileTrue(
-                drivetrain.trenchAlignCmd(fullXVelCtrl)
-        );
+                drivetrain.trenchAlignCmd(fullXVelCtrl));
 
         // driverCtrl.leftTrigger(.1).whileTrue(
-        //         drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
+        // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
+        // Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
         // );
 
-        //   driverCtrl.rightTrigger(.1).whileTrue(
-        //         drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15) ,Inches.of(40)))
+        // driverCtrl.rightTrigger(.1).whileTrue(
+        // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new
+        // Translation2d(Inches.of(2.15) ,Inches.of(40)))
         // );
 
         // Pose Reset
@@ -355,13 +367,26 @@ public class RobotContainer {
                 () -> drivetrain.resetPose(
                         new Pose2d(
                                 FieldLayout.Hub.getHubCenterFront(),
-                                Rotation2d.fromDegrees(FieldLayout.getForwardAngle().in(Degrees) + 180)))));
+                                Rotation2d.fromDegrees(FieldLayout.getForwardAngle()
+                                        .in(Degrees) + 180)))));
 
         // Idle motors when disabled
         RobotModeTriggers.disabled().whileTrue(drivetrain.idleCmd());
 
         // Drivetrain test Controls
         testMode.and(driverCtrl.a()).whileTrue(drivetrainTestCmds.runCommandCmd());
+    }
+
+    public Command hubOrbitRangeCmd() {
+        return drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl,
+                Rotation2d.fromDegrees(180),
+                Inches.of(147), Meters.of(1.75));
+    }
+
+    public Command passOrbitCmd() {
+        return drivetrain.passOrbitRestrictedRadiusCommand(() -> fullYVelCtrl.get().times(-1),
+                () -> fullXVelCtrl.get().times(-1), Rotation2d.fromDegrees(180),
+                FieldLayout.fieldCenterX, FieldLayout.fieldCenterX.minus(Inches.of(130)));
     }
 
     /**

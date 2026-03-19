@@ -25,6 +25,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
 
@@ -182,6 +183,14 @@ public class IntakeRoller extends SubsystemBase {
         return this.runEnd(
                 () -> setVoltage(volts),
                 () -> setVoltage(Volts.zero()));
+    }
+
+    public Command intakeInCmd(){
+        return setVoltageCmd(Constants.intakeRollerInVolt);
+    }
+
+    public Command intakeOutCmd(){
+        return setVoltageCmd(Constants.intakeRollerOutVolt);
     }
 
     /**

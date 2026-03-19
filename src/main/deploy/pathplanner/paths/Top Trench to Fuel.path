@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.497704545455409,
-        "y": 7.384715909089868
+        "x": 4.528625,
+        "y": 7.4465568181818185
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.95025,
-        "y": 7.776375
+        "x": 8.981170454544591,
+        "y": 7.83821590909195
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 6.982749999999999
       },
       "prevControl": {
-        "x": 8.050515957587479,
-        "y": 7.0315657004097964
+        "x": 8.352454545454545,
+        "y": 7.322875
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,14 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "IntakePivOut Command",
+      "waypointRelativePos": 0.17600000000000005,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
