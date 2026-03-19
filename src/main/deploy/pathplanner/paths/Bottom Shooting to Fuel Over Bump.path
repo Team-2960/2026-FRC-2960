@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.6527840909090905,
-        "y": 2.829102272727273
+        "x": 2.8589204545454545,
+        "y": 2.7466477272727277
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.982363636363636,
-        "y": 2.5095909090909094
+        "x": 4.1884999999999994,
+        "y": 2.427136363636364
       },
       "isLocked": false,
       "linkedName": "BottomShootPoint"
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 8.0,
-        "y": 1.0
+        "x": 8.2,
+        "y": 0.9841818181818189
       },
       "prevControl": {
-        "x": 7.0,
-        "y": 1.0000000000000002
+        "x": 7.199999999999999,
+        "y": 0.9841818181818195
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,7 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.14084507042253516,
+      "waypointRelativePos": 0.22848200312989023,
       "rotationDegrees": 0.0
     },
     {
@@ -70,7 +70,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -144.92624550665175

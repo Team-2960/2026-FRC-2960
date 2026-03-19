@@ -11,13 +11,17 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import au.grapplerobotics.CanBridge;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
-    private final RobotContainer m_robotContainer;
+    //private final RobotContainer m_robotContainer;
+    private final RobotContainer robotContainer;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -26,7 +30,7 @@ public class Robot extends LoggedRobot {
 
     public Robot() {
         Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
-
+        
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
@@ -40,13 +44,18 @@ public class Robot extends LoggedRobot {
 
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
 
-        m_robotContainer = new RobotContainer();
+        CanBridge.runTCP();
+
+
+        robotContainer = new RobotContainer();
     }
 
     @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
+        
+        SmartDashboard.getNumber("Match Time", DriverStation.getMatchTime());
     }
 
     @Override
@@ -60,7 +69,8 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        m_autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);

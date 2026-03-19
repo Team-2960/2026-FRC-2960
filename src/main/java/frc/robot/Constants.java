@@ -1,13 +1,16 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Revolution;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -26,6 +29,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 
 import edu.wpi.first.units.measure.Voltage;
@@ -37,17 +41,30 @@ public class Constants {
     // Robot Constants
     public static final LinearVelocity maxLinVel = TunerConstants.kSpeedAt12Volts;
     public static final AngularVelocity maxAngVel = RotationsPerSecond.of(2); 
+    public static final AngularAcceleration maxAngAccel = DegreesPerSecondPerSecond.of(1292);
+    public static final LinearAcceleration maxLinAccel = MetersPerSecondPerSecond.of(5.9);
     public static final LinearVelocity slowdownLinVel = maxLinVel.div(2);
     public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(2);
+    public static final Distance linRampDownDist = Meters.of(1.2);
 
     public static final CANBus rioBus = CANBus.roboRIO();
     public static final CANBus canivoreBus = new CANBus("canivore");
 
     // Motor IDs
-    public static final int shooterMotorLeaderID = 31;
-    public static final int shooterMotorFollowerID = 32;
-    public static final int IntakeMotorID = 19;
-    public static final int IndexMotorID = 41;
+    public static final int shooterMotorLeaderID = 20;
+    public static final int shooterMotorFollowerID = 23;
+    public static final int shooterHoodMotor = 18;
+    public static final int intakeMotorID = 19;
+    public static final int intakeAngleID = 14;
+    public static final int indexMotorID = 22;
+    public static final int leftClimbMotorID = 17;
+    public static final int rightClimbMotorID = 15;
+
+    //Other CAN IDs
+    public static final int leftLaserCanID = 20;
+    public static final int rightLaserCanID = 21;
+    public static final int intakeAngleEncoderID = 16;
+    public static final int shooterHoodEncoderID = 21;
 
     // Shooter Constants
     public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
@@ -58,11 +75,11 @@ public class Constants {
     public static final Angle shotAngleTol = Degrees.of(2);
 
     public static final ShotSpeedTable shooterWheelTable = new ShotSpeedTable()
-            .addEntry(Meters.of(1.7369), Revolution.per(Minute).of(1700))
-            .addEntry(Meters.of(2.1828), Revolution.per(Minute).of(1800))
-            .addEntry(Meters.of(2.5179), Revolution.per(Minute).of(1850))
-            .addEntry(Meters.of(3.1897), Revolution.per(Minute).of(2000))
-            .addEntry(Meters.of(3.6278), Revolution.per(Minute).of(2050));
+            .addEntry(Meters.of(2.058), Revolution.per(Minute).of(1515))
+            .addEntry(Meters.of(2.59), Revolution.per(Minute).of(1600))
+            .addEntry(Meters.of(3.13), Revolution.per(Minute).of(1700))
+            .addEntry(Meters.of(3.4), Revolution.per(Minute).of(2050))
+            .addEntry(Meters.of(3.702), Revolution.per(Minute).of(2200));
 
 
     public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);
@@ -90,18 +107,18 @@ public class Constants {
 
     // Camera Constants
     public static final Transform3d leftCameraOffsets = new Transform3d(
-        Inches.of(-29/2).plus(Millimeters.of(37.492)), 
-        Inches.of(29/2).minus(Millimeters.of(55.321)), 
-        Inches.of(5.375), 
-        new Rotation3d(0, Math.toRadians(-30), Math.toRadians(-135))
+        Inches.of(-11.274), 
+        Inches.of(13.476), 
+        Inches.of(7.553), 
+        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(-130))
     );
 
     public static final Transform3d rightCameraOffsets = new Transform3d(
-        Inches.of(-29/2).plus(Millimeters.of(37.492)), 
-        Inches.of(-29/2).plus(Millimeters.of(55.321)), 
-        Inches.of(5.375), 
+         Inches.of(-11.274), 
+        Inches.of(-13.476), 
+        Inches.of(7.553), 
         //new Rotation3d(37.8, 37.8, -45)
-        new Rotation3d(0, Math.toRadians(-30), Math.toRadians(135))
+        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(130))
     );
 
     public static final Vector<N3> singleStds = VecBuilder.fill(4, 4, 16);

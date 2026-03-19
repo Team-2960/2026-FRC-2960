@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveControlParameters;
 import com.ctre.phoenix6.swerve.SwerveModule;
@@ -313,6 +315,13 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
             return this;
         }
 
+        public FieldCentricRestrictedRadius withUpdateTargetPose(Supplier<Pose2d> poseSupplier){
+            if (poseSupplier.get() != null){
+                this.OrbitPoint = poseSupplier.get().getTranslation();
+            }
+            return this;
+        }
+
         /**
          * Modifies the TargetDirection parameter and returns itself.
          * <p>
@@ -505,6 +514,7 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
             this.ForwardPerspective = newForwardPerspective;
             return this;
         }
+        
 
         public Distance getTargetDistance(){
             return Meters.of(distance);

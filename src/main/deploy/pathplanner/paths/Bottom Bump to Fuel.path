@@ -20,24 +20,24 @@
         "y": 2.293147727272727
       },
       "prevControl": {
-        "x": 6.270477272727272,
-        "y": 2.571431818181818
+        "x": 6.187150791976443,
+        "y": 2.948770004456286
       },
       "nextControl": {
-        "x": 6.345979063325218,
-        "y": 1.5521576451095633
+        "x": 6.425079545454545,
+        "y": 1.4479886363636365
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.0,
-        "y": 1.0
+        "x": 8.2,
+        "y": 0.9841818181818189
       },
       "prevControl": {
-        "x": 7.0,
-        "y": 1.0000000000000002
+        "x": 7.199999999999999,
+        "y": 0.9841818181818195
       },
       "nextControl": null,
       "isLocked": false,
@@ -80,7 +80,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Test Paths",
+  "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 45.0

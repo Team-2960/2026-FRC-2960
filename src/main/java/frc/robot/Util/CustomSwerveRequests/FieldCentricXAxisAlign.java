@@ -1,16 +1,29 @@
 package frc.robot.Util.CustomSwerveRequests;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveControlParameters;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants;
+import frc.robot.FieldLayout;
+import frc.robot.generated.TunerConstants;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -86,6 +99,8 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
     public PhoenixPIDController HeadingController = new PhoenixPIDController(0, 0, 0);
 
     public PhoenixPIDController XAxisCorrectionController = new PhoenixPIDController(0, 0, 0);
+    public Constraints profileConstraints = new Constraints(TunerConstants.kSpeedAt12Volts.in(MetersPerSecond), Constants.maxLinAccel.in(MetersPerSecondPerSecond));
+    public ProfiledPIDController XAxisProfiledController = new ProfiledPIDController(0, 0, 0, profileConstraints);
 
     private final FieldCentricFacingAngle m_fieldCentricFacingAngle = new FieldCentricFacingAngle();
 
@@ -96,15 +111,23 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
 
     @Override
     public StatusCode apply(SwerveControlParameters parameters, SwerveModule<?, ?, ?>... modulesToApply) {
+        XAxisProfiledController.setConstraints(profileConstraints);
        double yPose = parameters.currentPose.getY();
-       double vy = XAxisCorrectionController.calculate(yPose, YCoordinate, parameters.timestamp);
+       double allianceFlip = 1;
+       if (DriverStation.getAlliance().isPresent()){
+            allianceFlip = DriverStation.getAlliance().get().equals(Alliance.Red) ? -1 : 1;
+       }
+       //double vy = allianceFlip * XAxisCorrectionController.calculate(yPose, YCoordinate, parameters.timestamp);
+        //double vy = allianceFlip * XAxisProfiledController.calculate(yPose, YCoordinate);
+        //Pose2d targetPoint = FieldLayout.Trench.getNearestAllianceTrench(parameters.currentPose);
+        double vy = allianceFlip * calcToPoint(yPose, YCoordinate);
 
        return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)
         .withDeadband(Deadband)
         .withDesaturateWheelSpeeds(DesaturateWheelSpeeds)
         .withDriveRequestType(DriveRequestType)
-        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
         .withHeadingPID(HeadingController.getP(), HeadingController.getI(), HeadingController.getD())
         .withMaxAbsRotationalRate(MaxAbsRotationalRate)
         .withRotationalDeadband(RotationalDeadband)
@@ -159,7 +182,8 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
     }
 
     public FieldCentricXAxisAlign withXAxisCorrectionPID(double kP, double kI, double kD){
-        XAxisCorrectionController.setPID(kP, kI, kD);
+        //XAxisCorrectionController.setPID(kP, kI, kD);
+        XAxisProfiledController.setPID(kP, kI, kD);
         return this;
     }
 
@@ -364,5 +388,30 @@ public class FieldCentricXAxisAlign implements SwerveRequest{
     public FieldCentricXAxisAlign withForwardPerspective(ForwardPerspectiveValue newForwardPerspective) {
         this.ForwardPerspective = newForwardPerspective;
         return this;
+    }
+
+    public FieldCentricXAxisAlign withUpdateTargetPose(Supplier<Pose2d> poseSupplier){
+        if (poseSupplier != null){
+            this.TargetDirection = poseSupplier.get().getRotation();
+            this.YCoordinate = poseSupplier.get().getY();
+        }
+        return this;
+    }
+
+    public double calcToPoint(double curPoint, double tarPoint){
+
+        // Calculate trapezoidal profile
+        double maxDriveRate = Constants.maxLinVel.in(MetersPerSecond);
+
+        //Gets the 2D distance between the target point and current point
+        double linearError = tarPoint - curPoint;
+
+        //Trapezoidal Profiling
+        double targetSpeed = maxDriveRate * (linearError > 0 ? 1 : -1);
+        double rampDownSpeed = linearError / Constants.linRampDownDist.in(Meters) * maxDriveRate;
+
+        if (Math.abs(rampDownSpeed) < Math.abs(targetSpeed)) targetSpeed = rampDownSpeed;
+        
+        return targetSpeed;
     }
 }

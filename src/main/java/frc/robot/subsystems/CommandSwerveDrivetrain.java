@@ -10,8 +10,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.configs.AudioConfigs;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -30,24 +28,21 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -59,6 +54,7 @@ import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricGoToPoint;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricXAxisAlign;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricYAxisAlign;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -77,6 +73,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Orchestra orchestra = new Orchestra();
 
     private Optional<SwerveRequest> currentRequest = Optional.empty();
+
+    private Rotation2d initialRotation = new Rotation2d();
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -106,22 +104,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final FieldCentricCircularOrbit orbitRequest = new FieldCentricCircularOrbit()
         .withRadiusCorrectionPID(3, 0, 0)
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
 
     private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint()
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withTranslationPID(3, 0, 0);
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
         .withRadiusCorrectionPID(3, 0, 0)
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withDriveRequestType(DriveRequestType.Velocity);
 
     private final FieldCentricXAxisAlign xAxisAlignRequest = new FieldCentricXAxisAlign()
         .withDriveRequestType(DriveRequestType.Velocity)
-        .withHeadingPID(15, 0, 0)
+        .withHeadingPID(10, 0, 0)
         .withXAxisCorrectionPID(4, 0, 0);
+
+    private final FieldCentricYAxisAlign yAxisAlignRequest = new FieldCentricYAxisAlign()
+        .withDriveRequestType(DriveRequestType.Velocity)
+        .withHeadingPID(10, 0, 0)
+        .withYAxisCorrectionPID(4, 0, 0);
 
     private final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.Idle idleRequest = new SwerveRequest.Idle();
@@ -493,7 +496,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         //     targetMotor.getConfigurator().apply(new AudioConfigs().withAllowMusicDurDisable(true));
         // }
         
-        // orchestra.loadMusic("cry_for_me_ironmouse.chrp");
+        // orchestra.loadMusic("efn.chrp");
         // orchestra.play();
     }
 
@@ -600,7 +603,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         .withVelocityX(xVel.get())
                         .withVelocityY(yVel.get())
                         .withTargetDirection(
-                                getPose2d().getTranslation().minus(target).getAngle().plus(offset)));
+                                getPose2d().getTranslation().minus(target).getAngle().plus(offset)))
+            .withName("Look at Point Command");
     }
 
     public Command travelSetSpeedCmd(Supplier<LinearVelocity> xVel, Supplier<LinearVelocity> yVel, Rotation2d targetAngle){
@@ -609,7 +613,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withVelocityX(xVel.get())
                 .withVelocityY(yVel.get())
                 .withTargetDirection(targetAngle)
-        );
+        ).withName("Travel Set Speed Command");
     }
 
     /**
@@ -626,51 +630,107 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Supplier<LinearVelocity> yVel,
             Rotation2d offset) {
 
-        return lookAtPointCmd(xVel, yVel, FieldLayout.getHubCenter(), offset);
+        return lookAtPointCmd(xVel, yVel, FieldLayout.Hub.getHubCenter(), offset);
     }
 
     public Command hubOrbitCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Distance radius){
         return applyRequest(() -> orbitRequest
-            .withOrbitPoint(FieldLayout.getHubCenter())
+            .withOrbitPoint(FieldLayout.Hub.getHubCenter())
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
             .withRadius(radius)
         )
-        .finallyDo(() -> applyRequest(() -> idleRequest));
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Hub Orbit Command");
     }
 
     public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Translation2d PosOffset){
         return applyRequest(() -> goToRequest
-            .withTargetPoint(FieldLayout.getTowerCenter().plus(PosOffset))
+            .withTargetPoint(FieldLayout.Tower.getTowerCenter().plus(PosOffset))
             .withRotationalOffset(offset)
         )
-        .finallyDo(() -> applyRequest(() -> idleRequest));
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Tower Align Command");
     }
     
     public Command hubOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius){
         return applyRequest(() -> orbitRestricteRadiusRequest
-            .withOrbitPoint(FieldLayout.getHubCenter())
+            .withOrbitPoint(FieldLayout.Hub.getHubCenter())
             .withTravelVelocity(travelVel.get())
             .withRotationalOffset(offset)
             .withMaxRadius(maxRadius)
             .withMinRadius(minRadius)
             .withRadiusVelocity(radialVelocity.get())
         )
-        .finallyDo(() -> applyRequest(() -> idleRequest));
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Hub Orbit Restricted Radius Command");
     }
 
-    public Command trenchAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation, Translation2d coordinate){
+    public Command passOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius){
+        return applyRequest(() -> orbitRestricteRadiusRequest
+            .withOrbitPoint(FieldLayout.getFeedPosition(() -> getPose2d()).getTranslation())
+            .withTravelVelocity(travelVel.get())
+            .withRotationalOffset(offset)
+            .withMaxRadius(maxRadius)
+            .withMinRadius(minRadius)
+            .withRadiusVelocity(radialVelocity.get())
+            .withUpdateTargetPose(() -> FieldLayout.getFeedPosition(this::getPose2d))
+        )
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Hub Orbit Restricted Radius Command");
+    }
+
+    public Command xAxisAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation, Translation2d coordinate){
         return applyRequest(() -> xAxisAlignRequest
             .withTravelVelocity(travelVelX.get())
             .withTargetDirection(targetRotation)
             .withXAxisCoordinate(coordinate)
+            .withUpdateTargetPose(null)
             )
-            .finallyDo(() -> applyRequest(() -> idleRequest));
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("X-Axis Align Command");
+    }
+
+    public Command yAxisAlignCmd(Supplier<LinearVelocity> travelVelY, Rotation2d targetRotation, Translation2d coordinate){
+        return applyRequest(() -> yAxisAlignRequest
+            .withTravelVelocity(travelVelY.get())
+            .withTargetDirection(targetRotation)
+            .withYAxisCoordinate(coordinate)
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Y-Axis Align Command");
+    }
+    /** */
+    public void initialRotationHelper(Rotation2d rotation){
+        initialRotation = rotation;
+    }
+
+    public Command hubBackAlignCmd(Supplier<LinearVelocity> travelVelY){
+        return applyRequest(() -> 
+            yAxisAlignRequest
+            .withTravelVelocity(travelVelY.get())
+            .withTargetDirection(initialRotation)
+            // .withYAxisCoordinate(coordinate)
+            .withUpdateTargetTranslation(() -> FieldLayout.Hub.getHubBackAlign(getPose2d()))
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Hub Back Align Command");
+    }
+    
+    public Command trenchAlignCmd(Supplier<LinearVelocity> travelVelX){
+        return applyRequest(() -> xAxisAlignRequest
+            .withTravelVelocity(travelVelX.get())
+            .withUpdateTargetPose(() -> FieldLayout.Trench.getNearestAllianceTrench(getPose2d()))
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Trench Align Command");
     }
 
     public Command trenchPathAlignCmd(Translation2d targetPose){
-        return applyRequest(() -> goToRequest.withTargetPoint(calcTrenchPoint(GeomUtil.toPose2d(targetPose))));
+        return AutoBuilder.pathfindToPose(new Pose2d(targetPose, Rotation2d.kZero), 
+            new PathConstraints(TunerConstants.kSpeedAt12Volts, Constants.maxLinAccel, Constants.maxAngVel, Constants.maxAngAccel));
     }
+    
 
     public Translation2d calcTrenchPoint(Pose2d targetPoint){
         double maxDistance = Constants.maxRobotTrenchDistance.in(Meters);
@@ -735,7 +795,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         // SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
-        // SmartDashboard.putNumber("Distance From Hub", FieldLayout.getHubDist(getPose2d().getTranslation()).in(Meters));
+         SmartDashboard.putNumber("Distance From Hub", FieldLayout.Hub.getHubDist(getPose2d().getTranslation()).in(Meters));
 
     }
 
