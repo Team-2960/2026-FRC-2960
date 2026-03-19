@@ -145,7 +145,11 @@ public class RobotContainer {
         configureBindings();
 
         // Initialize drivetrain telemetry
-        drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
+        if (Robot.isSimulation()){
+                drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, true));
+        }else{
+                drivetrain.registerTelemetry((telemetryFunction) -> logger.telemeterize(telemetryFunction, false));
+        }
         DriverStation.silenceJoystickConnectionWarning(true);
     }
 
@@ -247,6 +251,8 @@ public class RobotContainer {
 
         operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
 
+        operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.setTorqueVelocityCmd(Rotations.per(Minute).of(600)));
+
         //DRIVER
 
         driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubNoHoodShotCmd(Rotations.per(Minute).of(50), Volts.of(12)));
@@ -306,6 +312,10 @@ public class RobotContainer {
         driverCtrl.b().whileTrue(
                 drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl, Rotation2d.fromDegrees(180),
                         Inches.of(147), Meters.of(1.75)));
+
+        driverCtrl.x().whileTrue(
+                drivetrain.passOrbitRestrictedRadiusCommand(() -> fullYVelCtrl.get().times(-1), () -> fullXVelCtrl.get().times(-1), Rotation2d.fromDegrees(180),
+                        FieldLayout.fieldCenterX, FieldLayout.fieldCenterX.minus(Inches.of(130))));
 
         // driverCtrl.x().whileTrue(
         //         drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () -> MetersPerSecond.of(2),

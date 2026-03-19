@@ -1,8 +1,12 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,16 +15,24 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Util.GeomUtil;
 
 public class FieldLayout {
+    public enum FieldSide{
+        BLUELEFT,
+        BLUERIGHT,
+        REDLEFT,
+        REDRIGHT
+    }
+
     public static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     // Overall Field Dimensions
     public static final Distance fieldSizeX = Inches.of(651.22);
     public static final Distance fieldSizeY = Inches.of(317.69);
 
-    public static final Distance fieldCenterX = fieldSizeX.div(2);
-    public static final Distance fieldCenterY = fieldSizeY.div(2);
+    public static final Distance fieldCenterX = fieldSizeX.div(2.0);
+    public static final Distance fieldCenterY = fieldSizeY.div(2.0);
 
     public static final Angle blueForwardAngle = Degrees.of(0);
     public static final Angle redForwardAngle = Degrees.of(180);
@@ -30,6 +42,12 @@ public class FieldLayout {
     // Start Line Dimensions
     public static final Distance startLineToWallOffset = Inches.of(156.61);
     public static final Distance startLineWidth = Inches.of(2);
+    
+    public static final Translation2d bluePassingRight = new Translation2d(Feet.of(6), Feet.of(6));
+    public static final Translation2d bluePassingLeft = new Translation2d(Feet.of(6), fieldSizeY.minus(Feet.of(6)));
+
+    public static final Translation2d redPassingRight = new Translation2d(fieldSizeX.minus(Feet.of(6)), fieldSizeY.minus(Feet.of(6)));
+    public static final Translation2d redPassingLeft = new Translation2d(fieldSizeX.minus(Feet.of(6)), Feet.of(6));
 
     // Hub Dimensions
     public static class Hub{
@@ -228,6 +246,38 @@ public class FieldLayout {
         return isRedAlliance() ? redForwardAngle : blueForwardAngle;
     }
 
+    public static Pose2d getFeedPosition(Supplier<Pose2d> curPos){
+        FieldSide fieldSide = getFieldSide(curPos);
+
+        switch (fieldSide) {
+            case BLUELEFT:
+                return GeomUtil.toPose2d(bluePassingLeft);
+            case BLUERIGHT:
+                return GeomUtil.toPose2d(bluePassingRight);
+            case REDLEFT:
+                return GeomUtil.toPose2d(redPassingLeft);
+            default:
+                return GeomUtil.toPose2d(redPassingRight);
+        }
+    }
+
+    public static FieldSide getFieldSide(Supplier<Pose2d> curPos){
+        Pose2d pose = curPos.get();
+        if (isRedAlliance()){
+                if (pose.getY() < fieldCenterY.in(Meters)){
+                    return FieldSide.REDLEFT;
+                }else{
+                    return FieldSide.REDRIGHT;
+                }
+            }else{
+                if (pose.getY() < fieldCenterY.in(Meters)){
+                    return FieldSide.BLUERIGHT;
+                }else{
+                    return FieldSide.BLUELEFT;
+                }
+        }
+    }
+
     public static Rotation2d getInwardAngle(Pose2d curPose){
         if (isRedAlliance()){
                 if (curPose.getY() < fieldCenterY.in(Meters)){
@@ -241,7 +291,9 @@ public class FieldLayout {
                 }else{
                     return Rotation2d.fromDegrees(-90);
                 }
-            }
+        }
     }
+
+
 
 }
