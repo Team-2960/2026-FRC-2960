@@ -189,6 +189,10 @@ public class ShooterWheel extends SubsystemBase {
         motorLeader = new TalonFX(motorLeaderID, bus);
         motorFollower = new TalonFX(motorFollowerID, bus);
 
+        motorConfig.CurrentLimits
+            .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+            .withSupplyCurrentLimitEnable(true);
+
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Coast);
 

@@ -720,7 +720,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command trenchAlignCmd(Supplier<LinearVelocity> travelVelX){
         return applyRequest(() -> xAxisAlignRequest
             .withTravelVelocity(travelVelX.get())
-            .withUpdateTargetPose(() -> FieldLayout.Trench.getNearestAllianceTrench(getPose2d()))
+            .withUpdateTargetPose(() -> FieldLayout.Trench.getNearestAllianceTrench(getPose2d(), Rotation2d.kZero))
             )
             .finallyDo(() -> applyRequest(() -> idleRequest))
             .withName("Trench Align Command");

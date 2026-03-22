@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -84,6 +85,10 @@ public class Indexer extends SubsystemBase {
         motor = new TalonFX(motorId, bus);
 
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+        motorConfig.CurrentLimits
+            .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+            .withSupplyCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);

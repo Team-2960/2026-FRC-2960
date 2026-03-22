@@ -218,6 +218,25 @@ public class FieldLayout {
                     return new Pose2d(blueTrenchLeft, getInwardAngle(curPose));
                 }
             }
+
+        }
+
+        public static Pose2d getNearestAllianceTrench(Pose2d curPose, Rotation2d tarAngle){
+
+            if (isRedAlliance()){
+                if (curPose.getY() < fieldCenterY.in(Meters)){
+                    return new Pose2d(redTrenchLeft, tarAngle);
+                }else{
+                    return new Pose2d(redTrenchRight, tarAngle);
+                }
+            }else{
+                if (curPose.getY() < fieldCenterY.in(Meters)){
+                    return new Pose2d(blueTrenchRight, tarAngle);
+                }else{
+                    return new Pose2d(blueTrenchLeft, tarAngle);
+                }
+            }
+
         }
     }
 

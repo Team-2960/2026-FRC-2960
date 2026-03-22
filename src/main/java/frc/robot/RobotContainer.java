@@ -232,8 +232,7 @@ public class RobotContainer {
 
         // DRIVER
 
-        driverCtrl.rightBumper().onTrue(intakeAngle.setPositionCmd(Constants.intakeOutAngle));
-        driverCtrl.rightTrigger(.1).whileTrue(intakeAngle.setVoltageCmd(Volts.of(12)));
+        driverCtrl.leftTrigger().onTrue(intakeAngle.setPositionCmd(Constants.intakeOutAngle));
 
         // TEST CONTROLS
 
@@ -262,11 +261,13 @@ public class RobotContainer {
 
         operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.idleVelocityCmd());
 
+        operatorCtrl.back().whileTrue(shooterMngt.passShotCmd());
+
         // DRIVER
 
-        driverCtrl.leftTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
+        driverCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 
-        driverCtrl.leftBumper().whileTrue(shooterMngt.passShotCmd());
+        driverCtrl.rightBumper().whileTrue(shooterMngt.passShotCmd());
 
         // TEST CONTROLS
 
@@ -289,8 +290,6 @@ public class RobotContainer {
         // operatorCtrl.a().whileTrue(indexer.setVoltageCmd(Volts.of(-12)));
         // operatorCtrl.b().whileTrue(indexer.setVoltageCmd(Volts.of(12)));
 
-        // Test Bindings
-        operatorCtrl.back().whileTrue(shooterTestCmds.runCommandCmd()); // TODO take out after testing
     }
 
     /**
@@ -300,29 +299,29 @@ public class RobotContainer {
         // Set default drivetrain command
         drivetrain.setDefaultCommand(
                 drivetrain.getDriveCmd(
-                        fullXVelCtrl,
-                        fullYVelCtrl,
-                        fullRVelCtrl));
-
-        // Slow Drive Command
-        driverCtrl.rightBumper().whileTrue(
-                drivetrain.getDriveCmd(
                         slowXVelCtrl,
                         slowYVelCtrl,
                         slowRVelCtrl));
 
-        // Track Goal
+        // Fast Drive Command
         driverCtrl.leftBumper().whileTrue(
-                drivetrain.lookAtPointCmd(
+                drivetrain.getDriveCmd(
                         fullXVelCtrl,
                         fullYVelCtrl,
-                        FieldLayout.Hub.getHubCenter(),
-                        Rotation2d.fromDegrees(180)));
+                        fullRVelCtrl));
 
-        driverCtrl.a().whileTrue(
-                drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92)));
+        // Track Goal
+        // driverCtrl.leftBumper().whileTrue(
+        //         drivetrain.lookAtPointCmd(
+        //                 fullXVelCtrl,
+        //                 fullYVelCtrl,
+        //                 FieldLayout.Hub.getHubCenter(),
+        //                 Rotation2d.fromDegrees(180)));
 
-        driverCtrl.b().whileTrue(hubOrbitRangeCmd());
+        // driverCtrl.a().whileTrue(
+        //         drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92)));
+
+        driverCtrl.a().whileTrue(hubOrbitRangeCmd());
 
         driverCtrl.x().whileTrue(passOrbitCmd());
         // driverCtrl.x().whileTrue(
@@ -337,20 +336,20 @@ public class RobotContainer {
         // fullYVelCtrl, Rotation2d.fromDegrees(90),
         // offsetBackHub));
 
-        driverCtrl.x().whileTrue(
+        driverCtrl.y().whileTrue(
                 Commands.runOnce(
                         () -> drivetrain.initialRotationHelper(
                                 FieldLayout.getInwardAngle(drivetrain.getPose2d())),
                         drivetrain)
-                        .andThen(drivetrain.hubBackAlignCmd(fullYVelCtrl)));
+                        .andThen(drivetrain.hubBackAlignCmd(slowYVelCtrl)));
 
         // driverCtrl.y().whileTrue(
         // drivetrain.xAxisAlignCmd(fullXVelCtrl, Rotation2d.fromDegrees(90),
         // FieldLayout.Trench.blueTrenchRight)
         // );
 
-        driverCtrl.y().whileTrue(
-                drivetrain.trenchAlignCmd(fullXVelCtrl));
+        driverCtrl.b().whileTrue(
+                drivetrain.trenchAlignCmd(slowXVelCtrl));
 
         // driverCtrl.leftTrigger(.1).whileTrue(
         // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
@@ -378,13 +377,13 @@ public class RobotContainer {
     }
 
     public Command hubOrbitRangeCmd() {
-        return drivetrain.hubOrbitRestrictedRadiusCommand(fullYVelCtrl, fullXVelCtrl,
+        return drivetrain.hubOrbitRestrictedRadiusCommand(slowYVelCtrl, slowXVelCtrl,
                 Rotation2d.fromDegrees(180),
                 Inches.of(147), Meters.of(1.75));
     }
 
     public Command passOrbitCmd() {
-        return drivetrain.passOrbitRestrictedRadiusCommand(() -> fullYVelCtrl.get().times(-1),
+        return drivetrain.passOrbitRestrictedRadiusCommand(() -> slowYVelCtrl.get().times(-1),
                 () -> fullXVelCtrl.get().times(-1), Rotation2d.fromDegrees(180),
                 FieldLayout.fieldCenterX, FieldLayout.fieldCenterX.minus(Inches.of(130)));
     }

@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Top Trench to Fuel"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivOut Command"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Trench to Fuel"
+                }
+              }
+            ]
           }
         },
         {

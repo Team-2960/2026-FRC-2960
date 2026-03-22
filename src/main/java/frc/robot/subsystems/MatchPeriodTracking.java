@@ -40,7 +40,7 @@ public class MatchPeriodTracking {
         if (DriverStation.isAutonomous()) {
             period = MatchPeriod.AUTO;
         } else if (DriverStation.isTeleop()) {
-            double matchTime = getMatchTime();
+            double matchTime = DriverStation.getMatchTime();
 
             if (matchTime > transitionEnd) {
                 period = MatchPeriod.TRANSITION;
@@ -86,24 +86,27 @@ public class MatchPeriodTracking {
     public static double timeToEndOfPeriod(MatchPeriod period) {
         switch (period) {
             case AUTO:
-                return getMatchTime();
+                return DriverStation.getMatchTime();
             case TRANSITION:
-                return getMatchTime() - transitionEnd;
+                return DriverStation.getMatchTime() - transitionEnd;
             case SHIFT_1:
-                return getMatchTime() - shift1End;
+                return DriverStation.getMatchTime() - shift1End;
             case SHIFT_2:
-                return getMatchTime() - shift2End;
+                return DriverStation.getMatchTime() - shift2End;
             case SHIFT_3:
-                return getMatchTime() - shift3End;
+                return DriverStation.getMatchTime() - shift3End;
             case SHIFT_4:
-                return getMatchTime() - shift4End;
+                return DriverStation.getMatchTime() - shift4End;
             case END_GAME:
-                return getMatchTime() - endGameEnd;
+                return DriverStation.getMatchTime() - endGameEnd;
             default:
                 return 0;
         }
     }
 
+    public static double getPhaseTime(){
+        return timeToEndOfPeriod(getPeriod());
+    }
     /**
      * Check if the current alliance won auton
      * 
@@ -111,18 +114,25 @@ public class MatchPeriodTracking {
      *         input is invalid or not teleop period
      */
     @AutoLogOutput (key = "Alliance Won Auton")
-    public static Optional<Boolean> allianceWonAuton() {
+    public static Boolean allianceWonAuton() {
         String autonStr = DriverStation.getGameSpecificMessage();
         Optional<Boolean> result = Optional.empty();
 
-        if (DriverStation.isTeleopEnabled() && autonStr.length() > 0) {
+        if (DriverStation.isTeleopEnabled() && autonStr.length() > 0)  {
             char autonChar = autonStr.charAt(0);
             boolean isRed = FieldLayout.isRedAlliance();
 
             result = Optional.of(isRed && autonChar == 'A' || !isRed && autonChar == 'B');
         }
 
-        return result;
+        
+
+        if (result.isEmpty()){
+            return false;
+        }else{
+            return result.get();
+        }
+
     }
 
 
@@ -136,10 +146,10 @@ public class MatchPeriodTracking {
         switch(getPeriod()) {
             case SHIFT_1:
             case SHIFT_3:
-                return wonAuton.isPresent() && !wonAuton.get();
+                return !wonAuton;
             case SHIFT_2:
             case SHIFT_4:
-                return wonAuton.isPresent() && wonAuton.get();
+                return wonAuton;
             default:
                 return true;
         }

@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -130,6 +132,10 @@ public class IntakeAngle extends SubsystemBase {
         motor = new TalonFX(motorId, bus);
         encoder = new CANcoder(encoderId, bus);
 
+        motorConfig.CurrentLimits
+            .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+            .withSupplyCurrentLimitEnable(true);
+
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive);
@@ -159,8 +165,8 @@ public class IntakeAngle extends SubsystemBase {
                 .withKG(0.0);
 
         motorConfig.MotionMagic
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(6))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(12))
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(5))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10))
                 .withMotionMagicJerk(120);
 
         motor.getConfigurator().apply(motorConfig);
@@ -202,6 +208,24 @@ public class IntakeAngle extends SubsystemBase {
         motor.setControl(posCtrl.withPosition(angle)
                 .withLimitReverseMotion(getPosition().lte(Degrees.of(-10)))
                 .withLimitForwardMotion(getPosition().gte(Degrees.of(150))));
+    }
+
+    public void setBangBangPosition(AngularVelocity velocity, Angle tarAngle){
+        double velocityMag = Math.abs(velocity.in(RotationsPerSecond));
+        velocityMag = Math.copySign(tarAngle.minus(getPosition()).in(Rotations), velocityMag);
+        boolean stop = false;
+
+        if (velocityMag <= 0){
+            stop = getPosition().lte(tarAngle);
+        }else if (velocityMag > 0){
+            stop = getPosition().gt(tarAngle);
+        }
+
+        if (!stop){
+            motor.setControl(velCtrl.withVelocity(velocityMag));
+        }else{
+            motor.setControl(velCtrl.withVelocity(0));
+        }
     }
 
     /**
@@ -277,6 +301,13 @@ public class IntakeAngle extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
+    public Command setBangBangPositionCmd(AngularVelocity velocity, Angle tarAngle){
+        return this.runEnd(
+            () -> setBangBangPosition(velocity, tarAngle), 
+            () -> setVoltage(Volts.zero())
+        );
+    }
+
     public Command extendCmd(){
         return setPositionCmd(Constants.intakeOutAngle);
     }
@@ -312,6 +343,16 @@ public class IntakeAngle extends SubsystemBase {
 
     }
 
+    public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle, Time period){
+        return Commands.sequence(
+                setBangBangPositionCmd(velocity, maxAngle)
+                        .withTimeout(period),
+
+                setBangBangPositionCmd(velocity, minAngle)
+                        .withTimeout(period))
+                .repeatedly();
+    }
+
     public Command setOscilateProgressionCmd(Angle amplitude, Time period) {
         return Commands.sequence(
                 setOscilateCmd(amplitude, Degrees.of(20), period)
@@ -337,11 +378,11 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command lowOscillate() {
-        return setOscilateLimitsCmd(Degrees.of(20), Degrees.of(45), Seconds.of(0.25));
+        return setOscilateLimitsCmd(Degrees.of(10), Degrees.of(30), Seconds.of(0.25));
     }
 
     public Command highOscillate() {
-        return setOscilateLimitsCmd(Degrees.of(45), Degrees.of(75), Seconds.of(0.25));
+        return setOscilateLimitsCmd(Degrees.of(30), Degrees.of(65), Seconds.of(0.25));
     }
 
     /**

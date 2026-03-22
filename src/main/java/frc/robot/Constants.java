@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -46,6 +48,8 @@ public class Constants {
     public static final LinearVelocity slowdownLinVel = maxLinVel.div(2);
     public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(2);
     public static final Distance linRampDownDist = Meters.of(1.2);
+
+    public static final Current krakenX60CurrentLimit = Amps.of(80);
 
     public static final CANBus rioBus = CANBus.roboRIO();
     public static final CANBus canivoreBus = new CANBus("canivore");
@@ -133,7 +137,7 @@ public class Constants {
     public static final AprilTagPipelineSettings leftCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
         Constants.leftCameraOffsets,
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        3, 
+        4, 
         singleStds , 
         multiStds,
         .2
@@ -142,7 +146,7 @@ public class Constants {
     public static final AprilTagPipelineSettings rightCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
         Constants.rightCameraOffsets,
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        3, 
+        4, 
         singleStds , 
         multiStds,
         .2

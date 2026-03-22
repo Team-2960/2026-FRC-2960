@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -103,6 +104,10 @@ public class IntakeRoller extends SubsystemBase {
      */
     public IntakeRoller(int motorId, CANBus bus, double gearRatio) {
         motor = new TalonFX(motorId, bus);
+
+        // motorConfig.CurrentLimits
+        //     .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+        //     .withSupplyCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)
