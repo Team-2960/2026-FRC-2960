@@ -15,6 +15,12 @@
                 }
               },
               {
+                "type": "named",
+                "data": {
+                  "name": "IntakeRollerIN Command"
+                }
+              },
+              {
                 "type": "path",
                 "data": {
                   "pathName": "Top Trench to Fuel"
@@ -24,25 +30,25 @@
           }
         },
         {
-          "type": "race",
+          "type": "deadline",
           "data": {
             "commands": [
               {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Empty Fuel to Middle"
+                }
+              },
+              {
                 "type": "named",
                 "data": {
-                  "name": "IntakeIN Command"
+                  "name": "IntakeRollerIN Command"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "IntakePivOut Command"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Top Empty Fuel to Middle"
                 }
               }
             ]
@@ -88,7 +94,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Top Shooting to Close Fuel Under Trench"
+            "pathName": "Top Shooting to Fuel Under Trench"
           }
         },
         {
@@ -98,7 +104,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Top Empty Close Fuel Loop to Bump"
+                  "pathName": "Top Empty Fuel to Middle"
                 }
               },
               {
@@ -114,6 +120,18 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Middle Neutral Zone over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Bump to Shoot"
           }
         },
         {

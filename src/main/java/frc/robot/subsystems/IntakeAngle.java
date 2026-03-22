@@ -212,13 +212,13 @@ public class IntakeAngle extends SubsystemBase {
 
     public void setBangBangPosition(AngularVelocity velocity, Angle tarAngle){
         double velocityMag = Math.abs(velocity.in(RotationsPerSecond));
-        velocityMag = Math.copySign(tarAngle.minus(getPosition()).in(Rotations), velocityMag);
+        velocityMag = Math.copySign(velocityMag, tarAngle.minus(getPosition()).in(Rotations));
         boolean stop = false;
 
-        if (velocityMag <= 0){
+        if (velocityMag < 0){
             stop = getPosition().lte(tarAngle);
-        }else if (velocityMag > 0){
-            stop = getPosition().gt(tarAngle);
+        }else if(velocityMag >= 0){
+            stop = getPosition().gte(tarAngle);
         }
 
         if (!stop){
@@ -346,12 +346,26 @@ public class IntakeAngle extends SubsystemBase {
     public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle, Time period){
         return Commands.sequence(
                 setBangBangPositionCmd(velocity, maxAngle)
-                        .withTimeout(period),
+                    //.until(() -> getPosition().isNear(maxAngle, 0.02))
+                    .withTimeout(period),
 
                 setBangBangPositionCmd(velocity, minAngle)
-                        .withTimeout(period))
-                .repeatedly();
+                    //.until(() -> getPosition().isNear(minAngle, 0.02))
+                    .withTimeout(period)
+            )
+            .repeatedly();
     }
+
+    public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle){
+        return Commands.sequence(
+                setVelocityCmd(velocity)
+                    .until(() -> getPosition().gte(maxAngle)),
+                setVelocityCmd(velocity.times(-1))
+                    .until(() -> getPosition().lte(minAngle))
+            )
+            .repeatedly();
+    }
+
 
     public Command setOscilateProgressionCmd(Angle amplitude, Time period) {
         return Commands.sequence(
@@ -382,7 +396,7 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command highOscillate() {
-        return setOscilateLimitsCmd(Degrees.of(30), Degrees.of(65), Seconds.of(0.25));
+        return setOscilateLimitsCmd(Degrees.of(30), Degrees.of(70), Seconds.of(0.25));
     }
 
     /**

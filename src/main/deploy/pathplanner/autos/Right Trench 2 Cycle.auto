@@ -15,6 +15,12 @@
                 }
               },
               {
+                "type": "named",
+                "data": {
+                  "name": "IntakeRollerIN Command"
+                }
+              },
+              {
                 "type": "path",
                 "data": {
                   "pathName": "Bottom Trench to Fuel"
@@ -82,7 +88,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Shooting to Close Fuel Under Trench"
+            "pathName": "Bottom Shooting to Fuel Under Trench"
           }
         },
         {
@@ -98,10 +104,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bottom Empty Close Fuel Loop to Bump"
+                  "pathName": "Bottom Empty Fuel to Middle"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Middle Neutral Zone over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Bump to Shoot"
           }
         },
         {

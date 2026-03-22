@@ -197,7 +197,7 @@ public class RobotContainer {
 
     private void intakeBindings() {
         Command intakeAngleSysId = intakeAngle
-                .sysIdQuasistaticLimited(Direction.kReverse, Degrees.of(0), Degrees.of(90))
+                .sysIdQuasistaticLimited(Direction.kReverse, Degrees.of(0), Degrees.of(120))
                 .andThen(intakeAngle.sysIdQuasistaticLimited(Direction.kForward, Degrees.of(0),
                         Degrees.of(90)))
                 .andThen(intakeAngle.sysIdDynamicLimited(Direction.kReverse))
@@ -211,6 +211,12 @@ public class RobotContainer {
         // OPERATOR
 
         operatorCtrl.leftBumper().whileTrue(intakeRoller.intakeInCmd());
+
+        // operatorCtrl.povUp().whileTrue(intakeAngle.
+        //         setBangBangOscilateLimitCmd(RotationsPerSecond.of(0.2), 
+        //                 Degrees.of(0), 
+        //                 Degrees.of(110))
+        //         );
 
         operatorCtrl.start().whileTrue(intakeRoller.intakeOutCmd());
 
@@ -255,7 +261,7 @@ public class RobotContainer {
 
         // OPERATOR
 
-        operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
+        operatorCtrl.rightBumper().whileTrue(shooterMngt.hubLowAutoShotCmd());
 
         operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 
