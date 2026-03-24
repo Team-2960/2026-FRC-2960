@@ -392,7 +392,7 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command lowOscillate() {
-        return setOscilateLimitsCmd(Degrees.of(10), Degrees.of(30), Seconds.of(0.25));
+        return setOscilateLimitsCmd(Degrees.of(10), Degrees.of(40), Seconds.of(0.25));
     }
 
     public Command highOscillate() {
