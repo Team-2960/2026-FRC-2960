@@ -9,9 +9,9 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "path",
                 "data": {
-                  "waitTime": 1.0
+                  "pathName": "Hub to Depot"
                 }
               },
               {
@@ -19,14 +19,14 @@
                 "data": {
                   "name": "IntakePivOut Command"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeRollerIN Command"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Hub to Depot"
           }
         },
         {
@@ -43,6 +43,12 @@
                 "type": "named",
                 "data": {
                   "name": "ShooterWheel Command"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Hub Orbit Command"
                 }
               }
             ]

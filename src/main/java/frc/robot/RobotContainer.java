@@ -261,7 +261,7 @@ public class RobotContainer {
 
         // OPERATOR
 
-        operatorCtrl.rightBumper().whileTrue(shooterMngt.hubLowAutoShotCmd());
+        operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
 
         operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 

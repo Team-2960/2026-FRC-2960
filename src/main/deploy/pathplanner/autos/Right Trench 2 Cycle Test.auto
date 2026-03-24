@@ -5,9 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Bottom Trench to Fuel"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivOut Command"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeRollerIN Command"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom Trench to Fuel"
+                }
+              }
+            ]
           }
         },
         {
@@ -98,22 +117,10 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bottom Empty Fuel to Middle"
+                  "pathName": "Bottom Empty Fuel to Middle Cycle 2"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bottom Bump to Shoot"
           }
         },
         {
