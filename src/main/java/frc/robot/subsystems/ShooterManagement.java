@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
@@ -50,6 +53,28 @@ public class ShooterManagement {
                 shooterWheel.hubShotCmd(),
                 intakeRoller.intakeInCmd(),
                 intakeAngle.lowOscillate(),
+                indexer.autoIndexCmd(() -> isShooterReady()));
+    }
+
+    public Command hubAutoHighShotCmd() {
+        return Commands.parallel(
+                shooterWheel.hubShotCmd(),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.highOscillate(),
+                indexer.autoIndexCmd(() -> isShooterReady()));
+    }
+
+    public Command hubBangBangShotCmd() {
+        return Commands.parallel(
+                shooterWheel.hubShotCmd(),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(2), Degrees.of(10), Degrees.of(80)),
+                indexer.autoIndexCmd(() -> isShooterReady()));
+    }
+
+    public Command hubTestShotCmd() {
+        return Commands.parallel(
+                shooterWheel.hubShotCmd(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
 

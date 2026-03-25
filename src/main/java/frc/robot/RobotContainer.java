@@ -261,9 +261,15 @@ public class RobotContainer {
 
         // OPERATOR
 
-        operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
+        // operatorCtrl.rightBumper().whileTrue(shooterWheel.hubShotCmd());
+
+        // operatorCtrl.rightBumper().whileTrue(shooterMngt.hubBangBangShotCmd());
 
         operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
+        
+        operatorCtrl.rightBumper().whileTrue(shooterMngt.hubTestShotCmd());
+
+        // operatorCtrl.rightBumper().whileTrue(intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(.2), Degrees.of(10), Degrees.of(80)));
 
         operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.idleVelocityCmd());
 
