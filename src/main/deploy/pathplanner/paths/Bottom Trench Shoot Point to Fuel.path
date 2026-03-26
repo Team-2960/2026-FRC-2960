@@ -3,55 +3,59 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.436340909090909,
-        "y": 4.880159090909092
+        "x": 3.1589982110912342,
+        "y": 0.8467084078711979
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.7967529189970315,
-        "y": 4.785993148986195
+        "x": 3.765920454545454,
+        "y": 0.6646704545454554
       },
       "isLocked": false,
-      "linkedName": "TopShootPoint"
+      "linkedName": "BottomTrenchShootingPoint"
     },
     {
       "anchor": {
-        "x": 4.858443181818181,
-        "y": 5.488261363636363
+        "x": 5.043965909090908,
+        "y": 0.6520035778175304
       },
       "prevControl": {
-        "x": 3.9404313063795144,
-        "y": 5.437959343064382
+        "x": 3.535003476174987,
+        "y": 0.6520035778175304
       },
       "nextControl": {
-        "x": 6.363238636363636,
-        "y": 5.570715909090909
+        "x": 5.7060787686274015,
+        "y": 0.6520035778175304
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.795886363636363,
-        "y": 6.859068181818182
+        "x": 7.3629999999999995,
+        "y": 0.46884090909090903
       },
       "prevControl": {
-        "x": 7.155818181818181,
-        "y": 7.49809090909091
+        "x": 6.486920454545454,
+        "y": 0.963568181818182
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopIntakePos25Deg"
+      "linkedName": "BottomMiddleIntakePos"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.42879499217527345,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 1.2394366197183118,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 1.3962264150943413,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.830188679245286,
+      "rotationDegrees": 122.53277810699142
     }
   ],
   "constraintZones": [],
@@ -67,13 +71,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 142.56
+    "rotation": -115.76932762433874
   },
   "useDefaultConstraints": true
 }

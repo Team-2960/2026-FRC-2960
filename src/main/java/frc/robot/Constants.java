@@ -79,11 +79,11 @@ public class Constants {
     public static final Angle shotAngleTol = Degrees.of(2);
 
     public static final ShotSpeedTable shooterWheelTable = new ShotSpeedTable()
-            .addEntry(Meters.of(2.058), Revolution.per(Minute).of(1515))
-            .addEntry(Meters.of(2.59), Revolution.per(Minute).of(1600))
-            .addEntry(Meters.of(3.13), Revolution.per(Minute).of(1700))
-            .addEntry(Meters.of(3.4), Revolution.per(Minute).of(2050))
-            .addEntry(Meters.of(3.702), Revolution.per(Minute).of(2200));
+            .addEntry(Meters.of(2.058), Revolution.per(Minute).of(1535))
+            .addEntry(Meters.of(2.59), Revolution.per(Minute).of(1620))
+            .addEntry(Meters.of(3.13), Revolution.per(Minute).of(1720))
+            .addEntry(Meters.of(3.4), Revolution.per(Minute).of(2020))
+            .addEntry(Meters.of(3.702), Revolution.per(Minute).of(2220));
 
 
     public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);
