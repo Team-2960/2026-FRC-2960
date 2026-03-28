@@ -145,6 +145,7 @@ public class IntakeAngle extends SubsystemBase {
                 .withRemoteCANcoder(encoder)
                 .withRotorToSensorRatio(gearRatio)
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
+                // .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
         motorConfig.Slot0
                 .withKP(1.8)
@@ -170,6 +171,7 @@ public class IntakeAngle extends SubsystemBase {
                 .withMotionMagicJerk(120);
 
         motor.getConfigurator().apply(motorConfig);
+        // motor.getConfigurator().setPosition(Degrees.of(110));
 
         signalsConfig();
 

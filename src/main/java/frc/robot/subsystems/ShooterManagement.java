@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
 
@@ -68,14 +69,31 @@ public class ShooterManagement {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
                 intakeRoller.intakeInCmd(),
-                intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(2), Degrees.of(10), Degrees.of(80)),
+                intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(.3), Degrees.of(10), Degrees.of(80)),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
 
-    public Command hubTestShotCmd() {
+    public Command hubSequentialShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
+                intakeRoller.intakeInCmd(),
+                this.intakeSequentialCmd(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
+    }
+
+    public Command intakeSequentialCmd() {
+        return Commands.sequence(
+                this.intakeOscilateRaceCmd(),
+                this.intakeHighOscilateRaceCmd(),
+                intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(.3), Degrees.of(10), Degrees.of(100)));
+    }
+
+    public Command intakeOscilateRaceCmd() {
+        return intakeAngle.lowOscillate().withTimeout(3);
+    }
+
+    public Command intakeHighOscilateRaceCmd() {
+        return intakeAngle.highOscillate().withTimeout(1);
     }
 
     public Command passShotCmd() {
@@ -84,6 +102,12 @@ public class ShooterManagement {
                 intakeRoller.intakeInCmd(),
                 intakeAngle.lowOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
+    }
+
+    public Command IdleShotPrepCmd(){
+        return Commands.parallel(
+            shooterWheel.idleVelocityCmd()
+        );
     }
 
     public Command setVelocityShotCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold,

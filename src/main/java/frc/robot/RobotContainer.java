@@ -267,11 +267,11 @@ public class RobotContainer {
 
         operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
         
-        operatorCtrl.rightBumper().whileTrue(shooterMngt.hubTestShotCmd());
+        operatorCtrl.rightBumper().whileTrue(shooterMngt.hubSequentialShotCmd());
 
         // operatorCtrl.rightBumper().whileTrue(intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(.2), Degrees.of(10), Degrees.of(80)));
 
-        operatorCtrl.leftTrigger(.1).onTrue(shooterWheel.idleVelocityCmd());
+        operatorCtrl.leftTrigger(.1).whileTrue(shooterMngt.IdleShotPrepCmd());
 
         operatorCtrl.back().whileTrue(shooterMngt.passShotCmd());
 
@@ -333,7 +333,7 @@ public class RobotContainer {
         // driverCtrl.a().whileTrue(
         //         drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92)));
 
-        driverCtrl.a().whileTrue(hubOrbitRangeCmd());
+        driverCtrl.a().whileTrue(hubOrbitCmd());
 
         driverCtrl.x().whileTrue(passOrbitCmd());
         // driverCtrl.x().whileTrue(
@@ -392,6 +392,10 @@ public class RobotContainer {
         return drivetrain.hubOrbitRestrictedRadiusCommand(slowYVelCtrl, slowXVelCtrl,
                 Rotation2d.fromDegrees(180),
                 Inches.of(147), Meters.of(1.75));
+    }
+
+    public Command hubOrbitCmd(){
+        return drivetrain.hubOrbitCommand(slowYVelCtrl, Rotation2d.fromDegrees(180), Meters.of(2.25));
     }
 
     public Command passOrbitCmd() {

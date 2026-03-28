@@ -88,7 +88,7 @@ public class Constants {
 
     public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);
     public static final AngularVelocity passVelocity = Rotations.per(Minute).of(1500);
-    public static final AngularVelocity idleVelocity = Rotations.per(Minute).of(1000);
+    public static final AngularVelocity idleVelocity = Rotations.per(Minute).of(1400);
     public static final AngularAcceleration shooterMaxAccel = Rotations.per(Minute).per(Second).of(6209);
 
     public static final double shooterWheelGearRatio = 20.0/12.0;
@@ -103,7 +103,7 @@ public class Constants {
 
     // Intake Constants
     public static final Angle intakeOutAngle = Degrees.of(0);
-    public static final Angle intakeInAngle = Degrees.of(110);
+    public static final Angle intakeInAngle = Degrees.of(105);
 
     public static final Voltage intakeRollerInVolt = Volts.of(12.0);
     public static final Voltage intakeRollerOutVolt = Volts.of(-12.0);
