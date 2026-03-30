@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
@@ -34,6 +35,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -76,6 +79,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Optional<SwerveRequest> currentRequest = Optional.empty();
 
     private Rotation2d initialRotation = new Rotation2d();
+    private Pose2d initialPose = new Pose2d();
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -85,6 +89,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private boolean m_hasAppliedOperatorPerspective = false;
 
     private final Field2d field = new Field2d();
+
+    StructPublisher<Pose2d> testPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("Test Pose", Pose2d.struct).publish();
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -112,7 +119,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint()
         .withHeadingPID(10, 0, 0)
-        .withTranslationPID(3, 0, 0);
+        .withTranslationPID(4, 0, 0);
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
         .withRadiusCorrectionPID(3, 0, 0)
@@ -229,6 +236,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Configure AutoBuilder last
         configureAutoBuilder();
         configureOrchestra();
+        configureTelemetry();
     }
 
     /**
@@ -259,6 +267,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Configure AutoBuilder last
         configureAutoBuilder();
         configureOrchestra();
+        configureTelemetry();
     }
 
     /**
@@ -304,6 +313,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Configure AutoBuilder last
         configureAutoBuilder();
         configureOrchestra();
+        configureTelemetry();
     }
 
     /**
@@ -503,10 +513,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // orchestra.play();
     }
 
+    private void configureTelemetry(){
+        SmartDashboard.setDefaultNumber("TestPoseX", 0);
+        SmartDashboard.setDefaultNumber("TestPoseY", 0);
+        SmartDashboard.setDefaultNumber("TestPoseR", 0);
+    }
+
     @AutoLogOutput
     public Pose2d getPose2d() {
         return this.getState().Pose;
     }
+
 
     @AutoLogOutput
     public SwerveModuleState[] getModuleStates() {
@@ -532,6 +549,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         gotoAngleRequest.TargetDirection.getDegrees(),
                         getPose2d().getRotation().getDegrees(),
                         tolerance.in(Degrees));
+    }
+
+    public Command getResetPoseCmd(Pose2d pose){
+        return this.runOnce(() -> resetPose(pose));
     }
 
     public Command getPathFindCmd(Pose2d targetPose, PathConstraints constraints){
@@ -655,8 +676,36 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         .finallyDo(() -> applyRequest(() -> idleRequest))
         .withName("Tower Align Command");
     }
+
+    public Command goToPointCmd(Pose2d targetPose, Distance tolerance){
+        return applyRequest(() -> goToRequest
+            .withTargetPoint(targetPose.getTranslation())
+            .withRotationalOffset(targetPose.getRotation())
+        )
+        .until(() -> Math.abs(PhotonUtils.getDistanceToPose(getPose2d(), targetPose)) <= tolerance.in(Meters))
+        .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+
+    public Command goToPointCmd(Pose2d targetPose){
+        return applyRequest(() -> goToRequest
+            .withTargetPoint(targetPose.getTranslation())
+            .withRotationalOffset(targetPose.getRotation())
+        )
+        .until(() -> Math.abs(PhotonUtils.getDistanceToPose(getPose2d(), targetPose)) <= Constants.autonPointToPointTolerance.in(Meters))
+        .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+
+    public Command goToPointNoFinishCmd(Pose2d targetPose){
+        return applyRequest(() -> goToRequest
+            .withTargetPoint(targetPose.getTranslation())
+            .withRotationalOffset(targetPose.getRotation())
+        )
+        .finallyDo(() -> applyRequest(() -> idleRequest));
+    }
+
     
-    public Command hubOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius){
+    public Command hubOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, 
+        Rotation2d offset, Distance maxRadius, Distance minRadius){
         return applyRequest(() -> orbitRestricteRadiusRequest
             .withOrbitPoint(FieldLayout.Hub.getHubCenter())
             .withTravelVelocity(travelVel.get())
@@ -694,6 +743,30 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withName("X-Axis Align Command");
     }
 
+    /**
+     * 
+     * @param travelVelX The desired travel velocity. Positive is up and negative is down. Sign must match direction to target pose
+     * @param targetPose The desired pose to go to.
+     * @param tolerance The desired tolerance distance for the command to end
+     * @param targetRotation Target rotation of the robot
+     * @param coordinate The coordinate axis the robot should align to.
+     * @return
+     */
+    public Command xAxisAlignDistanceCmd(Supplier<LinearVelocity> travelVelX, Pose2d targetPose, Distance tolerance, Rotation2d targetRotation, Translation2d coordinate){
+        return 
+            applyRequest(() -> {   
+                return xAxisAlignRequest
+                .withTravelVelocity(travelVelX.get())
+                .withTargetDirection(targetRotation)
+                .withXAxisCoordinate(coordinate)
+                .withUpdateTargetPose(null);
+            }
+            )
+            .until(() -> Math.abs(PhotonUtils.getDistanceToPose(getPose2d(), targetPose)) <= tolerance.in(Meters))
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("X-Axis Align Distance Command");
+    }
+
     public Command yAxisAlignCmd(Supplier<LinearVelocity> travelVelY, Rotation2d targetRotation, Translation2d coordinate){
         return applyRequest(() -> yAxisAlignRequest
             .withTravelVelocity(travelVelY.get())
@@ -703,9 +776,42 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .finallyDo(() -> applyRequest(() -> idleRequest))
             .withName("Y-Axis Align Command");
     }
-    /** */
+
+    /**
+     * 
+     * @param travelVelX The desired travel velocity. Positive is up and negative is down. Sign must match direction to target pose
+     * @param targetPose The desired pose to go to.
+     * @param tolerance The desired tolerance distance for the command to end
+     * @param targetRotation Target rotation of the robot
+     * @param coordinate The coordinate axis the robot should align to.
+     * @return
+     */
+    public Command yAxisAlignDistanceCmd(Supplier<LinearVelocity> travelVelY, Pose2d targetPose, Distance tolerance){
+        return 
+            applyRequest(() -> {   
+                return yAxisAlignRequest
+                .withTravelVelocity(travelVelY.get())
+                .withTargetDirection(targetPose.getRotation())
+                .withYAxisCoordinate(targetPose.getTranslation())
+                .withUpdateTargetPose(null);
+            }
+            )
+            .until(() -> Math.abs(PhotonUtils.getDistanceToPose(getPose2d(), targetPose)) <= tolerance.in(Meters))
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Y-Axis Align Distance Command");
+    }
+
+
     public void initialRotationHelper(Rotation2d rotation){
         initialRotation = rotation;
+    }
+
+    public void initialPoseHelper(Pose2d pose){
+        initialPose = pose;
+    }
+
+    public Pose2d getInitialPose(){
+        return initialPose;
     }
 
     public Command hubBackAlignCmd(Supplier<LinearVelocity> travelVelY){
@@ -796,6 +902,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+        
+        double testPoseX = SmartDashboard.getNumber("TestPoseX", 0);
+        double testPoseY = SmartDashboard.getNumber("TestPoseY", 0);
+        double testPoseR = SmartDashboard.getNumber("TestPoseR", 0);
+
+        Pose2d testPose = new Pose2d(testPoseX, testPoseY, Rotation2d.fromDegrees(testPoseR));
+        testPosePublisher.set(testPose);
 
         // SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
         SmartDashboard.putNumber("Distance From Hub", FieldLayout.Hub.getHubDist(getPose2d().getTranslation()).in(Meters));

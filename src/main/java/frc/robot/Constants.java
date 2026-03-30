@@ -155,4 +155,5 @@ public class Constants {
 
     //Distance Constants
     public static final Distance maxRobotTrenchDistance = Meters.of(2);
+    public static final Distance autonPointToPointTolerance = Meters.of(0.1);
 }

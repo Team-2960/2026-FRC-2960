@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.CommandSelector;
+import frc.robot.commands.auton.PointToPointAutons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.AprilTagPipeline;
 import frc.robot.subsystems.CameraSim;
@@ -63,6 +64,8 @@ public class RobotContainer {
     private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor,
             Constants.shooterHoodEncoderID, TunerConstants.kCANBus, Constants.shooterHoodGearRatio, drivetrain);
     private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer, shooterWheel, shooterHood, intakeRoller, intakeAngle);
+
+    private final PointToPointAutons pointToPointAutons = new PointToPointAutons(drivetrain, indexer, intakeAngle, intakeRoller, shooterMngt, shooterWheel);
     // private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
 
     // Pathplanner
@@ -179,7 +182,7 @@ public class RobotContainer {
                 Rotation2d.fromDegrees(180), new Translation2d(Inches.of(-11.25), Inches.of(-40))));
         NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl,
                 Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15), Inches.of(40))));
-        NamedCommands.registerCommand("Hub Orbit Command",hubOrbitRangeCmd());
+        NamedCommands.registerCommand("Hub Orbit Command", hubOrbitRangeCmd());
         NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubAutoShotCmd());
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -413,4 +416,9 @@ public class RobotContainer {
         SmartDashboard.putString("Current Command", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
+
+    public Command getP2PAutononomousCmd(){
+        return pointToPointAutons.getTestAuton();
+    }
+    
 }

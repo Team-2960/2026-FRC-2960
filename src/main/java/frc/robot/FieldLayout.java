@@ -242,6 +242,24 @@ public class FieldLayout {
 
     public static class Bump{
         public static final Distance bumpWidth = Inches.of(73);
+        public static final Distance bumpCenterOffset = Hub.hubBaseWidth.div(2.0)
+            .plus(Bump.bumpWidth.div(2.0));
+        
+        public static final Translation2d blueBumpRight = Hub.blueHubCenter.minus(
+            new Translation2d(Meters.of(0), 
+            bumpCenterOffset));
+
+        public static final Translation2d blueBumpLeft =  Hub.blueHubCenter.plus(
+            new Translation2d(Meters.of(0), 
+            bumpCenterOffset));
+        
+        public static final Translation2d redBumpRight = Hub.redHubCenter.plus(
+            new Translation2d(Meters.of(0), 
+            bumpCenterOffset));
+        
+        public static final Translation2d redBumpLeft =  Hub.redHubCenter.minus(
+            new Translation2d(Meters.of(0), 
+            bumpCenterOffset));
     }
     /**
      * Checks if the current alliance is red.
