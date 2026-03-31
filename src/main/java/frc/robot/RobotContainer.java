@@ -314,16 +314,16 @@ public class RobotContainer {
         // Set default drivetrain command
         drivetrain.setDefaultCommand(
                 drivetrain.getDriveCmd(
-                        slowXVelCtrl,
-                        slowYVelCtrl,
-                        slowRVelCtrl));
+                        () -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(),
+                        () -> driverCtrl.getHID().getLeftBumperButton() ? fullYVelCtrl.get() : slowYVelCtrl.get(),
+                        () -> driverCtrl.getHID().getLeftBumperButton() ? fullRVelCtrl.get() : slowRVelCtrl.get()));
 
         // Fast Drive Command
-        driverCtrl.leftBumper().whileTrue(
-                drivetrain.getDriveCmd(
-                        fullXVelCtrl,
-                        fullYVelCtrl,
-                        fullRVelCtrl));
+        // driverCtrl.leftBumper().whileTrue(
+        //         drivetrain.getDriveCmd(
+        //                 fullXVelCtrl,
+        //                 fullYVelCtrl,
+        //                 fullRVelCtrl));
 
         // Track Goal
         // driverCtrl.leftBumper().whileTrue(
@@ -356,7 +356,7 @@ public class RobotContainer {
                         () -> drivetrain.initialRotationHelper(
                                 FieldLayout.getInwardAngle(drivetrain.getPose2d())),
                         drivetrain)
-                        .andThen(drivetrain.hubBackAlignCmd(slowYVelCtrl)));
+                        .andThen(drivetrain.hubBackAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullYVelCtrl.get() : slowYVelCtrl.get())));
 
         // driverCtrl.y().whileTrue(
         // drivetrain.xAxisAlignCmd(fullXVelCtrl, Rotation2d.fromDegrees(90),
@@ -364,7 +364,11 @@ public class RobotContainer {
         // );
 
         driverCtrl.b().whileTrue(
-                drivetrain.trenchAlignCmd(slowXVelCtrl));
+                drivetrain.trenchAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get()));
+
+        driverCtrl.x().whileTrue(
+                drivetrain.goToPointCruiseCmd(new Pose2d(), MetersPerSecond.of(3), Meters.of(0.1))
+        );
 
         // driverCtrl.leftTrigger(.1).whileTrue(
         // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
