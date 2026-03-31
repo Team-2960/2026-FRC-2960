@@ -1,5 +1,7 @@
 package frc.robot.Util;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -130,6 +132,16 @@ public final class WaypointFactory {
         }
 
         /**
+         * Returns a new Waypoint with the same pose but a new flip policy.
+         * 
+         * @param flip the new flip policy to apply.
+         * @return the new Waypoint with the applied flip policy.
+         */
+        public Waypoint withFlipPolicy(AllianceFlip flip){
+            return new Waypoint(this.getBluePose(), flip);
+        }
+
+        /**
          * Returns a new Waypoint with the same position but a different heading.
          *
          * @param rotation the new blue-side heading (will be flipped with the pose)
@@ -224,11 +236,31 @@ public final class WaypointFactory {
     }
 
     /**
-     * Reflects the pose over the field's X axis (the long center line).
-     * Rotates 180° around a point at the same X as the pose, on the Y center line.
+     * Reflects the pose over the field's long center line (the X axis).
+     *
+     * <p>Translation: Y is mirrored across the field's Y midpoint (fieldWidth - y),
+     * X is unchanged.
+     *
+     * <p>Rotation: only the sin component is negated, which reflects the heading
+     * across the X axis without rotating it. For example, 45° becomes 135°, and
+     * 270° becomes 90°. This is intentionally NOT a 180° rotation — a reflection
+     * cannot be expressed as a rotation.
+     *
+     * <p>Example: a pose at (3, 2) on a 16x8 field becomes (3, 6).
+     * A heading of 45° becomes 135°.
      */
     private static Pose2d flipXAxis(Pose2d pose) {
-        Translation2d pivot = new Translation2d(pose.getMeasureX(), FieldLayout.fieldWidth.div(2));
-        return pose.rotateAround(pivot, Rotation2d.k180deg);
+        double fieldWidthMeters = FieldLayout.fieldWidth.in(Meters);
+ 
+        // Mirror Y across the field's center line, X stays the same
+        double newY = fieldWidthMeters - pose.getY();
+ 
+        // Reflect heading across the X axis: negate sin (Y component), keep cos (X component)
+        Rotation2d newRot = new Rotation2d(
+             pose.getRotation().getCos(),
+            -pose.getRotation().getSin()
+        );
+ 
+        return new Pose2d(pose.getX(), newY, newRot);
     }
 }

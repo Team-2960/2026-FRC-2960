@@ -71,6 +71,9 @@ public class RobotContainer {
     // Pathplanner
     SendableChooser<Command> autoChooser;
 
+    //P2P Auton
+    SendableChooser<Command> p2pAutoChooser;
+
     // Mutable Units
     private MutLinearVelocity xVel = MetersPerSecond.mutable(0);
     private MutLinearVelocity yVel = MetersPerSecond.mutable(0);
@@ -187,6 +190,9 @@ public class RobotContainer {
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auton Chooser", autoChooser);
+
+        p2pAutoChooser = pointToPointAutons.getAutonChooser();
+        SmartDashboard.putData("P2P Auton Chooser", p2pAutoChooser);
     }
 
     /**
@@ -366,10 +372,6 @@ public class RobotContainer {
         driverCtrl.b().whileTrue(
                 drivetrain.trenchAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get()));
 
-        driverCtrl.x().whileTrue(
-                drivetrain.goToPointCruiseCmd(new Pose2d(), MetersPerSecond.of(3), Meters.of(0.1))
-        );
-
         // driverCtrl.leftTrigger(.1).whileTrue(
         // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
         // Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
@@ -425,12 +427,13 @@ public class RobotContainer {
      * @return the selected auton
      */
     public Command getAutonomousCommand() {
-        SmartDashboard.putString("Current Command", autoChooser.getSelected().getName());
+        SmartDashboard.putString("Current Auton", autoChooser.getSelected().getName());
         return autoChooser.getSelected();
     }
 
     public Command getP2PAutononomousCmd(){
-        return pointToPointAutons.getTestAuto1();
+        SmartDashboard.putString("Current P2P Auton", p2pAutoChooser.getSelected().getName());
+        return p2pAutoChooser.getSelected();
     }
     
 }
