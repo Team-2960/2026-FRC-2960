@@ -5,6 +5,9 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -75,6 +78,23 @@ public final class PointToPointAutons {
         };
     }
 
+    public static class WaypointSet {
+        private final List<Waypoint> waypoints = new ArrayList<>();
+
+        public Waypoint add(Waypoint w) {
+            waypoints.add(w);
+            return w; // returns the waypoint so it can be used inline
+        }
+
+        public List<Pose2d> getResolved() {
+            return waypoints.stream().map(Waypoint::get).toList();
+        }
+
+        public Pose2d[] getResolvedArray() {
+            return waypoints.stream().map(Waypoint::get).toArray(Pose2d[]::new);
+        }
+    }
+
     public final SendableChooser<Command> getAutonChooser(){
         return autonChooser;
     }
@@ -110,18 +130,22 @@ public final class PointToPointAutons {
     }
 
     private Command getTrench2CycleImpl(boolean mirror) {
-        Waypoint trenchStart       = w(AutonWaypoints.rightTrenchAutonStart, mirror);
-        Waypoint neutralIntakePrep = w(AutonWaypoints.rightNeutralIntakePrep, mirror);
-        Waypoint neutralIntakeFin  = w(AutonWaypoints.rightNeutralIntakeFinished, mirror);
-        Waypoint bumpCrossPrep     = w(AutonWaypoints.rightBumpCrossPrep, mirror);
-        Waypoint bumpCrossFin      = w(AutonWaypoints.rightBumpCrossFinished, mirror);
-        Waypoint trenchPrep        = w(AutonWaypoints.rightTrenchPrep, mirror);
+        WaypointSet points = new WaypointSet();
+
+        Waypoint trenchStart       = points.add(w(AutonWaypoints.rightTrenchAutonStart, mirror));
+        Waypoint neutralIntakePrep = points.add(w(AutonWaypoints.rightNeutralIntakePrep, mirror));
+        Waypoint neutralIntakeFin  = points.add(w(AutonWaypoints.rightNeutralIntakeFinished, mirror));
+        Waypoint bumpCrossPrep     = points.add(w(AutonWaypoints.rightBumpCrossPrep, mirror));
+        Waypoint bumpCrossFin      = points.add(w(AutonWaypoints.rightBumpCrossFinished, mirror));
+        Waypoint trenchPrep        = points.add(w(AutonWaypoints.rightTrenchPrep, mirror));
 
         double yVel = mirror ? -3 : 3;
 
         return new SequentialCommandGroup(
             drivetrain.getResetPoseCmd(trenchStart.withRotation(
                 FieldLayout.isRedAlliance() ? Rotation2d.k180deg : Rotation2d.kZero)),
+
+            drivetrain.drawAutonPathCmd(points),
 
             // First pass
             eventMarkerGoTo(neutralIntakePrep, 0.2, Meters.of(0.2),

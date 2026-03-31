@@ -63,6 +63,7 @@ import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricXAxisAlign;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricYAxisAlign;
 import frc.robot.commands.auton.PointToPointAutons.AutonWaypoints;
+import frc.robot.commands.auton.PointToPointAutons.WaypointSet;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -94,11 +95,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final Field2d field = new Field2d();
 
-    StructPublisher<Pose2d> testPosePublisher = NetworkTableInstance.getDefault()
+    private final StructPublisher<Pose2d> testPosePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("Test Pose", Pose2d.struct).publish();
 
-    StructArrayPublisher<Pose2d> testAutonPublisher = NetworkTableInstance.getDefault()
+    private final StructArrayPublisher<Pose2d> autonPathPublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("P2P Auton Publisher", Pose2d.struct).publish();
+    
+    private Pose2d[] autonPathArray = new Pose2d[0];
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -566,6 +569,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.runOnce(() -> resetPose(pose.get()));
     }
 
+    public void updateDrawAutonPath(Pose2d[] points){
+        autonPathArray = points;
+    }
+
+    public Command drawAutonPathCmd(WaypointSet points){
+        return this.runOnce(() -> updateDrawAutonPath(points.getResolvedArray()));
+    }
+
     public Command getPathFindCmd(Pose2d targetPose, PathConstraints constraints){
         return AutoBuilder.pathfindToPoseFlipped(targetPose, constraints);
     }
@@ -950,7 +961,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         Pose2d testPose = new Pose2d(testPoseX, testPoseY, Rotation2d.fromDegrees(testPoseR));
         testPosePublisher.set(testPose);
-        testAutonPublisher.set(AutonWaypoints.rightAutonPoints);
+
+        autonPathPublisher.set(autonPathArray);
 
         // SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
         SmartDashboard.putNumber("Distance From Hub", FieldLayout.Hub.getHubDist(getPose2d().getTranslation()).in(Meters));
