@@ -372,6 +372,10 @@ public class RobotContainer {
         driverCtrl.b().whileTrue(
                 drivetrain.trenchAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get()));
 
+        
+        driverCtrl.x().whileTrue(
+                drivetrain.trenchAngleAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(), Rotation2d.fromDegrees(20)));
+
         // driverCtrl.leftTrigger(.1).whileTrue(
         // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
         // Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
