@@ -269,7 +269,8 @@ public class IntakeAngle extends SubsystemBase {
     public Command setVoltageCmd(Voltage target) {
         return this.runEnd(
                 () -> setVoltage(target),
-                () -> setVoltage(Volts.zero()));
+                () -> setVoltage(Volts.zero()))
+            .withName("Voltage Command");
     }
 
     /**
@@ -281,14 +282,16 @@ public class IntakeAngle extends SubsystemBase {
     public Command setVelocityCmd(AngularVelocity target) {
         return this.runEnd(
                 () -> setVelocity(target),
-                () -> setVelocity(RotationsPerSecond.zero()));
+                () -> setVelocity(RotationsPerSecond.zero()))
+                .withName("Velocity Command");
     }
 
     public Command setVelocityTestCmd(Supplier<AngularVelocity> velocity) {
         return this.startRun(
                 () -> motor.getConfigurator().refresh(motorConfig.Slot2),
                 () -> setVelocity(velocity.get()))
-                .finallyDo(() -> setVoltage(Volts.zero()));
+                .finallyDo(() -> setVoltage(Volts.zero()))
+                .withName("Velocity Test Command");
     }
 
     /**
@@ -300,28 +303,33 @@ public class IntakeAngle extends SubsystemBase {
     public Command setPositionCmd(Angle target) {
         return this.runEnd(
                 () -> setPosition(target),
-                () -> setVoltage(Volts.zero()));
+                () -> setVoltage(Volts.zero()))
+                .withName("Position Command");
     }
 
     public Command setBangBangPositionCmd(AngularVelocity velocity, Angle tarAngle){
         return this.runEnd(
             () -> setBangBangPosition(velocity, tarAngle), 
             () -> setVoltage(Volts.zero())
-        );
+        )
+        .withName("Bang Bang Position Command");
     }
 
     public Command extendCmd(){
-        return setPositionCmd(Constants.intakeOutAngle);
+        return setPositionCmd(Constants.intakeOutAngle)
+            .withName("Extend Command");
     }
 
     public Command retractCmd(){
-        return setPositionCmd(Constants.intakeInAngle);
+        return setPositionCmd(Constants.intakeInAngle)
+            .withName("Retract Command");
     }
 
     public Command holdPositionCmd() {
         return this.startEnd(
                 () -> setPosition(getPosition()),
-                () -> setVoltage(Volts.zero()));
+                () -> setVoltage(Volts.zero()))
+                .withName("Hold Position Command");
     }
 
     public Command setOscilateCmd(Angle amplitude, Angle referencePos, Time period) {
@@ -331,7 +339,8 @@ public class IntakeAngle extends SubsystemBase {
 
                 setPositionCmd(referencePos.minus(amplitude))
                         .withTimeout(period))
-                .repeatedly();
+                .repeatedly()
+                .withName("Oscilate Command");
     }
 
     public Command setOscilateLimitsCmd(Angle minAngle, Angle maxAngle, Time period) {
@@ -341,7 +350,8 @@ public class IntakeAngle extends SubsystemBase {
 
                 setPositionCmd(minAngle)
                         .withTimeout(period))
-                .repeatedly();
+                .repeatedly()
+                .withName("Oscilate Limits Command");
 
     }
 
@@ -355,7 +365,8 @@ public class IntakeAngle extends SubsystemBase {
                     //.until(() -> getPosition().isNear(minAngle, 0.02))
                     .withTimeout(period)
             )
-            .repeatedly();
+            .repeatedly()
+            .withName("Bang Bang Oscilate Limit Command");
     }
 
     public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle){
@@ -365,7 +376,8 @@ public class IntakeAngle extends SubsystemBase {
                 setVelocityCmd(velocity.times(-1))
                     .until(() -> getPosition().lte(minAngle))
             )
-            .repeatedly();
+            .repeatedly()
+            .withName("Bang Bang Oscilate Limit Command");
     }
 
 
@@ -378,7 +390,9 @@ public class IntakeAngle extends SubsystemBase {
                         .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(5))),
 
                 setOscilateCmd(amplitude, Degrees.of(60), period)
-                        .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3))));
+                        .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3)))
+        )
+        .withName("Oscilate Progression Command");
     }
 
     public Command setOscilateProgressionTestCmd(Angle amplitude, Time period, DoubleSupplier testValue) {
@@ -390,15 +404,18 @@ public class IntakeAngle extends SubsystemBase {
                         .onlyWhile(() -> testValue.getAsDouble() >= 5),
 
                 setOscilateCmd(amplitude, Degrees.of(60), period)
-                        .onlyWhile(() -> testValue.getAsDouble() >= 2));
+                        .onlyWhile(() -> testValue.getAsDouble() >= 2))
+        .withName("Oscilate Progression Test Command");
     }
 
     public Command lowOscillate() {
-        return setOscilateLimitsCmd(Degrees.of(10), Degrees.of(30), Seconds.of(0.25));
+        return setOscilateLimitsCmd(Degrees.of(10), Degrees.of(30), Seconds.of(0.25))
+            .withName("Low Oscilate COmmand");
     }
 
     public Command highOscillate() {
-        return setOscilateLimitsCmd(Degrees.of(20), Degrees.of(60), Seconds.of(0.25));
+        return setOscilateLimitsCmd(Degrees.of(20), Degrees.of(60), Seconds.of(0.25))
+            .withName("High Oscilate Command");
     }
 
     /**
@@ -454,6 +471,7 @@ public class IntakeAngle extends SubsystemBase {
     public void periodic() {
         // TODO Remove and use CTRE or AdvantageKit telemetry
         SmartDashboard.putNumber("Intake Angle", getPosition().in(Degrees));
+        SmartDashboard.putString("Intake Angle Current Command", getCommandString());
         // SmartDashboard.putNumber("Intake Angle RPM",
         // getVelocity().in(Rotations.per(Minute)));
         // SmartDashboard.putData("Intake Angle Tuning", intakeAngleTest);

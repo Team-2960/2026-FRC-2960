@@ -76,7 +76,7 @@ public class FieldLayout {
         public static final Translation2d blueHubCenterBack = blueHubCenter.plus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
         public static final Translation2d redHubCenterBack = redHubCenter.minus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
 
-            /**
+        /**
          * Gets the center of the hub for the current alliance
          * 
          * @return center of the hub for the current alliance. Defaults to blue if
@@ -331,6 +331,12 @@ public class FieldLayout {
         }
     }
 
-
+    public static boolean inAllianceZone(Supplier<Pose2d> curPose){
+        if (isRedAlliance()){
+            return curPose.get().getMeasureX().gt(Bump.redBumpRight.getMeasureX());
+        }else{
+            return curPose.get().getMeasureX().lt(Bump.blueBumpRight.getMeasureX());
+        }
+    }
 
 }

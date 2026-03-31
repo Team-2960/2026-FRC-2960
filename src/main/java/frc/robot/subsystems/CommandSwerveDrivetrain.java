@@ -36,6 +36,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -49,6 +50,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -59,6 +61,7 @@ import frc.robot.Util.CustomSwerveRequests.FieldCentricGoToPoint;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricXAxisAlign;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricYAxisAlign;
+import frc.robot.commands.auton.PointToPointAutons.AutonWaypoints;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -92,6 +95,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     StructPublisher<Pose2d> testPosePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("Test Pose", Pose2d.struct).publish();
+
+    StructArrayPublisher<Pose2d> testAutonPublisher = NetworkTableInstance.getDefault()
+        .getStructArrayTopic("P2P Auton Publisher", Pose2d.struct).publish();
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -732,6 +738,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         .withName("Hub Orbit Restricted Radius Command");
     }
 
+    public Command autoAimCommand(Supplier<LinearVelocity> travelVel, Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius){
+        return Commands.either(
+            hubOrbitCommand(travelVel, offset, minRadius),
+            passOrbitRestrictedRadiusCommand(travelVel, radialVelocity, offset, maxRadius, minRadius),
+            () -> FieldLayout.inAllianceZone(this::getPose2d));
+    }
+
     public Command xAxisAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation, Translation2d coordinate){
         return applyRequest(() -> xAxisAlignRequest
             .withTravelVelocity(travelVelX.get())
@@ -752,13 +765,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param coordinate The coordinate axis the robot should align to.
      * @return
      */
-    public Command xAxisAlignDistanceCmd(Supplier<LinearVelocity> travelVelX, Pose2d targetPose, Distance tolerance, Rotation2d targetRotation, Translation2d coordinate){
+    public Command xAxisAlignDistanceCmd(Supplier<LinearVelocity> travelVelX, Pose2d targetPose, Distance tolerance){
         return 
             applyRequest(() -> {   
                 return xAxisAlignRequest
                 .withTravelVelocity(travelVelX.get())
-                .withTargetDirection(targetRotation)
-                .withXAxisCoordinate(coordinate)
+                .withTargetDirection(targetPose.getRotation())
+                .withXAxisCoordinate(targetPose.getTranslation())
                 .withUpdateTargetPose(null);
             }
             )
@@ -890,7 +903,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * mid-match.
          * Otherwise, only check and apply the operator perspective if the DS is
          * disabled.
-         * This ensures driving behavior doesn't ch\][ange until an explicit disable event
+         * This ensures driving behavior doesn't change until an explicit disable event
          * occurs during testing.
          */
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
@@ -909,12 +922,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         Pose2d testPose = new Pose2d(testPoseX, testPoseY, Rotation2d.fromDegrees(testPoseR));
         testPosePublisher.set(testPose);
+        testAutonPublisher.set(AutonWaypoints.testAutonPoints);
 
         // SmartDashboard.putNumber("Operator Facing Mode", this.getOperatorForwardDirection().getDegrees());
         SmartDashboard.putNumber("Distance From Hub", FieldLayout.Hub.getHubDist(getPose2d().getTranslation()).in(Meters));
         field.setRobotPose(getPose2d());
         SmartDashboard.putData("Field2d", field);
-
     }
 
 }

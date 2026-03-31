@@ -336,9 +336,9 @@ public class RobotContainer {
         // driverCtrl.a().whileTrue(
         //         drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92)));
 
-        driverCtrl.a().whileTrue(hubOrbitCmd());
+        driverCtrl.a().whileTrue(autoAimCmd());
 
-        driverCtrl.x().whileTrue(passOrbitCmd());
+        // driverCtrl.x().whileTrue(passOrbitCmd());
         // driverCtrl.x().whileTrue(
         // drivetrain.travelSetSpeedCmd(() -> MetersPerSecond.zero(), () ->
         // MetersPerSecond.of(2),
@@ -403,8 +403,16 @@ public class RobotContainer {
 
     public Command passOrbitCmd() {
         return drivetrain.passOrbitRestrictedRadiusCommand(() -> slowYVelCtrl.get().times(-1),
-                () -> fullXVelCtrl.get().times(-1), Rotation2d.fromDegrees(180),
+                () -> slowXVelCtrl.get().times(-1), Rotation2d.fromDegrees(180),
                 FieldLayout.fieldCenterX, FieldLayout.fieldCenterX.minus(Inches.of(130)));
+    }
+
+    public Command autoAimCmd(){
+        return Commands.either(
+                hubOrbitCmd(), 
+                passOrbitCmd(), 
+                () -> FieldLayout.inAllianceZone(drivetrain::getPose2d)
+        );
     }
 
     /**
@@ -418,7 +426,7 @@ public class RobotContainer {
     }
 
     public Command getP2PAutononomousCmd(){
-        return pointToPointAutons.getTestAuton();
+        return pointToPointAutons.getTestAuto1();
     }
     
 }

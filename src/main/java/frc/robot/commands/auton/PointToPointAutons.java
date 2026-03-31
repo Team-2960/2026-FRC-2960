@@ -3,11 +3,14 @@ package frc.robot.commands.auton;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -34,6 +37,7 @@ public final class PointToPointAutons {
     private final ShooterManagement shooterManagement;
     private final ShooterWheel shooterWheel;
 
+
     
     public PointToPointAutons(CommandSwerveDrivetrain drivetrain, Indexer indexer, IntakeAngle intakeAngle, 
         IntakeRoller intakeRoller, ShooterManagement shooterManagement, ShooterWheel shooterWheel){
@@ -44,6 +48,7 @@ public final class PointToPointAutons {
         this.intakeRoller = intakeRoller;
         this.shooterManagement = shooterManagement;
         this.shooterWheel = shooterWheel;
+
     }
 
     public static final class AutonWaypoints{
@@ -52,14 +57,22 @@ public final class PointToPointAutons {
         public static final Waypoint rightNeutralIntakePrep = WaypointFactory.of(new Pose2d(7.8, FieldLayout.Trench.blueTrenchRight.getY(), Rotation2d.fromDegrees(90)), AllianceFlip.ALLIANCE);
         public static final Waypoint rightNeutralIntakeFinished = WaypointFactory.of(new Pose2d(7.8, 3.3, Rotation2d.fromDegrees(90)), AllianceFlip.ALLIANCE);
         public static final Waypoint rightBumpCrossPrep = WaypointFactory.of(new Pose2d(6.0, FieldLayout.Bump.blueBumpRight.getY(), Rotation2d.fromDegrees(180)), AllianceFlip.ALLIANCE);
-        public static final Waypoint rightBumpCrossFinished = WaypointFactory.of(new Pose2d(3.0, FieldLayout.Bump.blueBumpRight.getY(), Rotation2d.fromDegrees(210)), AllianceFlip.ALLIANCE);
+        public static final Waypoint rightBumpCrossFinished = WaypointFactory.of(new Pose2d(2.5, FieldLayout.Bump.blueBumpRight.getY(), Rotation2d.fromDegrees(210)), AllianceFlip.ALLIANCE);
+
+        public static final Pose2d[] testAutonPoints = {
+            rightTrenchAutonStart.get(),
+            rightNeutralIntakePrep.get(),
+            rightNeutralIntakeFinished.get(),
+            rightBumpCrossPrep.get(),
+            rightBumpCrossFinished.get()
+        };
     }
 
-    public final Command eventMarkerGoTo(Waypoint target, double percent, Command event){
+    public final Command eventMarkerGoTo(Waypoint target, double percent, Distance tolerance,Command event){
         return drivetrain.runOnce(() -> drivetrain.initialPoseHelper(drivetrain.getPose2d()))
         .andThen(
             new ParallelDeadlineGroup(
-                drivetrain.goToPointCmd(target.get()),
+                drivetrain.goToPointCmd(target.get(), tolerance),
                 new SequentialCommandGroup(
                     Commands.waitUntil(() -> {
                         Pose2d targetPose = target.get();
@@ -82,6 +95,35 @@ public final class PointToPointAutons {
             drivetrain.goToPointCmd(AutonWaypoints.rightBumpCrossPrep.get(), Meters.of(1)),
             drivetrain.goToPointCmd(AutonWaypoints.rightBumpCrossFinished.get(), Meters.of(0.2)),
             hubOrbitRangeCmd()
+        );
+    }
+
+    public Command getTestAuto1(){
+        return new SequentialCommandGroup(
+            drivetrain.getResetPoseCmd(AutonWaypoints.rightTrenchAutonStart.withRotation(FieldLayout.isRedAlliance() ? Rotation2d.k180deg : Rotation2d.kZero).get()),
+            eventMarkerGoTo(AutonWaypoints.rightNeutralIntakePrep, 0.2, Meters.of(0.2), 
+                new ParallelCommandGroup(
+                    intakeAngle.extendCmd(),
+                    intakeRoller.intakeInCmd()
+                )
+            ),
+            new ParallelDeadlineGroup(
+                drivetrain.yAxisAlignDistanceCmd(() -> MetersPerSecond.of(3), AutonWaypoints.rightNeutralIntakeFinished.get(), Meters.of(0.2)),
+                intakeAngle.extendCmd(),
+                intakeRoller.intakeInCmd()
+            ),
+            new ParallelDeadlineGroup(
+                drivetrain.goToPointCmd(AutonWaypoints.rightBumpCrossPrep.get(), Meters.of(1))
+            ),
+            new ParallelDeadlineGroup(
+                drivetrain.xAxisAlignDistanceCmd(() -> MetersPerSecond.of(-4), AutonWaypoints.rightBumpCrossFinished.get(), Meters.of(0.2))
+            ),
+            
+            hubOrbitRangeCmd().alongWith(
+                shooterManagement.hubAutoShotCmd()
+            ).withTimeout(5),
+            
+            intakeAngle.retractCmd()
         );
     }
 
