@@ -186,6 +186,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl,
                 Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15), Inches.of(40))));
         NamedCommands.registerCommand("Hub Orbit Command", hubOrbitRangeCmd());
+        NamedCommands.registerCommand("Auto Aim Command", autoAimCmd());
         NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubAutoShotCmd());
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -374,7 +375,7 @@ public class RobotContainer {
 
         
         driverCtrl.x().whileTrue(
-                drivetrain.trenchAngleAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(), Rotation2d.fromDegrees(20)));
+                drivetrain.trenchAngleAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(), Rotation2d.fromDegrees(-20)));
 
         // driverCtrl.leftTrigger(.1).whileTrue(
         // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
@@ -404,7 +405,7 @@ public class RobotContainer {
     public Command hubOrbitRangeCmd() {
         return drivetrain.hubOrbitRestrictedRadiusCommand(slowYVelCtrl, slowXVelCtrl,
                 Rotation2d.fromDegrees(180),
-                Inches.of(147), Meters.of(1.75));
+                Inches.of(160), Meters.of(1.75));
     }
 
     public Command hubOrbitCmd(){
