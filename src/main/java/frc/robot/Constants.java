@@ -81,7 +81,8 @@ public class Constants {
     public static final ShotSpeedTable shooterWheelTable = new ShotSpeedTable()
             .addEntry(Meters.of(2.058), Revolution.per(Minute).of(1535))
             .addEntry(Meters.of(2.59), Revolution.per(Minute).of(1620))
-            .addEntry(Meters.of(3.13), Revolution.per(Minute).of(1720))
+            .addEntry(Meters.of(2.72), Revolution.per(Minute).of(1750))
+            .addEntry(Meters.of(3.13), Revolution.per(Minute).of(1820))
             .addEntry(Meters.of(3.4), Revolution.per(Minute).of(2020))
             .addEntry(Meters.of(3.702), Revolution.per(Minute).of(2220));
 
@@ -131,6 +132,14 @@ public class Constants {
         new Rotation3d(0, Math.toRadians(-40), Math.toRadians(130))
     );
 
+    public static final Transform3d sideCameraOffsets = new Transform3d(
+         Inches.of(-9.074),    
+        Inches.of(-15.228), 
+        Inches.of(12.205), 
+        //new Rotation3d(37.8, 37.8, -45)
+        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(130))
+    );
+
     public static final Vector<N3> singleStds = VecBuilder.fill(4, 4, 16);
     public static final Vector<N3> multiStds = VecBuilder.fill(0.5, 0.5, 1);
 
@@ -145,6 +154,15 @@ public class Constants {
 
     public static final AprilTagPipelineSettings rightCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
         Constants.rightCameraOffsets,
+        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+        4, 
+        singleStds , 
+        multiStds,
+        .2
+    );
+
+    public static final AprilTagPipelineSettings sideCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
+        Constants.sideCameraOffsets,
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
         4, 
         singleStds , 
