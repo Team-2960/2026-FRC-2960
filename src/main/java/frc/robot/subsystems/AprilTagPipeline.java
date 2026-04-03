@@ -72,7 +72,9 @@ public class AprilTagPipeline extends SubsystemBase {
     private StructArrayPublisher<Pose3d> as_aprilTags;
     private StructPublisher<Pose3d> as_cameraPose; //Camera Pose Relative to Robot on the Field
     private StructPublisher<Pose2d> as_estimatedCameraPose;
+
     private Pose3d[] aprilTagList;
+
     private AprilTagFields field;
 
     private Pose2d last_pose;  //Do NOT Use for any estimates
@@ -336,12 +338,12 @@ public class AprilTagPipeline extends SubsystemBase {
         return curStdDevs;
     }
 
-    @AutoLogOutput (key = "Camera: {cameraName}")
+    @AutoLogOutput (key = "Camera: CamPose {cameraName}")
     public Pose3d getRobotRelativeCamPos(){
         return new Pose3d(drive.getPose2d()).transformBy(settings.robot_to_camera);
     }
 
-    @AutoLogOutput (key = "Camera: {cameraName}")
+    @AutoLogOutput (key = "Camera: LastPose {cameraName}")
     public Pose3d getLastPose(){
         return new Pose3d(last_pose);
     }

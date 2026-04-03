@@ -83,6 +83,12 @@ public class RobotContainer {
     private Trigger testMode = new Trigger(DriverStation::isTest);
 
     // Cameras
+//     private final AprilTagPipeline sideCamera = new AprilTagPipeline(
+//         drivetrain, 
+//         Constants.sideCameraSettings, 
+//         "SideCamera", 
+//         "SideCamera");
+
     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
             drivetrain,
             Constants.leftCameraSettings,
@@ -93,6 +99,7 @@ public class RobotContainer {
             Constants.rightCameraSettings,
             "RightCamera",
             "RightCamera");
+        
 
     @SuppressWarnings("unused")
     private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);

@@ -104,7 +104,7 @@ public class Constants {
 
     // Intake Constants
     public static final Angle intakeOutAngle = Degrees.of(0);
-    public static final Angle intakeInAngle = Degrees.of(105);
+    public static final Angle intakeInAngle = Degrees.of(120);
 
     public static final Voltage intakeRollerInVolt = Volts.of(12.0);
     public static final Voltage intakeRollerOutVolt = Volts.of(-12.0);
@@ -125,7 +125,7 @@ public class Constants {
     );
 
     public static final Transform3d rightCameraOffsets = new Transform3d(
-         Inches.of(-11.274), 
+        Inches.of(-11.274), 
         Inches.of(-13.476), 
         Inches.of(7.553), 
         //new Rotation3d(37.8, 37.8, -45)
@@ -134,10 +134,10 @@ public class Constants {
 
     public static final Transform3d sideCameraOffsets = new Transform3d(
          Inches.of(-9.074),    
-        Inches.of(-15.228), 
+        Inches.of(15.228), 
         Inches.of(12.205), 
         //new Rotation3d(37.8, 37.8, -45)
-        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(130))
+        new Rotation3d(0, Math.toRadians(0), Math.toRadians(90))
     );
 
     public static final Vector<N3> singleStds = VecBuilder.fill(4, 4, 16);
