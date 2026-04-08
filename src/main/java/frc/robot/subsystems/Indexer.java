@@ -241,6 +241,21 @@ public class Indexer extends SubsystemBase {
                 () -> setVoltage(Volts.zero()));
     }
 
+    public Command autoContinuousIndexCmd(BooleanSupplier enabled) {
+    var latched = new boolean[]{false};
+
+    return this.run(() -> {
+        if (enabled.getAsBoolean()) {
+            latched[0] = true;
+        }
+
+        if (latched[0]) {
+            setVoltage(Constants.indexerForwardVolt);
+        } else {
+            setVoltage(Volts.zero());
+        }
+    });
+}
     /**
      * Create a Quasistatic SysId command
      * 

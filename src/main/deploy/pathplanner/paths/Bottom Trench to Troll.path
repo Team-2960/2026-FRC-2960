@@ -3,35 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.8165,
-        "y": 6.0
+        "x": 4.4152499999999995,
+        "y": 0.7
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.047069721615886,
-        "y": 5.903368724141855
+        "x": 6.950727272727272,
+        "y": 0.7721477272727275
       },
       "isLocked": false,
-      "linkedName": "TopUCurveFullFuel"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0444431818181816,
-        "y": 5.879920454545454
+        "x": 8.641045454545454,
+        "y": 1.0
       },
       "prevControl": {
-        "x": 3.009781312104924,
-        "y": 6.127505904012867
+        "x": 8.547238636363634,
+        "y": 1.4431931818181818
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopBumpEndPoint"
+      "linkedName": "BottomTroll"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 0.4889937106918238,
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [],
@@ -53,7 +53,7 @@
   "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 75.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

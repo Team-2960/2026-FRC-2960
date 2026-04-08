@@ -3,40 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.8165,
-        "y": 6.0
+        "x": 4.45,
+        "y": 7.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.047069721615886,
-        "y": 5.903368724141855
+        "x": 6.985477272727273,
+        "y": 7.572147727272728
       },
       "isLocked": false,
-      "linkedName": "TopUCurveFullFuel"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0444431818181816,
-        "y": 5.879920454545454
+        "x": 7.795886363636363,
+        "y": 6.9
       },
       "prevControl": {
-        "x": 3.009781312104924,
-        "y": 6.127505904012867
+        "x": 7.702079545454543,
+        "y": 7.343193181818182
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopBumpEndPoint"
+      "linkedName": "TopIntakePos25Deg"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.4,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "IntakePivOut Command",
+      "waypointRelativePos": 0.17600000000000005,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -47,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 2.0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 75.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.8165,
-        "y": 6.0
+        "x": 8.641045454545454,
+        "y": 6.9930568181818185
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.047069721615886,
-        "y": 5.903368724141855
+        "x": 8.63673789668857,
+        "y": 3.4461114409926465
       },
       "isLocked": false,
-      "linkedName": "TopUCurveFullFuel"
+      "linkedName": "Top Troll"
     },
     {
       "anchor": {
-        "x": 3.0444431818181816,
-        "y": 5.879920454545454
+        "x": 8.641045454545454,
+        "y": 1.1800113636363643
       },
       "prevControl": {
-        "x": 3.009781312104924,
-        "y": 6.127505904012867
+        "x": 8.64607441841846,
+        "y": 3.8637640889071196
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopBumpEndPoint"
+      "linkedName": "BottomEndTroll"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.4,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -46,14 +41,14 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 2.0,
+    "velocity": 4.0,
     "rotation": 180.0
   },
   "reversed": false,
   "folder": "Main Paths",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 75.0
+    "velocity": 4.0,
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

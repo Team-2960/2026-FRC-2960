@@ -57,12 +57,21 @@ public class ShooterManagement {
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
 
+    public Command hubIndexAutoShotCmd() {
+        return Commands.parallel(
+                shooterWheel.hubShotCmd(),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.lowOscillate(),
+                indexer.autoContinuousIndexCmd(() -> isShooterReady()));
+    }
+
     public Command hubAutoHighShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
                 intakeRoller.intakeInCmd(),
                 intakeAngle.highOscillate(),
-                indexer.autoIndexCmd(() -> isShooterReady(Constants.shooterWheelFloorThreshold, Constants.shooterWheelCeilingThreshold)));
+                indexer.autoIndexCmd(() -> isShooterReady(Constants.shooterWheelFloorThreshold,
+                        Constants.shooterWheelCeilingThreshold)));
     }
 
     public Command hubBangBangShotCmd() {
@@ -104,10 +113,9 @@ public class ShooterManagement {
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
 
-    public Command IdleShotPrepCmd(){
+    public Command IdleShotPrepCmd() {
         return Commands.parallel(
-            shooterWheel.idleVelocityCmd()
-        );
+                shooterWheel.idleVelocityCmd());
     }
 
     public Command setVelocityShotCmd(Supplier<AngularVelocity> targetVel, AngularVelocity floorThreshold,
