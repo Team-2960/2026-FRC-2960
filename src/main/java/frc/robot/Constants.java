@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Revolution;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -75,6 +76,10 @@ public class Constants {
     public static final Distance shootingDistance = Inches.of(92);
 
     public static final AngularVelocity shooterWheelTol = Rotations.per(Minute).of(100);
+
+    public static final AngularVelocity shooterWheelFloorThreshold = Rotations.per(Minute).of(200);
+    public static final AngularVelocity shooterWheelCeilingThreshold = Rotations.per(Minute).of(150);
+    
     public static final Angle shooterHoodTol = Degrees.of(2);
     public static final Angle shotAngleTol = Degrees.of(2);
 
@@ -104,7 +109,7 @@ public class Constants {
 
     // Intake Constants
     public static final Angle intakeOutAngle = Degrees.of(0);
-    public static final Angle intakeInAngle = Degrees.of(120);
+    public static final Angle intakeInAngle = Degrees.of(110);
 
     public static final Voltage intakeRollerInVolt = Volts.of(12.0);
     public static final Voltage intakeRollerOutVolt = Volts.of(-12.0);
@@ -142,6 +147,8 @@ public class Constants {
 
     public static final Vector<N3> singleStds = VecBuilder.fill(4, 4, 16);
     public static final Vector<N3> multiStds = VecBuilder.fill(0.5, 0.5, 1);
+    public static final Vector<N3> rightSingleStds = VecBuilder.fill(4*1.5, 4*1.5, 16*1.5);
+    public static final Vector<N3> rightMultiStds = VecBuilder.fill(0.5*1.5, 0.5*1.5, 1*1.5);
 
     public static final AprilTagPipelineSettings leftCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
         Constants.leftCameraOffsets,
@@ -156,8 +163,8 @@ public class Constants {
         Constants.rightCameraOffsets,
         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
         4, 
-        singleStds , 
-        multiStds,
+        rightSingleStds , 
+        rightMultiStds,
         .2
     );
 

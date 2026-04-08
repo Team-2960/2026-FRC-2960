@@ -62,7 +62,7 @@ public class ShooterManagement {
                 shooterWheel.hubShotCmd(),
                 intakeRoller.intakeInCmd(),
                 intakeAngle.highOscillate(),
-                indexer.autoIndexCmd(() -> isShooterReady()));
+                indexer.autoIndexCmd(() -> isShooterReady(Constants.shooterWheelFloorThreshold, Constants.shooterWheelCeilingThreshold)));
     }
 
     public Command hubBangBangShotCmd() {

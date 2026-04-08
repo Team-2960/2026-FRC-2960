@@ -83,11 +83,11 @@ public class RobotContainer {
     private Trigger testMode = new Trigger(DriverStation::isTest);
 
     // Cameras
-//     private final AprilTagPipeline sideCamera = new AprilTagPipeline(
-//         drivetrain, 
-//         Constants.sideCameraSettings, 
-//         "SideCamera", 
-//         "SideCamera");
+    private final AprilTagPipeline sideCamera = new AprilTagPipeline(
+        drivetrain, 
+        Constants.sideCameraSettings, 
+        "SideCamera", 
+        "SideCamera");
 
     private final AprilTagPipeline leftCamera = new AprilTagPipeline(
             drivetrain,
@@ -195,6 +195,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Hub Orbit Command", hubOrbitRangeCmd());
         NamedCommands.registerCommand("Auto Aim Command", autoAimCmd());
         NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubAutoShotCmd());
+        NamedCommands.registerCommand("IndexerBackwards Command", indexer.setVoltageCmd(Volts.of(-6)));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auton Chooser", autoChooser);
@@ -237,9 +238,9 @@ public class RobotContainer {
 
         operatorCtrl.start().whileTrue(intakeRoller.intakeOutCmd());
 
-        operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(2)));
+        operatorCtrl.povUp().whileTrue(intakeAngle.setVoltageCmd(Volts.of(3)));
 
-        operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-2)));
+        operatorCtrl.povDown().whileTrue(intakeAngle.setVoltageCmd(Volts.of(-3)));
 
         operatorCtrl.b().onTrue(intakeAngle.extendCmd());
 

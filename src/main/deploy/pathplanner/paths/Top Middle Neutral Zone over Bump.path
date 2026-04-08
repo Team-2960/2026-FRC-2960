@@ -73,7 +73,7 @@
   "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 3.0,
-    "rotation": -93.13635836833261
+    "rotation": -90.0
   },
   "useDefaultConstraints": false
 }

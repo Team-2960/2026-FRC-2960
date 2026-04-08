@@ -61,9 +61,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Top Bump to Shoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IndexerBackwards Command"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Bump to Shoot"
+                }
+              }
+            ]
           }
         },
         {
@@ -73,13 +86,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {
@@ -129,6 +142,12 @@
               {
                 "type": "named",
                 "data": {
+                  "name": "IndexerBackwards Command"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
                   "name": "IntakePivOut Command"
                 }
               }
@@ -142,13 +161,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 6.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {

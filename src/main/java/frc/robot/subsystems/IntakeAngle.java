@@ -22,6 +22,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -29,6 +30,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Time;
@@ -103,6 +105,7 @@ public class IntakeAngle extends SubsystemBase {
     private final MotionMagicVelocityVoltage velCtrl = new MotionMagicVelocityVoltage(0)
             .withAcceleration(RotationsPerSecondPerSecond.of(10));
     private final MotionMagicVoltage posCtrl = new MotionMagicVoltage(0);
+    private final PositionVoltage posCtrl1 = new PositionVoltage(0);
     // private final IntakeAngleTest intakeAngleTest = new IntakeAngleTest();
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
@@ -141,14 +144,21 @@ public class IntakeAngle extends SubsystemBase {
                 .withInverted(InvertedValue.Clockwise_Positive);
 
         motorConfig.Feedback
-                .withSensorToMechanismRatio(1)
+                //.withSensorToMechanismRatio(1)
+                .withSensorToMechanismRatio(50)
                 .withRemoteCANcoder(encoder)
                 .withRotorToSensorRatio(gearRatio)
-                .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
-                // .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
+                // .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
+
+        motorConfig.SoftwareLimitSwitch
+            .withForwardSoftLimitEnable(true)
+            .withForwardSoftLimitThreshold(Degrees.of(110))
+            .withReverseSoftLimitEnable(true)
+            .withReverseSoftLimitThreshold(Degrees.of(0.25));
 
         motorConfig.Slot0
-                .withKP(1.8)
+                .withKP(5)
                 .withKI(0.0)
                 .withKD(0.0)
                 .withKS(0.21456)
@@ -166,12 +176,12 @@ public class IntakeAngle extends SubsystemBase {
                 .withKG(0.0);
 
         motorConfig.MotionMagic
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(5))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10))
-                .withMotionMagicJerk(120);
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(2))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(4))
+                .withMotionMagicJerk(80);
 
         motor.getConfigurator().apply(motorConfig);
-        // motor.getConfigurator().setPosition(Degrees.of(110));
+        motor.getConfigurator().setPosition(encoder.getPosition().getValue());
 
         signalsConfig();
 
@@ -210,6 +220,11 @@ public class IntakeAngle extends SubsystemBase {
         motor.setControl(posCtrl.withPosition(angle)
                 .withLimitReverseMotion(getPosition().lte(Degrees.of(-10)))
                 .withLimitForwardMotion(getPosition().gte(Degrees.of(150))));
+        // motor.setControl(posCtrl1
+        //     .withPosition(angle)
+        //     .withVelocity(RotationsPerSecond.of(2))
+        //     .withEnableFOC(true)
+        //     .withSlot(0));
     }
 
     public void setBangBangPosition(AngularVelocity velocity, Angle tarAngle){
@@ -302,9 +317,21 @@ public class IntakeAngle extends SubsystemBase {
      */
     public Command setPositionCmd(Angle target) {
         return this.runEnd(
-                () -> setPosition(target),
+                // () -> setPosition(target),
+                () -> setBangBangPosition(RotationsPerSecond.of(1), target),
                 () -> setVoltage(Volts.zero()))
+                .until(() -> MathUtil.isNear(target.in(Degrees), getPosition().in(Degrees), 5))
+                .andThen(this.runEnd(
+                    () -> setPosition(target), 
+                    () -> setVoltage(Volts.zero())))
                 .withName("Position Command");
+    }
+
+    public Command setOldPositionCmd(Angle target){
+        return this.runEnd(
+            () -> setPosition(target), 
+            () -> setVoltage(Volts.of(0))
+        );
     }
 
     public Command setBangBangPositionCmd(AngularVelocity velocity, Angle tarAngle){
@@ -321,7 +348,8 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command retractCmd(){
-        return setPositionCmd(Constants.intakeInAngle)
+        // return setPositionCmd(Constants.intakeInAngle)
+        return setOldPositionCmd(Constants.intakeInAngle)
             .withName("Retract Command");
     }
 
@@ -334,10 +362,10 @@ public class IntakeAngle extends SubsystemBase {
 
     public Command setOscilateCmd(Angle amplitude, Angle referencePos, Time period) {
         return Commands.sequence(
-                setPositionCmd(referencePos.plus(amplitude))
+                setOldPositionCmd(referencePos.plus(amplitude))
                         .withTimeout(period),
 
-                setPositionCmd(referencePos.minus(amplitude))
+                setOldPositionCmd(referencePos.minus(amplitude))
                         .withTimeout(period))
                 .repeatedly()
                 .withName("Oscilate Command");
@@ -345,10 +373,10 @@ public class IntakeAngle extends SubsystemBase {
 
     public Command setOscilateLimitsCmd(Angle minAngle, Angle maxAngle, Time period) {
         return Commands.sequence(
-                setPositionCmd(maxAngle)
+                setOldPositionCmd(maxAngle)
                         .withTimeout(period),
 
-                setPositionCmd(minAngle)
+                setOldPositionCmd(minAngle)
                         .withTimeout(period))
                 .repeatedly()
                 .withName("Oscilate Limits Command");

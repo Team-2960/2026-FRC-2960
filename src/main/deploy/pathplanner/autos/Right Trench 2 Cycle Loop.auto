@@ -49,9 +49,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IndexerBackwards Command"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom Middle Neutral Zone over Bump"
+                }
+              }
+            ]
           }
         },
         {
@@ -67,13 +80,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {
@@ -115,6 +128,12 @@
                 }
               },
               {
+                "type": "named",
+                "data": {
+                  "name": "IndexerBackwards Command"
+                }
+              },
+              {
                 "type": "path",
                 "data": {
                   "pathName": "Bottom Empty Fuel to Middle Cycle 2"
@@ -130,13 +149,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {

@@ -135,6 +135,8 @@ public class ShooterWheel extends SubsystemBase {
 
     private Orchestra orchestra = new Orchestra();
 
+    private AngularVelocity logTargetVelocity = RotationsPerSecond.of(0);
+
     // SysId
 
     private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
@@ -338,7 +340,8 @@ public class ShooterWheel extends SubsystemBase {
      *         ceiling
      */
     public boolean atVelocity(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold) {
-        return getVelocity().gt(floorThreshold) && ceilingThreshold.gt(getVelocity());
+        return getVelocity().gt(RotationsPerSecond.of(torqueCtrl.Velocity).minus(floorThreshold)) 
+            && getVelocity().lt(RotationsPerSecond.of(torqueCtrl.Velocity).plus(ceilingThreshold));
     }
 
     /**
@@ -480,7 +483,7 @@ public class ShooterWheel extends SubsystemBase {
      * @return new command to set the shooter for shooting at the hub
      */
     public Command hubShotCmd() {
-        return hubPhaseShotCmd(this::calcHubShotSpeed, Rotations.of(200).per(Minute), Rotations.of(150).per(Minute));
+        return hubPhaseShotCmd(this::calcHubShotSpeed, Constants.shooterWheelFloorThreshold, Constants.shooterWheelCeilingThreshold);
     }
 
     /**

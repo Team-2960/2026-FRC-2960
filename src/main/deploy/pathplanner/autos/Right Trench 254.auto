@@ -55,9 +55,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Bottom Middle Neutral Zone under Trench"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom Middle Neutral Zone under Trench"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IndexerBackwards Command"
+                }
+              }
+            ]
           }
         },
         {
