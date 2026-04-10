@@ -79,7 +79,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Aim Shake Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {
@@ -148,7 +148,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Aim Shake Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {

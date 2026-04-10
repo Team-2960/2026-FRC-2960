@@ -61,9 +61,9 @@ public class RobotContainer {
     private final Indexer indexer = new Indexer(Constants.indexMotorID, TunerConstants.kCANBus, Constants.indexerGearRatio, drivetrain);
     private final ShooterWheel shooterWheel = new ShooterWheel(Constants.shooterMotorLeaderID,
             Constants.shooterMotorFollowerID, TunerConstants.kCANBus, Constants.shooterWheelGearRatio, drivetrain);
-    private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor,
-            Constants.shooterHoodEncoderID, TunerConstants.kCANBus, Constants.shooterHoodGearRatio, drivetrain);
-    private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer, shooterWheel, shooterHood, intakeRoller, intakeAngle);
+//     private final ShooterHood shooterHood = new ShooterHood(Constants.shooterHoodMotor,
+//             Constants.shooterHoodEncoderID, TunerConstants.kCANBus, Constants.shooterHoodGearRatio, drivetrain);
+    private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer, shooterWheel, intakeRoller, intakeAngle);
 
     private final PointToPointAutons pointToPointAutons = new PointToPointAutons(drivetrain, indexer, intakeAngle, intakeRoller, shooterMngt, shooterWheel);
     // private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
@@ -193,7 +193,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl,
                 Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15), Inches.of(40))));
         NamedCommands.registerCommand("Hub Orbit Command", hubOrbitRangeCmd());
-        NamedCommands.registerCommand("Auto Aim Shake Command", hubShakeCmd());
+        //NamedCommands.registerCommand("Auto Aim Shake Command", hubShakeCmd());
         NamedCommands.registerCommand("Auto Aim Command", autoAimCmd());
         NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubAutoShotCmd());
         NamedCommands.registerCommand("IndexerBackwards Command", indexer.setVoltageCmd(Volts.of(-6)));
@@ -268,10 +268,10 @@ public class RobotContainer {
     }
 
     private void shooterBindings() {
-        Command shooterHoodSysId = shooterHood.sysIdQuasistaticLimited(Direction.kForward)
-                .andThen(shooterHood.sysIdQuasistaticLimited(Direction.kReverse))
-                .andThen(shooterHood.sysIdDynamicLimited(Direction.kForward))
-                .andThen(shooterHood.sysIdDynamicLimited(Direction.kReverse));
+        // Command shooterHoodSysId = shooterHood.sysIdQuasistaticLimited(Direction.kForward)
+        //         .andThen(shooterHood.sysIdQuasistaticLimited(Direction.kReverse))
+        //         .andThen(shooterHood.sysIdDynamicLimited(Direction.kForward))
+        //         .andThen(shooterHood.sysIdDynamicLimited(Direction.kReverse));
 
         Command shooterWheelSysId = shooterWheel.sysIdQuasistatic(Direction.kForward)
                 .andThen(shooterWheel.sysIdQuasistatic(Direction.kReverse))

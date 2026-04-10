@@ -22,7 +22,7 @@ public class ShooterManagement {
     private final CommandSwerveDrivetrain drivetrain;
     private final Indexer indexer;
     private final ShooterWheel shooterWheel;
-    private final ShooterHood shooterHood;
+    // private final ShooterHood shooterHood;
     private final IntakeRoller intakeRoller;
     private final IntakeAngle intakeAngle;
 
@@ -34,14 +34,16 @@ public class ShooterManagement {
      * @param shooterHood  shooter hood subsystem instance
      */
     public ShooterManagement(CommandSwerveDrivetrain drivetrain, Indexer indexer, ShooterWheel shooterWheel,
-            ShooterHood shooterHood, IntakeRoller intakeRoller, IntakeAngle intakeAngle) {
+             IntakeRoller intakeRoller, IntakeAngle intakeAngle) {
         this.drivetrain = drivetrain;
         this.indexer = indexer;
         this.shooterWheel = shooterWheel;
-        this.shooterHood = shooterHood;
+        // this.shooterHood = shooterHood;
         this.intakeRoller = intakeRoller;
         this.intakeAngle = intakeAngle;
-    }
+    } 
+
+    
 
     public Command hubNoIntakeShotCmd() {
         return Commands.parallel(
