@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -242,21 +243,12 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command autoContinuousIndexCmd(BooleanSupplier enabled) {
-    var latched = new boolean[]{false};
-
-    return this.run(() -> {
-        if (enabled.getAsBoolean()) {
-            latched[0] = true;
-        }
-
-        if (latched[0]) {
-            setVoltage(Constants.indexerForwardVolt);
-        } else {
-            setVoltage(Volts.zero());
-        }
-    });
-}
-    /**
+        return Commands.waitUntil(enabled)
+            .andThen(
+                indexForwardCmd()
+            ).finallyDo(() -> setVoltage(Volts.zero()));
+    }
+        /**
      * Create a Quasistatic SysId command
      * 
      * @param direction direction of the command

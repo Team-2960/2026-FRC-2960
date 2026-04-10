@@ -453,7 +453,7 @@ public class IntakeAngle extends SubsystemBase {
     }
 
     public Command rushOscillate() {
-        return setDoubleOscilateLimitsCmd(Degrees.of(10), Degrees.of(40), Seconds.of(0.25), Seconds.of(1.25))
+        return setDoubleOscilateLimitsCmd(Degrees.of(10), Degrees.of(55), Seconds.of(0.25), Seconds.of(0.8))
                 .withName("Rush Oscilate Command");
     }
 

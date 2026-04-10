@@ -193,9 +193,9 @@ public class RobotContainer {
         NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl,
                 Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15), Inches.of(40))));
         NamedCommands.registerCommand("Hub Orbit Command", hubOrbitRangeCmd());
-        //NamedCommands.registerCommand("Auto Aim Shake Command", hubShakeCmd());
+        NamedCommands.registerCommand("Auto Aim Shake Command", hubShakeCmd());
         NamedCommands.registerCommand("Auto Aim Command", autoAimCmd());
-        NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubAutoShotCmd());
+        NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubIndexAutoShotCmd());
         NamedCommands.registerCommand("IndexerBackwards Command", indexer.setVoltageCmd(Volts.of(-6)));
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -249,7 +249,7 @@ public class RobotContainer {
 
         operatorCtrl.y().onTrue(intakeAngle.highOscillate());
 
-        operatorCtrl.a().onTrue(intakeAngle.lowOscillate());
+        operatorCtrl.a().onTrue(intakeAngle.rushOscillate());
 
         operatorCtrl.povRight().whileTrue(indexer.indexForwardCmd());
 
@@ -284,9 +284,11 @@ public class RobotContainer {
 
         // operatorCtrl.rightBumper().whileTrue(shooterMngt.hubBangBangShotCmd());
 
-        operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
+        // operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
+
+        operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubIndexAutoShotCmd());
         
-        operatorCtrl.rightBumper().whileTrue(shooterMngt.hubSequentialShotCmd());
+        operatorCtrl.rightBumper().whileTrue(shooterMngt.hubBangBangShotCmd());
 
         // operatorCtrl.rightBumper().whileTrue(intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(.2), Degrees.of(10), Degrees.of(80)));
 
@@ -353,6 +355,8 @@ public class RobotContainer {
         //         drivetrain.hubOrbitCommand(fullYVelCtrl, Rotation2d.fromDegrees(180), Inches.of(92)));
 
         driverCtrl.a().whileTrue(autoAimCmd());
+
+        // driverCtrl.back().whileTrue(hubShakeCmd());
 
         // driverCtrl.x().whileTrue(passOrbitCmd());
         // driverCtrl.x().whileTrue(

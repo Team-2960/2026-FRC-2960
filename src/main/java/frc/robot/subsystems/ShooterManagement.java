@@ -55,7 +55,7 @@ public class ShooterManagement {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
                 intakeRoller.intakeInCmd(),
-                intakeAngle.lowOscillate(),
+                intakeAngle.rushOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
 
@@ -63,7 +63,7 @@ public class ShooterManagement {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
                 intakeRoller.intakeInCmd(),
-                intakeAngle.lowOscillate(),
+                intakeAngle.rushOscillate(),
                 indexer.autoContinuousIndexCmd(() -> isShooterReady()));
     }
 
@@ -81,7 +81,7 @@ public class ShooterManagement {
                 shooterWheel.hubShotCmd(),
                 intakeRoller.intakeInCmd(),
                 intakeAngle.setBangBangOscilateLimitCmd(RotationsPerSecond.of(.3), Degrees.of(10), Degrees.of(80)),
-                indexer.autoIndexCmd(() -> isShooterReady()));
+                indexer.autoContinuousIndexCmd(() -> isShooterReady()));
     }
 
     public Command hubSequentialShotCmd() {
