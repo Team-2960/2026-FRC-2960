@@ -136,15 +136,15 @@ public class IntakeAngle extends SubsystemBase {
         encoder = new CANcoder(encoderId, bus);
 
         motorConfig.CurrentLimits
-            .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
-            .withSupplyCurrentLimitEnable(true);
+                .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+                .withSupplyCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive);
 
         motorConfig.Feedback
-                //.withSensorToMechanismRatio(1)
+                // .withSensorToMechanismRatio(1)
                 .withSensorToMechanismRatio(50)
                 .withRemoteCANcoder(encoder)
                 .withRotorToSensorRatio(gearRatio)
@@ -152,10 +152,10 @@ public class IntakeAngle extends SubsystemBase {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);
 
         motorConfig.SoftwareLimitSwitch
-            .withForwardSoftLimitEnable(true)
-            .withForwardSoftLimitThreshold(Degrees.of(110))
-            .withReverseSoftLimitEnable(true)
-            .withReverseSoftLimitThreshold(Degrees.of(0.25));
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(Degrees.of(110))
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(Degrees.of(0.25));
 
         motorConfig.Slot0
                 .withKP(5)
@@ -221,26 +221,26 @@ public class IntakeAngle extends SubsystemBase {
                 .withLimitReverseMotion(getPosition().lte(Degrees.of(-10)))
                 .withLimitForwardMotion(getPosition().gte(Degrees.of(150))));
         // motor.setControl(posCtrl1
-        //     .withPosition(angle)
-        //     .withVelocity(RotationsPerSecond.of(2))
-        //     .withEnableFOC(true)
-        //     .withSlot(0));
+        // .withPosition(angle)
+        // .withVelocity(RotationsPerSecond.of(2))
+        // .withEnableFOC(true)
+        // .withSlot(0));
     }
 
-    public void setBangBangPosition(AngularVelocity velocity, Angle tarAngle){
+    public void setBangBangPosition(AngularVelocity velocity, Angle tarAngle) {
         double velocityMag = Math.abs(velocity.in(RotationsPerSecond));
         velocityMag = Math.copySign(velocityMag, tarAngle.minus(getPosition()).in(Rotations));
         boolean stop = false;
 
-        if (velocityMag < 0){
+        if (velocityMag < 0) {
             stop = getPosition().lte(tarAngle);
-        }else if(velocityMag >= 0){
+        } else if (velocityMag >= 0) {
             stop = getPosition().gte(tarAngle);
         }
 
-        if (!stop){
+        if (!stop) {
             motor.setControl(velCtrl.withVelocity(velocityMag));
-        }else{
+        } else {
             motor.setControl(velCtrl.withVelocity(0));
         }
     }
@@ -285,7 +285,7 @@ public class IntakeAngle extends SubsystemBase {
         return this.runEnd(
                 () -> setVoltage(target),
                 () -> setVoltage(Volts.zero()))
-            .withName("Voltage Command");
+                .withName("Voltage Command");
     }
 
     /**
@@ -322,35 +322,33 @@ public class IntakeAngle extends SubsystemBase {
                 () -> setVoltage(Volts.zero()))
                 .until(() -> MathUtil.isNear(target.in(Degrees), getPosition().in(Degrees), 5))
                 .andThen(this.runEnd(
-                    () -> setPosition(target), 
-                    () -> setVoltage(Volts.zero())))
+                        () -> setPosition(target),
+                        () -> setVoltage(Volts.zero())))
                 .withName("Position Command");
     }
 
-    public Command setOldPositionCmd(Angle target){
+    public Command setOldPositionCmd(Angle target) {
         return this.runEnd(
-            () -> setPosition(target), 
-            () -> setVoltage(Volts.of(0))
-        );
+                () -> setPosition(target),
+                () -> setVoltage(Volts.of(0)));
     }
 
-    public Command setBangBangPositionCmd(AngularVelocity velocity, Angle tarAngle){
+    public Command setBangBangPositionCmd(AngularVelocity velocity, Angle tarAngle) {
         return this.runEnd(
-            () -> setBangBangPosition(velocity, tarAngle), 
-            () -> setVoltage(Volts.zero())
-        )
-        .withName("Bang Bang Position Command");
+                () -> setBangBangPosition(velocity, tarAngle),
+                () -> setVoltage(Volts.zero()))
+                .withName("Bang Bang Position Command");
     }
 
-    public Command extendCmd(){
+    public Command extendCmd() {
         return setPositionCmd(Constants.intakeOutAngle)
-            .withName("Extend Command");
+                .withName("Extend Command");
     }
 
-    public Command retractCmd(){
+    public Command retractCmd() {
         // return setPositionCmd(Constants.intakeInAngle)
         return setOldPositionCmd(Constants.intakeInAngle)
-            .withName("Retract Command");
+                .withName("Retract Command");
     }
 
     public Command holdPositionCmd() {
@@ -383,31 +381,40 @@ public class IntakeAngle extends SubsystemBase {
 
     }
 
-    public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle, Time period){
+    public Command setDoubleOscilateLimitsCmd(Angle minAngle, Angle maxAngle, Time period, Time periodTwo) {
+        return Commands.sequence(
+                setOldPositionCmd(maxAngle)
+                        .withTimeout(period),
+
+                setOldPositionCmd(minAngle)
+                        .withTimeout(periodTwo))
+                .repeatedly()
+                .withName("Oscilate Limits Command");
+
+    }
+
+    public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle, Time period) {
         return Commands.sequence(
                 setBangBangPositionCmd(velocity, maxAngle)
-                    //.until(() -> getPosition().isNear(maxAngle, 0.02))
-                    .withTimeout(period),
+                        // .until(() -> getPosition().isNear(maxAngle, 0.02))
+                        .withTimeout(period),
 
                 setBangBangPositionCmd(velocity, minAngle)
-                    //.until(() -> getPosition().isNear(minAngle, 0.02))
-                    .withTimeout(period)
-            )
-            .repeatedly()
-            .withName("Bang Bang Oscilate Limit Command");
+                        // .until(() -> getPosition().isNear(minAngle, 0.02))
+                        .withTimeout(period))
+                .repeatedly()
+                .withName("Bang Bang Oscilate Limit Command");
     }
 
-    public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle){
+    public Command setBangBangOscilateLimitCmd(AngularVelocity velocity, Angle minAngle, Angle maxAngle) {
         return Commands.sequence(
                 setVelocityCmd(velocity)
-                    .until(() -> getPosition().gte(maxAngle)),
+                        .until(() -> getPosition().gte(maxAngle)),
                 setVelocityCmd(velocity.times(-1))
-                    .until(() -> getPosition().lte(minAngle))
-            )
-            .repeatedly()
-            .withName("Bang Bang Oscilate Limit Command");
+                        .until(() -> getPosition().lte(minAngle)))
+                .repeatedly()
+                .withName("Bang Bang Oscilate Limit Command");
     }
-
 
     public Command setOscilateProgressionCmd(Angle amplitude, Time period) {
         return Commands.sequence(
@@ -418,9 +425,8 @@ public class IntakeAngle extends SubsystemBase {
                         .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(5))),
 
                 setOscilateCmd(amplitude, Degrees.of(60), period)
-                        .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3)))
-        )
-        .withName("Oscilate Progression Command");
+                        .onlyWhile(() -> LaserCAN.getMaxDistance().gte(Inches.of(3))))
+                .withName("Oscilate Progression Command");
     }
 
     public Command setOscilateProgressionTestCmd(Angle amplitude, Time period, DoubleSupplier testValue) {
@@ -433,17 +439,22 @@ public class IntakeAngle extends SubsystemBase {
 
                 setOscilateCmd(amplitude, Degrees.of(60), period)
                         .onlyWhile(() -> testValue.getAsDouble() >= 2))
-        .withName("Oscilate Progression Test Command");
+                .withName("Oscilate Progression Test Command");
     }
 
     public Command lowOscillate() {
         return setOscilateLimitsCmd(Degrees.of(10), Degrees.of(30), Seconds.of(0.25))
-            .withName("Low Oscilate COmmand");
+                .withName("Low Oscilate COmmand");
     }
 
     public Command highOscillate() {
         return setOscilateLimitsCmd(Degrees.of(20), Degrees.of(60), Seconds.of(0.25))
-            .withName("High Oscilate Command");
+                .withName("High Oscilate Command");
+    }
+
+    public Command rushOscillate() {
+        return setDoubleOscilateLimitsCmd(Degrees.of(10), Degrees.of(40), Seconds.of(0.25), Seconds.of(1.25))
+                .withName("Rush Oscilate Command");
     }
 
     /**

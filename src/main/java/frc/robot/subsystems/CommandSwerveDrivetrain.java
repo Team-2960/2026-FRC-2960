@@ -52,6 +52,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -687,6 +688,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withName("Hub Orbit Command");
     }
 
+    public Command hubOrbitShakeCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Rotation2d shakeAmplitude, Distance radius, Distance distTol, Rotation2d rotTol){
+        return hubOrbitCommand(travelVel, offset, radius)
+            .until(() -> FieldLayout.Hub.getHubDist(getPose2d().getTranslation()).isNear(radius, distTol) 
+                && Math.abs(getPose2d().getRotation().relativeTo(orbitRequest.getTargetDirection()).getDegrees()) < rotTol.getDegrees())
+            .andThen(
+
+                new SequentialCommandGroup(
+                    hubOrbitCommand(travelVel, offset.plus(shakeAmplitude), radius)
+                    .withTimeout(0.1),
+                    
+                    hubOrbitCommand(travelVel, offset.minus(shakeAmplitude), radius)
+                    .withTimeout(0.1)
+                ).repeatedly()
+            )
+            .finallyDo(() -> applyRequest(() -> idleRequest))
+            .withName("Hub Orbit Command");
+    }
+
     public Command towerAlignCommand(Supplier<LinearVelocity> travelVel, Rotation2d offset, Translation2d PosOffset) {
         return applyRequest(() -> goToRequest
                 .withTargetPoint(FieldLayout.Tower.getTowerCenter().plus(PosOffset))
@@ -778,6 +797,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 passOrbitRestrictedRadiusCommand(travelVel, radialVelocity, offset, maxRadius, minRadius),
                 () -> FieldLayout.inAllianceZone(this::getPose2d));
     }
+    
 
     public Command xAxisAlignCmd(Supplier<LinearVelocity> travelVelX, Rotation2d targetRotation,
             Translation2d coordinate) {
@@ -974,6 +994,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 FieldLayout.Hub.getHubDist(getPose2d().getTranslation()).in(Meters));
         field.setRobotPose(getPose2d());
         SmartDashboard.putData("Field2d", field);
+
+        SmartDashboard.putNumber("Orbit Target Direction", orbitRequest.getTargetDirection().getDegrees());
     }
 
 }

@@ -193,6 +193,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("RightTowerAlign Command", drivetrain.towerAlignCommand(fullYVelCtrl,
                 Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15), Inches.of(40))));
         NamedCommands.registerCommand("Hub Orbit Command", hubOrbitRangeCmd());
+        NamedCommands.registerCommand("Auto Aim Shake Command", hubShakeCmd());
         NamedCommands.registerCommand("Auto Aim Command", autoAimCmd());
         NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubAutoShotCmd());
         NamedCommands.registerCommand("IndexerBackwards Command", indexer.setVoltageCmd(Volts.of(-6)));
@@ -291,7 +292,7 @@ public class RobotContainer {
 
         operatorCtrl.leftTrigger(.1).whileTrue(shooterMngt.IdleShotPrepCmd());
 
-        operatorCtrl.back().whileTrue(shooterMngt.passShotCmd());
+        operatorCtrl.back().whileTrue(shooterWheel.getTestCommand());
 
         // DRIVER
 
@@ -418,6 +419,13 @@ public class RobotContainer {
 
     public Command hubOrbitCmd(){
         return drivetrain.hubOrbitCommand(slowYVelCtrl, Rotation2d.fromDegrees(180), Meters.of(2.25));
+        // return drivetrain.hubOrbitShakeCommand(slowYVelCtrl, Rotation2d.k180deg, Rotation2d.fromDegrees(4), 
+        //         Meters.of(2.25), Meters.of(0.05), Rotation2d.fromDegrees(2));
+    }
+
+    public Command hubShakeCmd(){
+        return drivetrain.hubOrbitShakeCommand(slowYVelCtrl, Rotation2d.k180deg, Rotation2d.fromDegrees(4), 
+                Meters.of(2.25), Meters.of(0.05), Rotation2d.fromDegrees(2));
     }
 
     public Command passOrbitCmd() {

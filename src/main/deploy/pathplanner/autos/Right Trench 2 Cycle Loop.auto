@@ -44,19 +44,6 @@
                 "data": {
                   "pathName": "Bottom Empty Fuel to Middle"
                 }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "IndexerBackwards Command"
-                }
               },
               {
                 "type": "path",
@@ -86,7 +73,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Aim Command"
+                  "name": "Auto Aim Shake Command"
                 }
               },
               {
@@ -128,12 +115,6 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "IndexerBackwards Command"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "Bottom Empty Fuel to Middle Cycle 2"
@@ -155,7 +136,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Aim Command"
+                  "name": "Auto Aim Shake Command"
                 }
               },
               {

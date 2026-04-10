@@ -150,7 +150,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
         // 5. Target Angle
         // The robot faces the point. 
         // Use targetPoint.minus(robotPose).getAngle()
-        Rotation2d targetAngle = relativeVector.getAngle().plus(RotationOffset);
+        TargetDirection = relativeVector.getAngle().plus(RotationOffset);
 
         return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)
@@ -162,7 +162,7 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
         .withMaxAbsRotationalRate(MaxAbsRotationalRate)
         .withRotationalDeadband(RotationalDeadband)
         .withSteerRequestType(SteerRequestType)
-        .withTargetDirection(targetAngle)
+        .withTargetDirection(TargetDirection)
         .withTargetRateFeedforward(TargetRateFeedforward)
         .withVelocityX(vx)
         .withVelocityY(vy)
@@ -256,19 +256,8 @@ public class FieldCentricCircularOrbit implements SwerveRequest{
             return this;
         }
 
-        /**
-         * Modifies the TargetDirection parameter and returns itself.
-         * <p>
-         * The desired direction to face. 0 Degrees is defined as in the direction of
-         * the X axis. As a result, a TargetDirection of 90 degrees will point along
-         * the Y axis, or to the left.
-         *
-         * @param newTargetDirection Parameter to modify
-         * @return this object
-         */
-        public FieldCentricCircularOrbit withTargetDirection(Rotation2d newTargetDirection) {
-            this.TargetDirection = newTargetDirection;
-            return this;
+        public Rotation2d getTargetDirection() {
+            return TargetDirection;
         }
 
         /**
