@@ -296,6 +296,8 @@ public class RobotContainer {
 
         operatorCtrl.axisMagnitudeGreaterThan(1, 0.01).whileTrue(shooterWheel.setCurrentCmd(() -> Amps.of(operatorCtrl.getLeftY() * 10)));
 
+        operatorCtrl.back().whileTrue(shooterMngt.hubNoIntakeIndexAutoShotCmd());
+
         // DRIVER
 
         driverCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
@@ -303,8 +305,6 @@ public class RobotContainer {
         driverCtrl.rightBumper().whileTrue(shooterMngt.passShotCmd());
 
         // TEST CONTROLS
-
-        // operatorCtrl.back().onTrue(shooterHoodSysId);
 
         // operatorCtrl.rightTrigger(0.1).whileTrue(shooterWheel.setVoltageCmd(Volts.of(2)));
         // operatorCtrl.povLeft().onTrue(shooterWheel.setCurrentCmd(() -> Amps.of(60 *
@@ -440,7 +440,7 @@ public class RobotContainer {
 
     public Command autoAimCmd(){
         return Commands.either(
-                hubOrbitCmd(), 
+                hubOrbitRangeCmd(), 
                 passOrbitCmd(), 
                 () -> FieldLayout.inAllianceZone(drivetrain::getPose2d)
         );

@@ -77,19 +77,22 @@ public class Constants {
 
     public static final AngularVelocity shooterWheelTol = Rotations.per(Minute).of(100);
 
-    public static final AngularVelocity shooterWheelFloorThreshold = Rotations.per(Minute).of(200);
+    public static final AngularVelocity shooterWheelFloorThreshold = Rotations.per(Minute).of(50);
     public static final AngularVelocity shooterWheelCeilingThreshold = Rotations.per(Minute).of(150);
     
     public static final Angle shooterHoodTol = Degrees.of(2);
     public static final Angle shotAngleTol = Degrees.of(2);
 
     public static final ShotSpeedTable shooterWheelTable = new ShotSpeedTable()
-            .addEntry(Meters.of(2.058), Revolution.per(Minute).of(1535))
-            .addEntry(Meters.of(2.59), Revolution.per(Minute).of(1620))
-            .addEntry(Meters.of(2.72), Revolution.per(Minute).of(1750))
-            .addEntry(Meters.of(3.13), Revolution.per(Minute).of(1820))
-            .addEntry(Meters.of(3.4), Revolution.per(Minute).of(2020))
-            .addEntry(Meters.of(3.702), Revolution.per(Minute).of(2220));
+            .addEntry(Meters.of(1.71), Revolution.per(Minute).of(1550))
+            .addEntry(Meters.of(2.21), Revolution.per(Minute).of(1650))
+            .addEntry(Meters.of(2.50), Revolution.per(Minute).of(1725))
+            .addEntry(Meters.of(2.8), Revolution.per(Minute).of(1775))
+            .addEntry(Meters.of(3.1), Revolution.per(Minute).of(1850))
+            .addEntry(Meters.of(3.4), Revolution.per(Minute).of(1950))
+            .addEntry(Meters.of(3.7), Revolution.per(Minute).of(2100))
+            .addEntry(Meters.of(4.0), Revolution.per(Minute).of(2300))
+            .addEntry(Meters.of(4.3), Revolution.per(Minute).of(2450));
 
 
     public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);

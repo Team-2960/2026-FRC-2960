@@ -221,7 +221,7 @@ public class ShooterWheel extends SubsystemBase {
 
         
         motorConfig.Slot1
-                .withKP(12.0)
+                .withKP(15.0)
                 .withKI(0.0)
                 .withKD(0.0)
                 .withKS(0.03)
