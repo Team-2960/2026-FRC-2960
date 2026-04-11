@@ -294,7 +294,7 @@ public class RobotContainer {
 
         operatorCtrl.leftTrigger(.1).whileTrue(shooterMngt.IdleShotPrepCmd());
 
-        operatorCtrl.back().whileTrue(shooterWheel.getTestCommand());
+        operatorCtrl.axisMagnitudeGreaterThan(1, 0.01).whileTrue(shooterWheel.setCurrentCmd(() -> Amps.of(operatorCtrl.getLeftY() * 10)));
 
         // DRIVER
 

@@ -211,12 +211,21 @@ public class ShooterWheel extends SubsystemBase {
                 .withKV(0.11886)
                 .withKA(0.0067811);
 
+        // motorConfig.Slot1
+        //         .withKP(12.0)
+        //         .withKI(0.0)
+        //         .withKD(0.0)
+        //         .withKS(1.5)
+        //         .withKV(0.8)
+        //         .withKA(0);
+
+        
         motorConfig.Slot1
                 .withKP(12.0)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(1.5)
-                .withKV(0.8)
+                .withKS(0.03)
+                .withKV(0.3)
                 .withKA(0);
 
         motorConfig.Slot2
@@ -282,6 +291,15 @@ public class ShooterWheel extends SubsystemBase {
     @AutoLogOutput
     public AngularVelocity getVelocity() {
         return motorLeader.getVelocity().getValue();
+    }
+
+    /**
+     * \
+     * @return Shooter's Target Velocity when using Torque Control.
+     */
+    @AutoLogOutput
+    public AngularVelocity getTargetVelocity(){
+        return torqueCtrl.getVelocityMeasure();
     }
 
     /**
