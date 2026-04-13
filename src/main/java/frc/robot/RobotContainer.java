@@ -196,6 +196,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Auto Aim Shake Command", hubShakeCmd());
         NamedCommands.registerCommand("Auto Aim Command", autoAimCmd());
         NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubIndexAutoShotCmd());
+        NamedCommands.registerCommand("Sequential Shot Command", shooterMngt.hubSequentialShotCmd());
         NamedCommands.registerCommand("IndexerBackwards Command", indexer.setVoltageCmd(Volts.of(-6)));
 
         autoChooser = AutoBuilder.buildAutoChooser();

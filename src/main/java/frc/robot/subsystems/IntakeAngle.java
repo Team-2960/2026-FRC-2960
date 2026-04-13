@@ -457,6 +457,11 @@ public class IntakeAngle extends SubsystemBase {
                 .withName("Rush Oscilate Command");
     }
 
+    public Command clamShellOscilate(){
+        return setBangBangOscilateLimitCmd(RotationsPerSecond.of(.3), Degrees.of(10), Degrees.of(80))
+        .withName("clam Shell Oscilate Command");
+    }
+
     /**
      * Create a Quasistatic SysId command
      * 
