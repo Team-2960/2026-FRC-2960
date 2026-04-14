@@ -56,10 +56,26 @@ public class ShooterManagement {
                 intakeAngle.rushOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
+    
+    public Command passAutoShotCmd() {
+        return Commands.parallel(
+                shooterWheel.passShotCmd(),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.rushOscillate(),
+                indexer.autoIndexCmd(() -> isShooterReady()));
+    }
 
     public Command hubIndexAutoShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.rushOscillate(),
+                indexer.indexReverseCmd().withTimeout(0.1).andThen(indexer.autoContinuousIndexCmd(() -> isShooterReady())));
+    }
+
+    public Command passIndexAutoShotCmd() {
+        return Commands.parallel(
+                shooterWheel.passShotCmd(),
                 intakeRoller.intakeInCmd(),
                 intakeAngle.rushOscillate(),
                 indexer.autoContinuousIndexCmd(() -> isShooterReady()));

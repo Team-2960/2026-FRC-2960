@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -12,6 +13,7 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Orchestra;
@@ -504,6 +506,10 @@ public class ShooterWheel extends SubsystemBase {
         return hubPhaseShotCmd(this::calcHubShotSpeed, Constants.shooterWheelFloorThreshold, Constants.shooterWheelCeilingThreshold);
     }
 
+    public Command passShotCmd(){
+        return hubPhaseShotCmd(this::calcPassShotSpeed, Constants.shooterWheelFloorThreshold, Constants.shooterWheelCeilingThreshold);
+    } 
+
     /**
      * 
      * @param targetVel
@@ -589,6 +595,12 @@ public class ShooterWheel extends SubsystemBase {
         Distance hubDist = FieldLayout.Hub.getHubDist(drivetrain.getPose2d().getTranslation());
 
         return Constants.shooterWheelTable.get(hubDist);
+    }
+
+    private AngularVelocity calcPassShotSpeed(){
+        Distance passDist = Meters.of(PhotonUtils.getDistanceToPose(drivetrain.getPose2d(), FieldLayout.getFeedPosition(() -> drivetrain.getPose2d())));
+
+        return Constants.shooterWheelTable.get(passDist);
     }
 
     @AutoLogOutput

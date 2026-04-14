@@ -995,7 +995,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         field.setRobotPose(getPose2d());
         SmartDashboard.putData("Field2d", field);
 
-        SmartDashboard.putNumber("Orbit Target Direction", orbitRequest.getTargetDirection().getDegrees());
+        SmartDashboard.putNumber("Orbit Target Direction", orbitRequest.getTargetDirection().getDegrees());  
     }
 
 }

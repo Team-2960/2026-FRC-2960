@@ -248,9 +248,9 @@ public class RobotContainer {
 
         operatorCtrl.x().onTrue(intakeAngle.retractCmd());
 
-        operatorCtrl.y().onTrue(intakeAngle.highOscillate());
+        operatorCtrl.y().whileTrue(shooterMngt.hubNoIntakeIndexAutoShotCmd());
 
-        operatorCtrl.a().onTrue(intakeAngle.rushOscillate());
+        // operatorCtrl.a().onTrue(intakeAngle.rushOscillate());
 
         operatorCtrl.povRight().whileTrue(indexer.indexForwardCmd());
 
@@ -288,6 +288,8 @@ public class RobotContainer {
         // operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 
         operatorCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubIndexAutoShotCmd());
+
+        operatorCtrl.a().whileTrue(shooterMngt.passIndexAutoShotCmd());
         
         operatorCtrl.rightBumper().whileTrue(shooterMngt.hubBangBangShotCmd());
 
