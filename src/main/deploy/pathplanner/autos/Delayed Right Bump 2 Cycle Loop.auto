@@ -9,6 +9,19 @@
           "data": {
             "commands": [
               {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
                 "type": "named",
                 "data": {
                   "name": "IntakePivOut Command"
@@ -23,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Sideways Bottom Trench to Fuel"
+                  "pathName": "Bottom Bump to Fuel"
                 }
               }
             ]

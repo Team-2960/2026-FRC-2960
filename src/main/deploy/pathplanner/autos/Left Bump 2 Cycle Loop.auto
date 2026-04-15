@@ -23,16 +23,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bottom Trench to Fuel"
+                  "pathName": "Top Bump to Fuel"
                 }
               }
             ]
           }
         },
         {
-          "type": "race",
+          "type": "deadline",
           "data": {
             "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Empty Fuel to Middle"
+                }
+              },
               {
                 "type": "named",
                 "data": {
@@ -40,9 +46,9 @@
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Bottom Empty Fuel to Middle"
+                  "name": "IntakePivOut Command"
                 }
               }
             ]
@@ -51,13 +57,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
+            "pathName": "Top Middle Neutral Zone over Bump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Bump to Shoot"
+            "pathName": "Top Bump to Shoot"
           }
         },
         {
@@ -67,13 +73,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {
@@ -86,9 +92,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Bottom Shooting to Fuel Under Trench"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Shooting to Fuel Under Trench"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivOut Command"
+                }
+              }
+            ]
           }
         },
         {
@@ -96,30 +115,24 @@
           "data": {
             "commands": [
               {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Empty Fuel to Middle Cycle 2"
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "IntakeRollerIN Command"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Bottom Empty Fuel to Middle"
+                  "name": "IntakePivOut Command"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bottom Bump to Shoot"
           }
         },
         {
@@ -129,13 +142,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 6.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {

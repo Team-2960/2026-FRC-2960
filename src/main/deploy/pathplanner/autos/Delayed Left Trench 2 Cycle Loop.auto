@@ -9,6 +9,19 @@
           "data": {
             "commands": [
               {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
                 "type": "named",
                 "data": {
                   "name": "IntakePivOut Command"
@@ -23,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Top Trench to Fuel"
+                  "pathName": "Sideways Top Trench to Fuel"
                 }
               }
             ]
@@ -73,13 +86,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 4.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {
@@ -92,9 +105,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Top Shooting to Fuel Under Trench"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Shooting to Fuel Under Trench"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivOut Command"
+                }
+              }
+            ]
           }
         },
         {
@@ -104,7 +130,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Top Empty Fuel to Middle"
+                  "pathName": "Top Empty Fuel to Middle Cycle 2"
                 }
               },
               {
@@ -123,31 +149,19 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Top Middle Neutral Zone over Bump"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Top Bump to Shoot"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 6.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Hub Orbit Command"
+                  "name": "Auto Aim Command"
                 }
               },
               {

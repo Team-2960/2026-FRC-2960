@@ -9,6 +9,19 @@
           "data": {
             "commands": [
               {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
                 "type": "named",
                 "data": {
                   "name": "IntakePivOut Command"
@@ -23,16 +36,22 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Sideways Bottom Trench to Fuel"
+                  "pathName": "Top Bump to Fuel"
                 }
               }
             ]
           }
         },
         {
-          "type": "race",
+          "type": "deadline",
           "data": {
             "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Empty Fuel to Middle"
+                }
+              },
               {
                 "type": "named",
                 "data": {
@@ -40,9 +59,9 @@
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Bottom Empty Fuel to Middle"
+                  "name": "IntakePivOut Command"
                 }
               }
             ]
@@ -51,13 +70,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
+            "pathName": "Top Middle Neutral Zone over Bump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Bump to Shoot"
+            "pathName": "Top Bump to Shoot"
           }
         },
         {
@@ -90,15 +109,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "IntakePivOut Command"
+                  "pathName": "Top Shooting to Fuel Under Trench"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Bottom Shooting to Fuel Under Trench"
+                  "name": "IntakePivOut Command"
                 }
               }
             ]
@@ -109,15 +128,21 @@
           "data": {
             "commands": [
               {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Empty Fuel to Middle Cycle 2"
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "IntakeRollerIN Command"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Bottom Empty Fuel to Middle Cycle 2"
+                  "name": "IntakePivOut Command"
                 }
               }
             ]
@@ -130,7 +155,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 6.0
                 }
               },
               {
