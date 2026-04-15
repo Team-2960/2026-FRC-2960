@@ -194,7 +194,7 @@ public class RobotContainer {
                 Rotation2d.fromDegrees(0), new Translation2d(Inches.of(2.15), Inches.of(40))));
         NamedCommands.registerCommand("Hub Orbit Command", hubOrbitRangeCmd());
         NamedCommands.registerCommand("Auto Aim Shake Command", hubShakeCmd());
-        NamedCommands.registerCommand("Auto Aim Command", autoAimCmd());
+        NamedCommands.registerCommand("Auto Aim Command", hubOrbitRangeCmd());
         NamedCommands.registerCommand("ShooterWheel Command", shooterMngt.hubIndexAutoShotCmd());
         NamedCommands.registerCommand("Sequential Shot Command", shooterMngt.hubSequentialShotCmd());
         NamedCommands.registerCommand("IndexerBackwards Command", indexer.setVoltageCmd(Volts.of(-6)));
