@@ -597,6 +597,15 @@ public class ShooterWheel extends SubsystemBase {
         return Constants.shooterWheelTable.get(hubDist);
     }
 
+    /**
+     * Calculate the angular velocity for shooting based on distance from the target.
+     * @param distance distance from the target.
+     * @return the angular velocity of the shooter to shoot for that distance.
+     */
+    public AngularVelocity calcShotSpeed(Distance distance){
+        return Constants.shooterWheelTable.get(distance);
+    }
+
     private AngularVelocity calcPassShotSpeed(){
         Distance passDist = Meters.of(PhotonUtils.getDistanceToPose(drivetrain.getPose2d(), FieldLayout.getFeedPosition(() -> drivetrain.getPose2d())));
 

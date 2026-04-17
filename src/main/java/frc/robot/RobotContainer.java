@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -297,8 +298,6 @@ public class RobotContainer {
 
         operatorCtrl.leftTrigger(.1).whileTrue(shooterMngt.IdleShotPrepCmd());
 
-        operatorCtrl.axisMagnitudeGreaterThan(1, 0.01).whileTrue(shooterWheel.setCurrentCmd(() -> Amps.of(operatorCtrl.getLeftY() * 10)));
-
         operatorCtrl.back().whileTrue(shooterMngt.hubNoIntakeIndexAutoShotCmd());
 
         // DRIVER
@@ -306,6 +305,9 @@ public class RobotContainer {
         driverCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
 
         driverCtrl.rightBumper().whileTrue(shooterMngt.passShotCmd());
+
+        driverCtrl.povDown().whileTrue(shooterMngt.frickingEMERGENCYshot());
+        
 
         // TEST CONTROLS
 
@@ -316,7 +318,7 @@ public class RobotContainer {
         // operatorCtrl.getLeftY())));
         // operatorCtrl.povRight().onTrue(shooterHood.setPositionCmd(Degrees.of(-20)));
         // operatorCtrl.povLeft().onTrue(shooterHood.setPositionCmd(Degrees.of(-40)));
-        // operatorCtrl.povDown().whileTrue(shooterHood.setVoltageCmd(() -> Volts.of(12
+        // operatorCtrl.povDown().whileTrue(shooter%Hood.setVoltageCmd(() -> Volts.of(12
         // * operatorCtrl.getRightY())));
         // operatorCtrl.povLeft().whileTrue(shooterHood.setVoltageCmd(Volts.of(2)));
         // operatorCtrl.povRight().whileTrue(shooterHood.setVoltageCmd(Volts.of(-2)));
@@ -390,8 +392,8 @@ public class RobotContainer {
                 drivetrain.trenchAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get()));
 
         
-        driverCtrl.x().whileTrue(
-                drivetrain.trenchAngleAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(), Rotation2d.fromDegrees(-20)));
+        // driverCtrl.x().whileTrue(
+        //         drivetrain.trenchAngleAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(), Rotation2d.fromDegrees(-20)));
 
         // driverCtrl.leftTrigger(.1).whileTrue(
         // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
@@ -410,6 +412,19 @@ public class RobotContainer {
                                 FieldLayout.Hub.getHubCenterFront(),
                                 Rotation2d.fromDegrees(FieldLayout.getForwardAngle()
                                         .in(Degrees) + 180)))));
+
+        
+
+        driverCtrl.x().onTrue(drivetrain.brakeCmd().until(() -> 
+                driverCtrl
+                        .axisMagnitudeGreaterThan(0, 0.02)
+                        .or(driverCtrl.axisMagnitudeGreaterThan(1, 0.02))
+                        .or(driverCtrl.axisGreaterThan(4, 0.02))
+                        .or(driverCtrl.axisMagnitudeGreaterThan(5, 0.02))
+                        .getAsBoolean()
+        ));
+        
+        // driverCtrl.povDown().onTrue(drivetrain.brakeCmd());
 
         // Idle motors when disabled
         RobotModeTriggers.disabled().whileTrue(drivetrain.idleCmd());

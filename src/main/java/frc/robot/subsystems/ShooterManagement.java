@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -130,6 +131,18 @@ public class ShooterManagement {
     public Command passShotCmd() {
         return Commands.parallel(
                 shooterWheel.passVelocityCmd(),
+                intakeRoller.intakeInCmd(),
+                intakeAngle.lowOscillate(),
+                indexer.autoIndexCmd(() -> isShooterReady()));
+    }
+
+    /**
+     * Emergency shooting command for when the pose estimation completely fails. Shot speed from in front of the tower.
+     * @return
+     */
+    public Command frickingEMERGENCYshot(){
+        return Commands.parallel(
+                shooterWheel.setTorqueVelocityCmd(shooterWheel.calcShotSpeed(Meters.of(3.13))),
                 intakeRoller.intakeInCmd(),
                 intakeAngle.lowOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));

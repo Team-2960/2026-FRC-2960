@@ -49,9 +49,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Bottom Middle Neutral Zone over Bump"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeRollerIN Command"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom Middle Neutral Zone over Bump"
+                }
+              }
+            ]
           }
         },
         {
@@ -67,7 +80,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 4.0
                 }
               },
               {

@@ -148,9 +148,9 @@ public class Constants {
         new Rotation3d(0, Math.toRadians(0), Math.toRadians(90))
     );
 
-    public static final Vector<N3> singleStds = VecBuilder.fill(4, 4, 16);
+    public static final Vector<N3> singleStds = VecBuilder.fill(1.5, 1.5, 16);
     public static final Vector<N3> multiStds = VecBuilder.fill(0.5, 0.5, 1);
-    public static final Vector<N3> rightSingleStds = VecBuilder.fill(4*1.5, 4*1.5, 16*1.5);
+    public static final Vector<N3> rightSingleStds = VecBuilder.fill(1.5*1.5, 1.5*1.5, 16*1.5);
     public static final Vector<N3> rightMultiStds = VecBuilder.fill(0.5*1.5, 0.5*1.5, 1*1.5);
 
     public static final AprilTagPipelineSettings leftCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,

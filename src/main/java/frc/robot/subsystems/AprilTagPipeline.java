@@ -126,14 +126,14 @@ public class AprilTagPipeline extends SubsystemBase {
         // sb_aprilTagSeen = layout.add(cameraName + "April Tag Read", false).getEntry();
 
         //Advantage Scope
-        as_aprilTags = NetworkTableInstance.getDefault()
-            .getStructArrayTopic(cameraName, Pose3d.struct).publish();
+        // as_aprilTags = NetworkTableInstance.getDefault()
+        //     .getStructArrayTopic(cameraName, Pose3d.struct).publish();
 
-        as_cameraPose = NetworkTableInstance.getDefault()
-            .getStructTopic(cameraName + " pose", Pose3d.struct).publish();
+        // as_cameraPose = NetworkTableInstance.getDefault()
+        //     .getStructTopic(cameraName + " pose", Pose3d.struct).publish();
 
-        as_estimatedCameraPose = NetworkTableInstance.getDefault()
-            .getStructTopic(cameraName + " Estimated Pose", Pose2d.struct).publish();
+        // as_estimatedCameraPose = NetworkTableInstance.getDefault()
+        //     .getStructTopic(cameraName + " Estimated Pose", Pose2d.struct).publish();
 
         // Vision Simulation
         targetModel = TargetModel.kAprilTag16h5;
@@ -192,6 +192,7 @@ public class AprilTagPipeline extends SubsystemBase {
                                 Math.sqrt(Math.pow(tagDistances.getX(), 2) + Math.pow(tagDistances.getY(), 2) + Math.pow(tagDistances.getZ(), 2));
                             if (dist <= maxDistance) {
                                 var est_std = settings.single_tag_std;
+
                                 est_std = est_std.times(1 + (dist * dist / 30));
 
                                 drive.addVisionMeasurement(tag_pose3d.toPose2d(), est_timestamp, est_std);
@@ -200,13 +201,19 @@ public class AprilTagPipeline extends SubsystemBase {
                                 aprilTagList[iteration] = AprilTagFieldLayout.loadField(field).getTagPose(tag.getFiducialId()).get();
                                 iteration++;
                                 aprilTagSeen = true;
+                            }else {
+                                aprilTagList = new Pose3d[0];
                             }
+                        }else {
+                            aprilTagList = new Pose3d[0];
                         }
 
                 }
 
                 if (iteration == 0) aprilTagList = new Pose3d[] {};
 
+            }else {
+                aprilTagList = new Pose3d[0];
             }
 
         }
@@ -348,6 +355,11 @@ public class AprilTagPipeline extends SubsystemBase {
         return new Pose3d(last_pose);
     }
 
+    @AutoLogOutput (key = "Camera: AprilTag List {cameraName}")
+    public Pose3d[] getAprilTagList(){
+        return aprilTagList;
+    }
+
     public PhotonCameraSim getCameraSim() {
         return cameraSim;
     }
@@ -373,8 +385,8 @@ public class AprilTagPipeline extends SubsystemBase {
         // sb_aprilTagSeen.setBoolean(aprilTagSeen);
 
         //Advantage Scope
-        as_aprilTags.set(aprilTagList);
-        as_cameraPose.set(getRobotRelativeCamPos());
-        as_estimatedCameraPose.set(last_pose);
+        // as_aprilTags.set(aprilTagList);
+        // as_cameraPose.set(getRobotRelativeCamPos());
+        // as_estimatedCameraPose.set(last_pose);
     }
 }
