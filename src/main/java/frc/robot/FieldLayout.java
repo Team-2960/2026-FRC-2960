@@ -5,7 +5,10 @@ import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
+import java.io.Console;
 import java.util.function.Supplier;
+
+import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -18,7 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Util.GeomUtil;
 
 public class FieldLayout {
-    public enum FieldSide{
+    public enum FieldSide {
         BLUELEFT,
         BLUERIGHT,
         REDLEFT,
@@ -42,15 +45,16 @@ public class FieldLayout {
     // Start Line Dimensions
     public static final Distance startLineToWallOffset = Inches.of(156.61);
     public static final Distance startLineWidth = Inches.of(2);
-    
+
     public static final Translation2d bluePassingRight = new Translation2d(Feet.of(6), Feet.of(6));
     public static final Translation2d bluePassingLeft = new Translation2d(Feet.of(6), fieldSizeY.minus(Feet.of(6)));
 
-    public static final Translation2d redPassingRight = new Translation2d(fieldSizeX.minus(Feet.of(6)), fieldSizeY.minus(Feet.of(6)));
+    public static final Translation2d redPassingRight = new Translation2d(fieldSizeX.minus(Feet.of(6)),
+            fieldSizeY.minus(Feet.of(6)));
     public static final Translation2d redPassingLeft = new Translation2d(fieldSizeX.minus(Feet.of(6)), Feet.of(6));
 
     // Hub Dimensions
-    public static class Hub{
+    public static class Hub {
         public static final Distance hubXToCenterOffset = Inches.of(143.5);
         public static final Distance hubBaseWidth = Inches.of(47);
         public static final Distance hubFunnelDiam = Inches.of(41.5);
@@ -73,10 +77,12 @@ public class FieldLayout {
         public static final Translation2d blueHubCenterFront = new Translation2d(blueHubFront, fieldCenterY);
         public static final Translation2d redHubCenterFront = new Translation2d(redHubFront, fieldCenterY);
 
-        public static final Translation2d blueHubCenterBack = blueHubCenter.plus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
-        public static final Translation2d redHubCenterBack = redHubCenter.minus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
+        public static final Translation2d blueHubCenterBack = blueHubCenter
+                .plus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
+        public static final Translation2d redHubCenterBack = redHubCenter
+                .minus(new Translation2d(hubBaseWidth.div(2), Meters.zero()));
 
-            /**
+        /**
          * Gets the center of the hub for the current alliance
          * 
          * @return center of the hub for the current alliance. Defaults to blue if
@@ -109,7 +115,8 @@ public class FieldLayout {
         /**
          * Gets the back center of the hub for the current alliance
          * 
-         * @param offset is relative to the blue alliance, automatically flipped when applied to Red
+         * @param offset is relative to the blue alliance, automatically flipped when
+         *               applied to Red
          * @return back center of the hub for the current alliance. Defaults to blue if
          *         alliance is not set.
          */
@@ -119,21 +126,22 @@ public class FieldLayout {
 
         /**
          * Calculates the distance to the current alliance hub from a given position
-         * @param position  position to check to distance of
-         * @return  distance to the current alliance hub 
+         * 
+         * @param position position to check to distance of
+         * @return distance to the current alliance hub
          */
         public static Distance getHubDist(Translation2d position) {
             return Meters.of(position.getDistance(getHubCenter()));
         }
 
-        public static Pose2d getHubBackAlign(Pose2d curPose){
-            Translation2d translation = getHubCenterBack(new Translation2d(Inches.of(35.0/2.0 + 10), Meters.zero()));
+        public static Pose2d getHubBackAlign(Pose2d curPose) {
+            Translation2d translation = getHubCenterBack(new Translation2d(Inches.of(35.0 / 2.0 + 10), Meters.zero()));
             return new Pose2d(translation, getInwardAngle(curPose));
         }
     }
 
-    //Tower Dimensions
-    public static class Tower{
+    // Tower Dimensions
+    public static class Tower {
         public static final Distance towerXToCenterOffset = Inches.of(300.985);
         public static final Distance towerYToCenterOffset = Inches.of(11.38);
         public static final Distance towerBaseWidth = Inches.of(45);
@@ -147,7 +155,7 @@ public class FieldLayout {
 
         public static final Distance blueTowerFront = startLineToWallOffset.plus(startLineWidth);
         public static final Distance redTowerFront = fieldSizeX.minus(blueTowerFront);
-        
+
         public static final Translation2d blueTowerCenter = new Translation2d(blueTowerCenterX, blueTowerYOffset);
         public static final Translation2d redTowerCenter = new Translation2d(redTowerCenterX, redTowerYOffset);
 
@@ -161,7 +169,8 @@ public class FieldLayout {
         /**
          * Gets the front center of the tower for the current alliance
          * 
-         * @return front center of the tower for the current alliance. Defaults to blue if
+         * @return front center of the tower for the current alliance. Defaults to blue
+         *         if
          *         alliance is not set.
          */
         public static Translation2d getTowerCenterFront() {
@@ -170,60 +179,112 @@ public class FieldLayout {
 
         /**
          * Calculates the distance to the current alliance tower from a given position
-         * @param position  position to check to distance of
-         * @return  distance to the current alliance tower
+         * 
+         * @param position position to check to distance of
+         * @return distance to the current alliance tower
          */
         public static Distance getTowerDist(Translation2d position) {
             return Meters.of(position.getDistance(getTowerCenter()));
         }
     }
-    //Trench Dimensions
-    public static class Trench{
+
+    // Trench Dimensions
+    public static class Trench {
         public static final Distance trenchOpeningWidth = Inches.of(50.34);
         public static final Distance trenchDivider = Inches.of(12);
         public static final Distance trenchOpeningCenterOffset = Hub.hubBaseWidth.div(2)
-            .plus(Bump.bumpWidth)
+                .plus(Bump.bumpWidth)
                 .plus(trenchDivider)
                 .plus(trenchOpeningWidth.div(2));
 
         public static final Translation2d blueTrenchRight = Hub.blueHubCenter.minus(
-            new Translation2d(Meters.of(0), 
-            trenchOpeningCenterOffset));
+                new Translation2d(Meters.of(0),
+                        trenchOpeningCenterOffset));
 
-        public static final Translation2d blueTrenchLeft =  Hub.blueHubCenter.plus(
-            new Translation2d(Meters.of(0), 
-            trenchOpeningCenterOffset));
-        
+        public static final Translation2d blueTrenchLeft = Hub.blueHubCenter.plus(
+                new Translation2d(Meters.of(0),
+                        trenchOpeningCenterOffset));
+
         public static final Translation2d redTrenchRight = Hub.redHubCenter.plus(
-            new Translation2d(Meters.of(0), 
-            trenchOpeningCenterOffset));
-        
-        public static final Translation2d redTrenchLeft =  Hub.redHubCenter.minus(
-            new Translation2d(Meters.of(0), 
-            trenchOpeningCenterOffset));
+                new Translation2d(Meters.of(0),
+                        trenchOpeningCenterOffset));
 
+        public static final Translation2d redTrenchLeft = Hub.redHubCenter.minus(
+                new Translation2d(Meters.of(0),
+                        trenchOpeningCenterOffset));
 
-        public static Pose2d getNearestAllianceTrench(Pose2d curPose){
+        public static Pose2d getNearestAllianceTrench(Pose2d curPose) {
 
-            if (isRedAlliance()){
-                if (curPose.getY() < fieldCenterY.in(Meters)){
+            if (isRedAlliance()) {
+                if (curPose.getY() < fieldCenterY.in(Meters)) {
                     return new Pose2d(redTrenchLeft, getInwardAngle(curPose));
-                }else{
+                } else {
                     return new Pose2d(redTrenchRight, getInwardAngle(curPose));
                 }
-            }else{
-                if (curPose.getY() < fieldCenterY.in(Meters)){
+            } else {
+                if (curPose.getY() < fieldCenterY.in(Meters)) {
                     return new Pose2d(blueTrenchRight, getInwardAngle(curPose));
-                }else{
+                } else {
                     return new Pose2d(blueTrenchLeft, getInwardAngle(curPose));
                 }
+            }
+
+        }
+
+        public static Pose2d getNearestAllianceTrench(Pose2d curPose, Rotation2d tarAngle) {
+
+            if (isRedAlliance()) {
+                if (curPose.getY() < fieldCenterY.in(Meters)) {
+                    return new Pose2d(redTrenchLeft, tarAngle);
+                } else {
+                    return new Pose2d(redTrenchRight, tarAngle);
+                }
+            } else {
+                if (curPose.getY() < fieldCenterY.in(Meters)) {
+                    return new Pose2d(blueTrenchRight, tarAngle);
+                } else {
+                    return new Pose2d(blueTrenchLeft, tarAngle);
+                }
+            }
+
+        }
+
+        public static double getTrenchRotation(Pose2d curPose) {
+
+            double degrees = curPose.getRotation().getDegrees();
+
+            System.out.println(degrees);
+            if (curPose.getRotation().getDegrees() > 0) {
+
+                return 20.0;
+            } else {
+                return -50.0;
             }
         }
     }
 
-    public static class Bump{
+    public static class Bump {
         public static final Distance bumpWidth = Inches.of(73);
+        public static final Distance bumpCenterOffset = Hub.hubBaseWidth.div(2.0)
+                .plus(Bump.bumpWidth.div(2.0));
+
+        public static final Translation2d blueBumpRight = Hub.blueHubCenter.minus(
+                new Translation2d(Meters.of(0),
+                        bumpCenterOffset));
+
+        public static final Translation2d blueBumpLeft = Hub.blueHubCenter.plus(
+                new Translation2d(Meters.of(0),
+                        bumpCenterOffset));
+
+        public static final Translation2d redBumpRight = Hub.redHubCenter.plus(
+                new Translation2d(Meters.of(0),
+                        bumpCenterOffset));
+
+        public static final Translation2d redBumpLeft = Hub.redHubCenter.minus(
+                new Translation2d(Meters.of(0),
+                        bumpCenterOffset));
     }
+
     /**
      * Checks if the current alliance is red.
      * 
@@ -246,7 +307,7 @@ public class FieldLayout {
         return isRedAlliance() ? redForwardAngle : blueForwardAngle;
     }
 
-    public static Pose2d getFeedPosition(Supplier<Pose2d> curPos){
+    public static Pose2d getFeedPosition(Supplier<Pose2d> curPos) {
         FieldSide fieldSide = getFieldSide(curPos);
 
         switch (fieldSide) {
@@ -261,39 +322,61 @@ public class FieldLayout {
         }
     }
 
-    public static FieldSide getFieldSide(Supplier<Pose2d> curPos){
+    public static FieldSide getFieldSide(Supplier<Pose2d> curPos) {
         Pose2d pose = curPos.get();
-        if (isRedAlliance()){
-                if (pose.getY() < fieldCenterY.in(Meters)){
-                    return FieldSide.REDLEFT;
-                }else{
-                    return FieldSide.REDRIGHT;
-                }
-            }else{
-                if (pose.getY() < fieldCenterY.in(Meters)){
-                    return FieldSide.BLUERIGHT;
-                }else{
-                    return FieldSide.BLUELEFT;
-                }
+        if (isRedAlliance()) {
+            if (pose.getY() < fieldCenterY.in(Meters)) {
+                return FieldSide.REDLEFT;
+            } else {
+                return FieldSide.REDRIGHT;
+            }
+        } else {
+            if (pose.getY() < fieldCenterY.in(Meters)) {
+                return FieldSide.BLUERIGHT;
+            } else {
+                return FieldSide.BLUELEFT;
+            }
         }
     }
 
-    public static Rotation2d getInwardAngle(Pose2d curPose){
-        if (isRedAlliance()){
-                if (curPose.getY() < fieldCenterY.in(Meters)){
-                    return Rotation2d.fromDegrees(-90);
-                }else{
-                    return Rotation2d.fromDegrees(90);
-                }
-            }else{
-                if (curPose.getY() < fieldCenterY.in(Meters)){
-                    return Rotation2d.fromDegrees(90);
-                }else{
-                    return Rotation2d.fromDegrees(-90);
-                }
+    public static Rotation2d getNearestRotation(Pose2d curPose, Rotation2d offset){
+        if (getFieldSide(() -> curPose) == FieldSide.REDLEFT || getFieldSide(() -> curPose) == FieldSide.BLUELEFT){
+            if (curPose.getRotation().getCos() >= 0){
+                return (isRedAlliance() ? Rotation2d.k180deg : Rotation2d.kZero).minus(offset);
+            } else {
+                return (isRedAlliance() ? Rotation2d.kZero : Rotation2d.k180deg).minus(offset);
+            }
+        }else {
+            if (curPose.getRotation().getCos() >= 0){
+                return (isRedAlliance() ? Rotation2d.k180deg : Rotation2d.kZero).plus(offset);
+            } else {
+                return (isRedAlliance() ? Rotation2d.kZero : Rotation2d.k180deg).plus(offset);
+            }
         }
     }
 
+    public static Rotation2d getInwardAngle(Pose2d curPose) {
+        if (isRedAlliance()) {
+            if (curPose.getY() < fieldCenterY.in(Meters)) {
+                return Rotation2d.fromDegrees(-90);
+            } else {
+                return Rotation2d.fromDegrees(90);
+            }
+        } else {
+            if (curPose.getY() < fieldCenterY.in(Meters)) {
+                return Rotation2d.fromDegrees(90);
+            } else {
+                return Rotation2d.fromDegrees(-90);
+            }
+        }
+    }
 
+    public static boolean inAllianceZone(Supplier<Pose2d> curPose) {
+        if (isRedAlliance()) {
+            return curPose.get().getMeasureX().gt(Bump.redBumpRight.getMeasureX());
+        } else {
+            return curPose.get().getMeasureX().lt(Bump.blueBumpRight.getMeasureX());
+        }
+    }
 
 }

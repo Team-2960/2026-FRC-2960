@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -12,6 +13,7 @@ import static edu.wpi.first.units.Units.Volts;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.Orchestra;
@@ -135,6 +137,8 @@ public class ShooterWheel extends SubsystemBase {
 
     private Orchestra orchestra = new Orchestra();
 
+    private AngularVelocity logTargetVelocity = RotationsPerSecond.of(0);
+
     // SysId
 
     private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
@@ -189,6 +193,10 @@ public class ShooterWheel extends SubsystemBase {
         motorLeader = new TalonFX(motorLeaderID, bus);
         motorFollower = new TalonFX(motorFollowerID, bus);
 
+        motorConfig.CurrentLimits
+            .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+            .withSupplyCurrentLimitEnable(true);
+
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Coast);
 
@@ -205,12 +213,21 @@ public class ShooterWheel extends SubsystemBase {
                 .withKV(0.11886)
                 .withKA(0.0067811);
 
+        // motorConfig.Slot1
+        //         .withKP(12.0)
+        //         .withKI(0.0)
+        //         .withKD(0.0)
+        //         .withKS(1.5)
+        //         .withKV(0.8)
+        //         .withKA(0);
+
+        
         motorConfig.Slot1
-                .withKP(12.0)
+                .withKP(15.0)
                 .withKI(0.0)
                 .withKD(0.0)
-                .withKS(1.5)
-                .withKV(0.8)
+                .withKS(0.03)
+                .withKV(0.3)
                 .withKA(0);
 
         motorConfig.Slot2
@@ -279,6 +296,15 @@ public class ShooterWheel extends SubsystemBase {
     }
 
     /**
+     * \
+     * @return Shooter's Target Velocity when using Torque Control.
+     */
+    @AutoLogOutput
+    public AngularVelocity getTargetVelocity(){
+        return torqueCtrl.getVelocityMeasure();
+    }
+
+    /**
      * Gets the current acceleration of the motor
      * 
      * @return current acceleration of the motor
@@ -326,7 +352,8 @@ public class ShooterWheel extends SubsystemBase {
      *         ceiling
      */
     public boolean atVelocity(AngularVelocity floorThreshold, AngularVelocity ceilingThreshold) {
-        return getVelocity().gt(floorThreshold) && ceilingThreshold.gt(getVelocity());
+        return getVelocity().gt(RotationsPerSecond.of(torqueCtrl.Velocity).minus(floorThreshold)) 
+            && getVelocity().lt(RotationsPerSecond.of(torqueCtrl.Velocity).plus(ceilingThreshold));
     }
 
     /**
@@ -454,14 +481,26 @@ public class ShooterWheel extends SubsystemBase {
                 .finallyDo(() -> setVoltage(Volts.zero()));
     }
 
+    public Command idleVelocityCmd() {
+        return setTorqueVelocityCmd((Constants.idleVelocity));
+    }
+
+    public Command passVelocityCmd() {
+        return setTorqueVelocityCmd((Constants.passVelocity));
+    }
+
     /**
      * Creates a new command to set the shooter for shooting at the hub
      * 
      * @return new command to set the shooter for shooting at the hub
      */
     public Command hubShotCmd() {
-        return hubPhaseShotCmd(this::calcHubShotSpeed, Rotations.of(200).per(Minute), Rotations.of(150).per(Minute));
+        return hubPhaseShotCmd(this::calcHubShotSpeed, Constants.shooterWheelFloorThreshold, Constants.shooterWheelCeilingThreshold);
     }
+
+    public Command passShotCmd(){
+        return hubPhaseShotCmd(this::calcPassShotSpeed, Constants.shooterWheelFloorThreshold, Constants.shooterWheelCeilingThreshold);
+    } 
 
     /**
      * Creates a command that sets the shooter to the idle speed
@@ -573,6 +612,12 @@ public class ShooterWheel extends SubsystemBase {
         Distance hubDist = FieldLayout.Hub.getHubDist(drivetrain.getPose2d().getTranslation());
 
         return Constants.shooterWheelTable.get(hubDist);
+    }
+
+    private AngularVelocity calcPassShotSpeed(){
+        Distance passDist = Meters.of(PhotonUtils.getDistanceToPose(drivetrain.getPose2d(), FieldLayout.getFeedPosition(() -> drivetrain.getPose2d())));
+
+        return Constants.shooterWheelTable.get(passDist);
     }
 
     @AutoLogOutput

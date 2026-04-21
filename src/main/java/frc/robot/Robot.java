@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.MatchPeriodTracking;
+import frc.robot.subsystems.MatchPeriodTracking.MatchPeriod;
 
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
@@ -55,7 +57,9 @@ public class Robot extends LoggedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
         
-        SmartDashboard.getNumber("Match Time", DriverStation.getMatchTime());
+        SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+        SmartDashboard.putBoolean("Won Auton", MatchPeriodTracking.allianceWonAuton());
+        SmartDashboard.putNumber("Time to Period End", MatchPeriodTracking.getPhaseTime());
     }
 
     @Override
@@ -69,7 +73,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        // m_autonomousCommand = robotContainer.getP2PAutononomousCmd();
         m_autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {

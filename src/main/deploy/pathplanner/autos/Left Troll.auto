@@ -1,0 +1,88 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Trench to Troll"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Top Troll to Bottom"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom End Troll Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakePivOut Command"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeRollerIN Command"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top Full Troll to Shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IndexerBackwards Command"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Aim Command"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShooterWheel Command"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Main Autos",
+  "choreoAuto": false
+}

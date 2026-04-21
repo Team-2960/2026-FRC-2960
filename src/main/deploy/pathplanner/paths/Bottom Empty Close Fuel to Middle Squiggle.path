@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.8334711682694795,
-        "y": 1.240442397532662
+        "x": 5.8685113636363635,
+        "y": 1.8911818181818183
       },
       "isLocked": false,
       "linkedName": "BottomCloseIntakePos"
@@ -67,7 +67,7 @@
     },
     {
       "waypointRelativePos": 1.647887323943662,
-      "rotationDegrees": 146.5906833523269
+      "rotationDegrees": 146.59068335232692
     }
   ],
   "constraintZones": [],

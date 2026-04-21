@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -26,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 
 public class IntakeRoller extends SubsystemBase {
@@ -113,6 +113,10 @@ public class IntakeRoller extends SubsystemBase {
     public IntakeRoller(int motorId, CANBus bus, double gearRatio) {
         motor = new TalonFX(motorId, bus);
 
+        // motorConfig.CurrentLimits
+        //     .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+        //     .withSupplyCurrentLimitEnable(true);
+
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive);
@@ -192,6 +196,14 @@ public class IntakeRoller extends SubsystemBase {
         return this.runEnd(
                 () -> setVoltage(volts),
                 () -> setVoltage(Volts.zero()));
+    }
+
+    public Command intakeInCmd(){
+        return setVoltageCmd(Constants.intakeRollerInVolt);
+    }
+
+    public Command intakeOutCmd(){
+        return setVoltageCmd(Constants.intakeRollerOutVolt);
     }
 
     /**

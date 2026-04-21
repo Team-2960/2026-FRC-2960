@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.497704545455409,
-        "y": 7.384715909089868
+        "x": 4.4152499999999995,
+        "y": 7.405329545454546
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.95025,
-        "y": 7.776375
+        "x": 6.950727272727272,
+        "y": 7.477477272727273
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.3,
-        "y": 6.982749999999999
+        "x": 7.795886363636363,
+        "y": 6.9
       },
       "prevControl": {
-        "x": 8.050515957587479,
-        "y": 7.0315657004097964
+        "x": 7.702079545454543,
+        "y": 7.343193181818182
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,14 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "IntakePivOut Command",
+      "waypointRelativePos": 0.17600000000000005,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -48,7 +55,7 @@
   "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

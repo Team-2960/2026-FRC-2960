@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.3845681818181816,
-        "y": 0.6440568181818185
+        "x": 3.1589982110912342,
+        "y": 0.8467084078711979
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6221022727272727,
-        "y": 0.8501931818181823
+        "x": 1.3965323020003253,
+        "y": 1.0528447715075617
       },
       "isLocked": false,
       "linkedName": "BottomTrenchEndPoint"
     },
     {
       "anchor": {
-        "x": 2.8589204545454545,
-        "y": 2.7466477272727277
+        "x": 2.2503756708407865,
+        "y": 2.7288550983899813
       },
       "prevControl": {
-        "x": 2.9722954545454545,
-        "y": 2.303454545454546
+        "x": 2.3637506708407865,
+        "y": 2.2856619165717995
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Main Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -115.86635679409451
   },
   "useDefaultConstraints": true
 }

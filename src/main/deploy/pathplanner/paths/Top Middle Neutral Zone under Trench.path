@@ -3,50 +3,54 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.2,
-        "y": 4.5
+        "x": 7.75465909090909,
+        "y": 4.643102272727273
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.438668380394276,
-        "y": 4.425586263365073
+        "x": 7.020644007155635,
+        "y": 4.611001788908765
       },
       "isLocked": false,
       "linkedName": "TopMiddleNeutralZone"
     },
     {
       "anchor": {
-        "x": 5.858204545454544,
-        "y": 7.4
+        "x": 6.06334525939177,
+        "y": 7.28819320214669
       },
       "prevControl": {
-        "x": 7.022874999999999,
-        "y": 7.291954545454546
+        "x": 7.7021109123434695,
+        "y": 7.336869409660108
       },
       "nextControl": {
-        "x": 5.522655335176392,
-        "y": 7.431128605353882
+        "x": 5.726503814889762,
+        "y": 7.278188010725838
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.405181818181818,
-        "y": 7.395022727272727
+        "x": 3.256350626118068,
+        "y": 7.14216457960644
       },
       "prevControl": {
-        "x": 3.650665433478916,
-        "y": 7.347717393316963
+        "x": 3.499731663685152,
+        "y": 7.434221824686941
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopTrenchEndPoint"
+      "linkedName": "TopTrenchShootPoint"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.9795361527967243,
+      "waypointRelativePos": 0.8364779874213836,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 1.791443850267382,
       "rotationDegrees": 90.0
     }
   ],
@@ -63,7 +67,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 116.1139126302907
   },
   "reversed": false,
   "folder": "Main Paths",

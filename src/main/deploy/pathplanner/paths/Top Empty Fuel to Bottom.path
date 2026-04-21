@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.3,
-        "y": 6.982749999999999
+        "x": 7.795886363636363,
+        "y": 6.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.542296482289954,
-        "y": 6.9211674158555025
+        "x": 8.038182845926316,
+        "y": 6.838417415855504
       },
       "isLocked": false,
       "linkedName": "TopIntakePos25Deg"
