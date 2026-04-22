@@ -67,6 +67,8 @@ public class RobotContainer {
     private final ShooterManagement shooterMngt = new ShooterManagement(drivetrain, indexer, shooterWheel, intakeRoller, intakeAngle);
 
     private final PointToPointAutons pointToPointAutons = new PointToPointAutons(drivetrain, indexer, intakeAngle, intakeRoller, shooterMngt, shooterWheel);
+
+    private final PointToPointAutons.AutonBuilder p2pCAutons = pointToPointAutons.new AutonBuilder();
     // private final Climber climber = new Climber(0, 0, TunerConstants.kCANBus, 0);
 
     // Pathplanner
@@ -205,6 +207,7 @@ public class RobotContainer {
 
         p2pAutoChooser = pointToPointAutons.getAutonChooser();
         SmartDashboard.putData("P2P Auton Chooser", p2pAutoChooser);
+        
     }
 
     /**
@@ -478,5 +481,10 @@ public class RobotContainer {
         SmartDashboard.putString("Current P2P Auton", p2pAutoChooser.getSelected().getName());
         return p2pAutoChooser.getSelected();
     }
+
+    public Command getP2PCAutonomousCmd(){
+        return p2pCAutons.getAuton();
+    }
+    
     
 }

@@ -13,14 +13,17 @@ import org.photonvision.PhotonUtils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.FieldLayout;
 import frc.robot.Util.WaypointFactory;
 import frc.robot.Util.WaypointFactory.AllianceFlip;
@@ -67,6 +70,20 @@ public final class PointToPointAutons {
         public static final Waypoint rightBumpCrossPrep = WaypointFactory.of(new Pose2d(6.0, FieldLayout.Bump.blueBumpRight.getY(), Rotation2d.fromDegrees(180)), AllianceFlip.ALLIANCE);
         public static final Waypoint rightBumpCrossFinished = rightBumpCrossPrep.translated(-3.5, 0).withRotation(Rotation2d.fromDegrees(210));
         public static final Waypoint rightTrenchPrep = rightTrenchAutonStart.translated(-2, 0).withRotation(Rotation2d.fromDegrees(90));
+
+        public static final Waypoint rightBumpAutonStart = WaypointFactory.of(
+            FieldLayout.Bump.blueBumpRight.minus(
+                new Translation2d(FieldLayout.Bump.bumpWidth.div(2).plus(Constants.robotWithBumpersLength), 
+                    Inches.zero())), 
+            Rotation2d.kZero, 
+            AllianceFlip.ALLIANCE);
+
+        public static final Waypoint centerHubAutonStart = WaypointFactory.of(
+            FieldLayout.Hub.blueHubCenterFront.minus(
+                new Translation2d(
+                    Constants.robotWithBumpersLength.div(2), Inches.of(0))), 
+            Rotation2d.kZero, 
+            AllianceFlip.ALLIANCE);
 
         public static final Pose2d[] rightAutonPoints = {
             rightTrenchAutonStart.get(),
@@ -206,5 +223,161 @@ public final class PointToPointAutons {
         return drivetrain.hubOrbitRestrictedRadiusCommand(() -> MetersPerSecond.zero(), () -> MetersPerSecond.zero(),
                 Rotation2d.fromDegrees(180),
                 Inches.of(147), Meters.of(1.75));
+    }
+
+    public Command getTrenchNeutralZone(boolean mirror){
+        WaypointSet points = new WaypointSet();
+
+        Waypoint neutralIntakePrep = points.add(w(AutonWaypoints.rightNeutralIntakePrep, mirror));
+        Waypoint neutralIntakeFin  = points.add(w(AutonWaypoints.rightNeutralIntakeFinished, mirror));
+
+        double yVel = mirror ? -3 : 3;
+
+        return new SequentialCommandGroup(
+            // First pass
+            eventMarkerGoTo(neutralIntakePrep, 0.2, Meters.of(0.2),
+                new ParallelCommandGroup(intakeAngle.extendCmd(), intakeRoller.intakeInCmd())),
+            new ParallelDeadlineGroup(
+                drivetrain.yAxisAlignDistanceCmd(() -> MetersPerSecond.of(yVel), neutralIntakeFin, Meters.of(0.2)),
+                intakeAngle.extendCmd(), intakeRoller.intakeInCmd())
+        );
+    }
+
+    public Command getBumpNeutralZone(boolean mirror){
+        WaypointSet points = new WaypointSet();
+
+        Waypoint neutralIntakePrep = points.add(w(AutonWaypoints.rightNeutralIntakePrep, mirror));
+        Waypoint neutralIntakeFin  = points.add(w(AutonWaypoints.rightNeutralIntakeFinished, mirror));
+
+        double yVel = mirror ? -3 : 3;
+
+        return new SequentialCommandGroup(
+            drivetrain.goToPointCruiseCmd(AutonWaypoints.rightBumpCrossPrep.withRotation(Rotation2d.kZero), MetersPerSecond.of(4), Meters.of(0.3)),
+            // First pass
+            eventMarkerGoTo(neutralIntakePrep, 0.2, Meters.of(0.2),
+                new ParallelCommandGroup(intakeAngle.extendCmd(), intakeRoller.intakeInCmd())),
+            new ParallelDeadlineGroup(
+                drivetrain.yAxisAlignDistanceCmd(() -> MetersPerSecond.of(yVel), neutralIntakeFin, Meters.of(0.2)),
+                intakeAngle.extendCmd(), intakeRoller.intakeInCmd())
+        );
+    }
+
+    public class AutonBuilder{
+
+        private final SendableChooser<Boolean> isMirroredChooser = new SendableChooser<>();
+        private final SendableChooser<StartType> startTypeChooser = new SendableChooser<>();
+        private final SendableChooser<NeutralZoneType> neutralZoneChooser = new SendableChooser<>();
+        private final SendableChooser<IntakePathType> intakePathChooser = new SendableChooser<>();
+        private final SendableChooser<ReturnType> returnTypeChooser = new SendableChooser<>();
+
+        private boolean isMirrored = isMirroredChooser.getSelected();
+
+        
+        private ArrayList<Command> masterCommandList = new ArrayList<>();
+
+        public AutonBuilder(){
+            startTypeChooser.addOption("Trench", StartType.TRENCH);
+            startTypeChooser.addOption("Bump", StartType.BUMP);
+            startTypeChooser.addOption("Hub", StartType.HUB);
+            startTypeChooser.setDefaultOption("None", StartType.NONE);
+
+            neutralZoneChooser.addOption("Trench", NeutralZoneType.TRENCH);
+            neutralZoneChooser.addOption("Bump", NeutralZoneType.BUMP);
+            neutralZoneChooser.setDefaultOption("None", NeutralZoneType.NONE);
+
+            intakePathChooser.addOption("Snake", IntakePathType.SNAKE);
+            intakePathChooser.addOption("Straight", IntakePathType.STRAIGHT);
+            intakePathChooser.setDefaultOption("None", IntakePathType.NONE);
+
+            returnTypeChooser.addOption("Trench", ReturnType.TRENCH);
+            returnTypeChooser.addOption("Bump", ReturnType.BUMP);
+            returnTypeChooser.setDefaultOption("None", ReturnType.NONE);
+
+            isMirroredChooser.addOption("True", true);
+            isMirroredChooser.setDefaultOption("False", false);
+
+            SmartDashboard.putData("Start Type P2PC", startTypeChooser);
+            SmartDashboard.putData("Neutral Zone P2PC", neutralZoneChooser);
+            SmartDashboard.putData("Intake Path P2PC", intakePathChooser);
+            SmartDashboard.putData("Return Type P2PC", returnTypeChooser);
+            SmartDashboard.putData("Is Mirrored P2PC", isMirroredChooser);
+        }
+
+        private enum StartType{
+            NONE,
+            TRENCH,
+            BUMP,
+            HUB
+        }
+
+        private enum NeutralZoneType{
+            NONE,
+            TRENCH,
+            BUMP
+        }
+
+        private enum IntakePathType{
+            NONE,
+            SNAKE,
+            STRAIGHT
+        }
+
+        private enum ReturnType{
+            NONE,
+            TRENCH,
+            BUMP
+        }
+
+        public Command getStartCommand(){
+            
+            switch (startTypeChooser.getSelected()) {
+                case TRENCH:
+                    
+                    return drivetrain.getResetPoseCmd(w(AutonWaypoints.rightTrenchAutonStart, isMirroredChooser.getSelected()));
+                
+                case BUMP:
+                    return drivetrain.getResetPoseCmd(w(AutonWaypoints.rightBumpAutonStart, isMirroredChooser.getSelected()));
+
+                case HUB:
+                    return drivetrain.getResetPoseCmd(w(AutonWaypoints.centerHubAutonStart, isMirroredChooser.getSelected()));
+                
+                default:
+                    return drivetrain.getResetPoseCmd(Pose2d.kZero);
+            }
+        }
+
+        public Command getNeutralZoneCommand(){
+            switch (neutralZoneChooser.getSelected()) {
+                case TRENCH:
+                    return getTrenchNeutralZone(isMirroredChooser.getSelected());
+                case BUMP:
+                    return getBumpNeutralZone(isMirroredChooser.getSelected());
+                default:
+                    return Commands.none();
+            }
+        }
+
+
+        public Command getAuton(){
+            return new SequentialCommandGroup(
+                getStartCommand(),
+                getNeutralZoneCommand()
+            );
+        }
+        public SendableChooser<StartType> getStartTypeChooser(){
+            return startTypeChooser;
+        }
+
+        public SendableChooser<NeutralZoneType> getNeutralZoneChooser(){
+            return neutralZoneChooser;
+        }
+        
+        public SendableChooser<IntakePathType> getIntakePathChooser(){
+            return intakePathChooser;
+        }
+
+        public SendableChooser<ReturnType> getReturnTypeChooser(){
+            return returnTypeChooser;
+        }
     }
 }

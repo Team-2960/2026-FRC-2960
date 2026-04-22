@@ -50,6 +50,12 @@ public class Constants {
     public static final AngularVelocity slowdownAngVel = RotationsPerSecond.of(2);
     public static final Distance linRampDownDist = Meters.of(1.2);
 
+    public static final Distance robotWidth = Inches.of(30.5);
+    public static final Distance robotLength = Inches.of(23.5);
+    public static final Distance robotWithBumpersWidth = Inches.of(36.5);
+    public static final Distance robotWithBumpersLength = Inches.of(29.5);
+    public static final Distance bumperThickness = Inches.of(3);
+
     public static final Current krakenX60CurrentLimit = Amps.of(80);
 
     public static final CANBus rioBus = CANBus.roboRIO();
