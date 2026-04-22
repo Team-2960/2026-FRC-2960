@@ -86,6 +86,7 @@ public class FlywheelBase extends SubsystemBase {
      */
     public FlywheelBase(FlywheelConfigBase config) {
         this.config = config;
+        setName(config.name);
 
         motors = config.createTalonFXs();
         motorLeader = motors.get(0);
@@ -94,8 +95,8 @@ public class FlywheelBase extends SubsystemBase {
         motorLeader.getConfigurator().apply(config.createTalonFXConfig());
 
         for (int i = 1; i < motors.size(); i++) {
-            boolean isOpposed = config.motorGroupConfigs.motorConfigs
-                    .get(0).inverted != config.motorGroupConfigs.motorConfigs.get(i).inverted;
+            boolean isOpposed = config.motorGroupConfig.motorConfigs
+                    .get(0).inverted != config.motorGroupConfig.motorConfigs.get(i).inverted;
 
             motors.get(i).setControl(
                     new Follower(
@@ -121,26 +122,26 @@ public class FlywheelBase extends SubsystemBase {
         // Setup Control Tuner
         SmartDashboard.putData(
                 config.name + " Slot 0 Tuner",
-                new ControlTuner(config.motorGroupConfigs.controlConfigs.get(0)));
+                new ControlTuner(config.motorGroupConfig.controlConfigs.get(0)));
         SmartDashboard.putData(
                 config.name + " Slot 1 Tuner",
-                new ControlTuner(config.motorGroupConfigs.controlConfigs.get(1)));
+                new ControlTuner(config.motorGroupConfig.controlConfigs.get(1)));
         SmartDashboard.putData(
                 config.name + " Slot 2 Tuner",
-                new ControlTuner(config.motorGroupConfigs.controlConfigs.get(2)));
+                new ControlTuner(config.motorGroupConfig.controlConfigs.get(2)));
 
         SmartDashboard.putData(
                 config.name + " Apply Slot 0",
                 Commands.runOnce(
-                        () -> motorLeader.getConfigurator().apply(config.motorGroupConfigs.applySlot0Config())));
+                        () -> motorLeader.getConfigurator().apply(config.motorGroupConfig.applySlot0Config())));
         SmartDashboard.putData(
                 config.name + " Apply Slot 1",
                 Commands.runOnce(
-                        () -> motorLeader.getConfigurator().apply(config.motorGroupConfigs.applySlot1Config())));
+                        () -> motorLeader.getConfigurator().apply(config.motorGroupConfig.applySlot1Config())));
         SmartDashboard.putData(
                 config.name + " Apply Slot 2",
                 Commands.runOnce(
-                        () -> motorLeader.getConfigurator().apply(config.motorGroupConfigs.applySlot2Config())));
+                        () -> motorLeader.getConfigurator().apply(config.motorGroupConfig.applySlot2Config())));
     }
 
     /**

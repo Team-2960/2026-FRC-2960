@@ -14,10 +14,10 @@ import frc.lib2960.util.MotorGroupConfig;
 
 public class FlywheelConfigBase {
     public String name;
-    public MotorGroupConfig motorGroupConfigs = new MotorGroupConfig();
+    public MotorGroupConfig motorGroupConfig = new MotorGroupConfig();
     public AngularVelocity maxVel = RotationsPerSecond.zero();
     public AngularAcceleration maxAccel = RotationsPerSecondPerSecond.zero();
-    
+
     /**
      * Constructor
      * 
@@ -28,17 +28,52 @@ public class FlywheelConfigBase {
     }
 
     /**
-     * Creates and configures the talonFX motors from this configuration. The first motor in the list of 
-     * @return  list of talonFX motors
+     * Sets the motor group configuration
+     * 
+     * @param motorGroupConfig motor group configuration to apply
+     * @return reference to this object
+     */
+    public FlywheelConfigBase withMotorGroupConfig(MotorGroupConfig motorGroupConfig) {
+        this.motorGroupConfig = motorGroupConfig;
+        return this;
+    }
+
+    /**
+     * Sets maximum velocity for the flywheel when in velocity control mode
+     * 
+     * @param maxVel maximum velocity
+     * @return reference to this object
+     */
+    public FlywheelConfigBase withMaxVelocity(AngularVelocity maxVel) {
+        this.maxVel = maxVel;
+        return this;
+    }
+
+    /**
+     * Sets maximum acceleration for the flywheel when in velocity control mode
+     * 
+     * @param maxVel maximum acceleration
+     * @return reference to this object
+     */
+    public FlywheelConfigBase withMaxAcceleration(AngularAcceleration maxAccel) {
+        this.maxAccel = maxAccel;
+        return this;
+    }
+
+    /**
+     * Creates and configures the talonFX motors from this configuration. The first
+     * motor in the list of
+     * 
+     * @return list of talonFX motors
      * @throws RuntimeException if no motor configurations have been set
      */
     public ArrayList<TalonFX> createTalonFXs() {
         // TODO Add Flywheel specific configuration
-        return motorGroupConfigs.createTalonFXs();
+        return motorGroupConfig.createTalonFXs();
     }
 
     public TalonFXConfiguration createTalonFXConfig() {
-        var config = motorGroupConfigs.createTalonFXConfig();
+        var config = motorGroupConfig.createTalonFXConfig();
 
         // Zero out gravity feed forward values
         config.Slot0.withKG(0);
