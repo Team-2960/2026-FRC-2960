@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Revolution;
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -34,6 +33,10 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 
 import edu.wpi.first.units.measure.Voltage;
+import frc.lib2960.subsystems.mechanisms.FlywheelConfigBase;
+import frc.lib2960.util.ControlConfig;
+import frc.lib2960.util.MotorConfig;
+import frc.lib2960.util.MotorGroupConfig;
 import frc.robot.Util.AprilTagPipelineSettings;
 import frc.robot.Util.ShotSpeedTable;
 import frc.robot.generated.TunerConstants;
@@ -41,7 +44,7 @@ import frc.robot.generated.TunerConstants;
 public class Constants {
     // Robot Constants
     public static final LinearVelocity maxLinVel = TunerConstants.kSpeedAt12Volts;
-    public static final AngularVelocity maxAngVel = RotationsPerSecond.of(2); 
+    public static final AngularVelocity maxAngVel = RotationsPerSecond.of(2);
     public static final AngularAcceleration maxAngAccel = DegreesPerSecondPerSecond.of(1292);
     public static final LinearAcceleration maxLinAccel = MetersPerSecondPerSecond.of(5.9);
     public static final LinearVelocity slowdownLinVel = maxLinVel.div(2);
@@ -63,45 +66,23 @@ public class Constants {
     public static final int leftClimbMotorID = 17;
     public static final int rightClimbMotorID = 15;
 
-    //Other CAN IDs
+    // Other CAN IDs
     public static final int leftLaserCanID = 20;
     public static final int rightLaserCanID = 21;
     public static final int intakeAngleEncoderID = 16;
     public static final int shooterHoodEncoderID = 21;
 
     // Shooter Constants
-    public static final double shooterWheelGearRatio = 20.0/12.0;
-    public static final double shooterHoodGearRatio = 29.0 + 1.0/3.0;
+    public static final double shooterHoodGearRatio = 29.0 + 1.0 / 3.0;
     public static final Rotation2d shooterOrientation = Rotation2d.fromDegrees(180);
-    public static final Distance shootingDistance = Inches.of(92);
 
     public static final AngularVelocity shooterWheelTol = Rotations.per(Minute).of(100);
 
     public static final AngularVelocity shooterWheelFloorThreshold = Rotations.per(Minute).of(50);
     public static final AngularVelocity shooterWheelCeilingThreshold = Rotations.per(Minute).of(150);
-    
+
     public static final Angle shooterHoodTol = Degrees.of(2);
     public static final Angle shotAngleTol = Degrees.of(2);
-
-    public static final ShotSpeedTable shooterWheelTable = new ShotSpeedTable()
-            .addEntry(Meters.of(1.71), Revolution.per(Minute).of(1550))
-            .addEntry(Meters.of(2.21), Revolution.per(Minute).of(1650))
-            .addEntry(Meters.of(2.50), Revolution.per(Minute).of(1725))
-            .addEntry(Meters.of(2.8), Revolution.per(Minute).of(1775))
-            .addEntry(Meters.of(3.1), Revolution.per(Minute).of(1850))
-            .addEntry(Meters.of(3.4), Revolution.per(Minute).of(1950))
-            .addEntry(Meters.of(3.7), Revolution.per(Minute).of(2100))
-            .addEntry(Meters.of(4.0), Revolution.per(Minute).of(2300))
-            .addEntry(Meters.of(4.3), Revolution.per(Minute).of(2450));
-
-
-    public static final AngularVelocity shootVelocity = Rotations.per(Minute).of(1900);
-    public static final AngularVelocity passVelocity = Rotations.per(Minute).of(1500);
-    public static final AngularVelocity idleVelocity = Rotations.per(Minute).of(1600);
-    public static final AngularAcceleration shooterMaxAccel = Rotations.per(Minute).per(Second).of(6209);
-
-    public static final double shooterWheelGearRatio = 20.0/12.0;
-    public static final double shooterHoodGearRatio = 29.0 + (1.0/3.0);
 
     // Indexer Constants
     public static final Voltage indexerForwardVolt = Volts.of(12);
@@ -121,67 +102,63 @@ public class Constants {
     public static final double intakeAngleGearRatio = 50.0;
 
     // Drivetrain Constants
-    public static final LinearVelocity linDeadband = maxLinVel.times(.07); 
+    public static final LinearVelocity linDeadband = maxLinVel.times(.07);
     public static final AngularVelocity angDeadband = maxAngVel.times(.07);
 
     // Camera Constants
     public static final Transform3d leftCameraOffsets = new Transform3d(
-        Inches.of(-11.274), 
-        Inches.of(13.476), 
-        Inches.of(7.553), 
-        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(-130))
-    );
+            Inches.of(-11.274),
+            Inches.of(13.476),
+            Inches.of(7.553),
+            new Rotation3d(0, Math.toRadians(-40), Math.toRadians(-130)));
 
     public static final Transform3d rightCameraOffsets = new Transform3d(
-        Inches.of(-11.274), 
-        Inches.of(-13.476), 
-        Inches.of(7.553), 
-        //new Rotation3d(37.8, 37.8, -45)
-        new Rotation3d(0, Math.toRadians(-40), Math.toRadians(130))
-    );
+            Inches.of(-11.274),
+            Inches.of(-13.476),
+            Inches.of(7.553),
+            // new Rotation3d(37.8, 37.8, -45)
+            new Rotation3d(0, Math.toRadians(-40), Math.toRadians(130)));
 
     public static final Transform3d sideCameraOffsets = new Transform3d(
-         Inches.of(-9.074),    
-        Inches.of(15.228), 
-        Inches.of(12.205), 
-        //new Rotation3d(37.8, 37.8, -45)
-        new Rotation3d(0, Math.toRadians(0), Math.toRadians(90))
-    );
+            Inches.of(-9.074),
+            Inches.of(15.228),
+            Inches.of(12.205),
+            // new Rotation3d(37.8, 37.8, -45)
+            new Rotation3d(0, Math.toRadians(0), Math.toRadians(90)));
 
     public static final Vector<N3> singleStds = VecBuilder.fill(4, 4, 16);
     public static final Vector<N3> multiStds = VecBuilder.fill(0.5, 0.5, 1);
-    public static final Vector<N3> rightSingleStds = VecBuilder.fill(4*1.5, 4*1.5, 16*1.5);
-    public static final Vector<N3> rightMultiStds = VecBuilder.fill(0.5*1.5, 0.5*1.5, 1*1.5);
+    public static final Vector<N3> rightSingleStds = VecBuilder.fill(4 * 1.5, 4 * 1.5, 16 * 1.5);
+    public static final Vector<N3> rightMultiStds = VecBuilder.fill(0.5 * 1.5, 0.5 * 1.5, 1 * 1.5);
 
-    public static final AprilTagPipelineSettings leftCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
-        Constants.leftCameraOffsets,
-        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        4, 
-        singleStds , 
-        multiStds,
-        .2
-    );
+    public static final AprilTagPipelineSettings leftCameraSettings = new AprilTagPipelineSettings(
+            AprilTagFields.k2026RebuiltWelded,
+            Constants.leftCameraOffsets,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            4,
+            singleStds,
+            multiStds,
+            .2);
 
-    public static final AprilTagPipelineSettings rightCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
-        Constants.rightCameraOffsets,
-        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        4, 
-        rightSingleStds , 
-        rightMultiStds,
-        .2
-    );
+    public static final AprilTagPipelineSettings rightCameraSettings = new AprilTagPipelineSettings(
+            AprilTagFields.k2026RebuiltWelded,
+            Constants.rightCameraOffsets,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            4,
+            rightSingleStds,
+            rightMultiStds,
+            .2);
 
-    public static final AprilTagPipelineSettings sideCameraSettings = new AprilTagPipelineSettings(AprilTagFields.k2026RebuiltWelded,
-        Constants.sideCameraOffsets,
-        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        4, 
-        singleStds , 
-        multiStds,
-        .2
-    );
+    public static final AprilTagPipelineSettings sideCameraSettings = new AprilTagPipelineSettings(
+            AprilTagFields.k2026RebuiltWelded,
+            Constants.sideCameraOffsets,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            4,
+            singleStds,
+            multiStds,
+            .2);
 
-
-    //Distance Constants
+    // Distance Constants
     public static final Distance maxRobotTrenchDistance = Meters.of(2);
     public static final Distance autonPointToPointTolerance = Meters.of(0.1);
 }
