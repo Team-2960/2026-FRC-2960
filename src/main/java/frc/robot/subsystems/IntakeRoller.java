@@ -194,6 +194,10 @@ public class IntakeRoller extends SubsystemBase {
         return setVoltageCmd(Constants.intakeRollerInVolt);
     }
 
+    public Command intakeShootingCmd(){
+        return setVoltageCmd(Constants.intakeRollerShootingVolt);
+    }
+
     public Command intakeOutCmd(){
         return setVoltageCmd(Constants.intakeRollerOutVolt);
     }

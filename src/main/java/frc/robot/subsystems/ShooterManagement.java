@@ -53,7 +53,7 @@ public class ShooterManagement {
     public Command hubAutoShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.rushOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
@@ -61,7 +61,7 @@ public class ShooterManagement {
     public Command passAutoShotCmd() {
         return Commands.parallel(
                 shooterWheel.passShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.rushOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
@@ -69,7 +69,7 @@ public class ShooterManagement {
     public Command hubIndexAutoShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.rushOscillate(),
                 indexer.indexReverseCmd().withTimeout(0.1).andThen(indexer.autoContinuousIndexCmd(() -> isShooterReady())));
     }
@@ -77,7 +77,7 @@ public class ShooterManagement {
     public Command passIndexAutoShotCmd() {
         return Commands.parallel(
                 shooterWheel.passShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.rushOscillate(),
                 indexer.autoContinuousIndexCmd(() -> isShooterReady()));
     }
@@ -85,14 +85,14 @@ public class ShooterManagement {
     public Command hubNoIntakeIndexAutoShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 indexer.autoContinuousIndexCmd(() -> isShooterReady()));
     }
 
     public Command hubAutoHighShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.highOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady(Constants.shooterWheelFloorThreshold,
                         Constants.shooterWheelCeilingThreshold)));
@@ -101,7 +101,7 @@ public class ShooterManagement {
     public Command hubBangBangShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.clamShellOscilate(),
                 indexer.autoContinuousIndexCmd(() -> isShooterReady()));
     }
@@ -109,7 +109,7 @@ public class ShooterManagement {
     public Command hubSequentialShotCmd() {
         return Commands.parallel(
                 shooterWheel.hubShotCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 this.intakeSequentialCmd(),
                 indexer.autoContinuousIndexCmd(() -> isShooterReady()));
     }
@@ -131,7 +131,7 @@ public class ShooterManagement {
     public Command passShotCmd() {
         return Commands.parallel(
                 shooterWheel.passVelocityCmd(),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.lowOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
@@ -143,7 +143,7 @@ public class ShooterManagement {
     public Command frickingEMERGENCYshot(){
         return Commands.parallel(
                 shooterWheel.setTorqueVelocityCmd(shooterWheel.calcShotSpeed(Meters.of(3.13))),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.lowOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady()));
     }
@@ -157,7 +157,7 @@ public class ShooterManagement {
             AngularVelocity ceilingThreshold) {
         return Commands.parallel(
                 shooterWheel.hubPhaseShotCmd(targetVel, floorThreshold, ceilingThreshold),
-                intakeRoller.intakeInCmd(),
+                intakeRoller.intakeShootingCmd(),
                 intakeAngle.lowOscillate(),
                 indexer.autoIndexCmd(() -> isShooterReady(floorThreshold, ceilingThreshold)));
     }
