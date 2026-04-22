@@ -46,7 +46,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 
-public class IntakeAngle extends SubsystemBase {
+public class ArmBase extends SubsystemBase {
 
     public class IntakeAngleTest implements Sendable {
 
