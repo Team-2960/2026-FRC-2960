@@ -13,14 +13,23 @@ import com.ctre.phoenix6.HootAutoReplay;
 
 import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.MatchPeriodTracking;
 import frc.robot.subsystems.MatchPeriodTracking.MatchPeriod;
 
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
+
+    private enum AutonType{
+        NONE,
+        PATHPLANNER,
+        P2P,
+        P2PC
+    }
 
     //private final RobotContainer m_robotContainer;
     private final RobotContainer robotContainer;
@@ -29,6 +38,8 @@ public class Robot extends LoggedRobot {
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
         .withTimestampReplay()
         .withJoystickReplay();
+
+    private final SendableChooser<AutonType> autonTypeChooser = new SendableChooser<>();
 
     public Robot() {
         Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
@@ -48,6 +59,13 @@ public class Robot extends LoggedRobot {
 
         CanBridge.runTCP();
 
+
+        autonTypeChooser.addOption("Pathplanner", AutonType.PATHPLANNER);
+        autonTypeChooser.addOption("P2P", AutonType.P2P);
+        autonTypeChooser.addOption("P2PC", AutonType.P2PC);
+        autonTypeChooser.setDefaultOption("None", AutonType.NONE);
+
+        SmartDashboard.putData("Auton Type Chooser", autonTypeChooser);
 
         robotContainer = new RobotContainer();
     }
@@ -73,9 +91,27 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = robotContainer.getP2PCAutonomousCmd();
+        // m_autonomousCommand = robotContainer.getP2PCAutonomousCmd();
         // m_autonomousCommand = robotContainer.getP2PAutononomousCmd();
         // m_autonomousCommand = robotContainer.getAutonomousCommand();
+
+        switch (autonTypeChooser.getSelected()) {
+            case PATHPLANNER:
+                m_autonomousCommand = robotContainer.getAutonomousCommand();
+                break;
+        
+            case P2P:
+                m_autonomousCommand = robotContainer.getP2PAutononomousCmd();
+                break;
+
+            case P2PC:
+                m_autonomousCommand = robotContainer.getP2PCAutonomousCmd();
+                break;
+            
+            default:
+                m_autonomousCommand = Commands.none();
+                break;
+        }
 
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);

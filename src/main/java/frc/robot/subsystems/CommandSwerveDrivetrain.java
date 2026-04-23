@@ -762,6 +762,34 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 }).until(() -> PhotonUtils.getDistanceToPose(getPose2d(), targetPose.get()) <= tolerance.in(Meters));
     }
 
+    public Command goToPointRotationCruiseCmd(Supplier<Pose2d> targetPose, LinearVelocity velocity, AngularVelocity rotationalVel, Distance distTol, Rotation2d rotTol) {
+        return applyRequest(
+                () -> {
+                    Pose2d currentPose = getPose2d();
+                    Pose2d resolvedPose = targetPose.get();
+
+                    double xDiff = resolvedPose.getX() - currentPose.getX();
+                    double yDiff = resolvedPose.getY() - currentPose.getY();
+
+                    double angle = Math.atan2(yDiff, xDiff);
+
+                    double allianceFlip = FieldLayout.isRedAlliance() ? -1 : 1;
+
+                    LinearVelocity vx = velocity.times(Math.cos(angle)).times(allianceFlip);
+                    LinearVelocity vy = velocity.times(Math.sin(angle)).times(allianceFlip);
+
+                    
+
+                    return driveRequest
+                        .withVelocityX(vx)
+                        .withVelocityY(vy)
+                        .withRotationalRate(
+                            getPose2d().getRotation().relativeTo(
+                                targetPose.get().getRotation())
+                            .getMeasure().abs(Degrees) <= rotTol.getDegrees() ? RotationsPerSecond.zero() : rotationalVel);
+                }).until(() -> PhotonUtils.getDistanceToPose(getPose2d(), targetPose.get()) <= distTol.in(Meters));
+    }
+
     public Command hubOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel,
             Supplier<LinearVelocity> radialVelocity,
             Rotation2d offset, Distance maxRadius, Distance minRadius) {
