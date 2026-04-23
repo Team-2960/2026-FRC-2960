@@ -301,7 +301,7 @@ public class RobotContainer {
 
         operatorCtrl.leftTrigger(.1).whileTrue(shooterMngt.IdleShotPrepCmd());
 
-        operatorCtrl.back().whileTrue(shooterMngt.hubNoIntakeIndexAutoShotCmd());
+        operatorCtrl.back().whileTrue(shooterMngt.frickingEMERGENCYshot());
 
         // DRIVER
 
