@@ -105,7 +105,7 @@ public class RobotContainer {
         
 
     @SuppressWarnings("unused")
-    private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera);
+    private final CameraSim cameraSim = new CameraSim(drivetrain, leftCamera, rightCamera, sideCamera);
 
     // Standard Suppliers
     private Supplier<LinearVelocity> fullXVelCtrl = () -> xVel.mut_replace(Constants.maxLinVel)

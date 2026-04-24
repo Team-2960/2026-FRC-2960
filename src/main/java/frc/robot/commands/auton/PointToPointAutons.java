@@ -238,10 +238,8 @@ public final class PointToPointAutons {
     }
 
     public Command getTrenchNeutralZone(boolean mirror){
-        WaypointSet points = new WaypointSet();
-
-        Waypoint neutralIntakePrep = points.add(w(AutonWaypoints.rightNeutralIntakePrep, mirror));
-        Waypoint neutralIntakeFin  = points.add(w(AutonWaypoints.rightNeutralIntakeFinished, mirror));
+        Waypoint neutralIntakePrep = w(AutonWaypoints.rightNeutralIntakePrep, mirror);
+        Waypoint neutralIntakeFin  = w(AutonWaypoints.rightNeutralIntakeFinished, mirror);
 
         double yVel = mirror ? -3 : 3;
 
@@ -374,19 +372,22 @@ public final class PointToPointAutons {
         }
 
         public Command getStartCommand(){
+            Waypoint trench = w(AutonWaypoints.rightTrenchAutonStart, isMirroredChooser.getSelected());
+            Waypoint bump = w(AutonWaypoints.rightBumpAutonStart, isMirroredChooser.getSelected());
+            Waypoint hub = w(AutonWaypoints.centerHubAutonStart, isMirroredChooser.getSelected());
             
             switch (startTypeChooser.getSelected()) {
                 case TRENCH:
-                    return drivetrain.getResetPoseCmd(w(AutonWaypoints.rightTrenchAutonStart, isMirroredChooser.getSelected()));
+                    return drivetrain.getResetPoseAllianceCmd(trench);
                 
                 case BUMP:
-                    return drivetrain.getResetPoseCmd(w(AutonWaypoints.rightBumpAutonStart, isMirroredChooser.getSelected()));
+                    return drivetrain.getResetPoseAllianceCmd(bump);
 
                 case HUB:
-                    return drivetrain.getResetPoseCmd(w(AutonWaypoints.centerHubAutonStart, isMirroredChooser.getSelected()));
+                    return drivetrain.getResetPoseAllianceCmd(hub);
                 
                 default:
-                    return drivetrain.getResetPoseCmd(Pose2d.kZero);
+                    return drivetrain.getResetPoseAllianceCmd(Pose2d.kZero);
             }
         }
 

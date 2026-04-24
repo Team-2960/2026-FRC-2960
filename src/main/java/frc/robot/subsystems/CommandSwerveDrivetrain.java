@@ -567,6 +567,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.runOnce(() -> resetPose(pose.get()));
     }
 
+    public Command getResetPoseAllianceCmd(Pose2d pose){
+        return this.runOnce(() -> {
+            resetPose(FieldLayout.isRedAlliance() ? new Pose2d(pose.getTranslation(), pose.getRotation().rotateBy(Rotation2d.k180deg)) : pose);
+        });
+    }
+    
+    public Command getResetPoseAllianceCmd(Supplier<Pose2d> pose){
+        return this.runOnce(() -> {
+            resetPose(FieldLayout.isRedAlliance() ? new Pose2d(pose.get().getTranslation(), pose.get().getRotation().rotateBy(Rotation2d.k180deg)) : pose.get());
+        });
+    }
+
     public void updateDrawAutonPath(Pose2d[] points) {
         autonPathArray = points;
     }
