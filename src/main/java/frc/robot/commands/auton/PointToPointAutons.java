@@ -19,8 +19,10 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.LayoutType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,7 +77,7 @@ public final class PointToPointAutons {
         public static final Waypoint rightNeutralIntakeFinished = WaypointFactory.of(new Pose2d(7.8, 3.3, Rotation2d.fromDegrees(90)), AllianceFlip.ALLIANCE);
         public static final Waypoint rightBumpCrossPrep = WaypointFactory.of(new Pose2d(6.0, FieldLayout.Bump.blueBumpRight.getY(), Rotation2d.fromDegrees(180)), AllianceFlip.ALLIANCE);
         public static final Waypoint rightBumpCrossFinished = rightBumpCrossPrep.translated(-3.5, 0).withRotation(Rotation2d.fromDegrees(210));
-        public static final Waypoint rightTrenchNeutralPrep = rightTrenchAutonStart.translated(-2, 0).withRotation(Rotation2d.fromDegrees(90));
+        public static final Waypoint rightTrenchNeutralPrep = rightTrenchAutonStart.translated(-2, -0.2).withRotation(Rotation2d.fromDegrees(90));
         public static final Waypoint rightTrenchAlliancePrep = rightTrenchAutonStart.translated(2, 0).withRotation(Rotation2d.fromRadians(-90));
 
         public static final Waypoint rightBumpNeutralPrep = rightBumpCrossFinished.translated(1, 0).withRotation(Rotation2d.kZero);
@@ -188,7 +190,7 @@ public final class PointToPointAutons {
             new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossFin, MetersPerSecond.of(4), Meters.of(0.2))),
 
             // Shoot 1
-            getShootRoutine(),
+            getShootRoutine(5),
 
             // Second pass
             new ParallelDeadlineGroup(
@@ -203,7 +205,7 @@ public final class PointToPointAutons {
             new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossFin, MetersPerSecond.of(4), Meters.of(0.2))),
 
             // Shoot 2
-            getShootRoutine()
+            getShootRoutine(5)
         );
     }
 
@@ -239,8 +241,8 @@ public final class PointToPointAutons {
                 Inches.of(147), Meters.of(1.75));
     }
 
-    public Command getShootRoutine(){
-        return hubOrbitRangeCmd().alongWith(shooterManagement.hubIndexAutoShotCmd()).withTimeout(5);
+    public Command getShootRoutine(double seconds){
+        return hubOrbitRangeCmd().alongWith(shooterManagement.hubIndexAutoShotCmd()).withTimeout(seconds);
     }
 
     public Command getTrenchNeutralZone(boolean mirror, boolean prepTravel){
@@ -257,8 +259,12 @@ public final class PointToPointAutons {
             // First pass
             firstPassCmd,
             
-            eventMarkerGoTo(neutralIntakePrep, 0.2, Meters.of(0.2),
-                new ParallelCommandGroup(intakeAngle.extendCmd(), intakeRoller.intakeInCmd())),
+            // eventMarkerGoTo(neutralIntakePrep, 0.2, Meters.of(0.2),
+            //     new ParallelCommandGroup(intakeAngle.extendCmd(), intakeRoller.intakeInCmd())),
+            new ParallelDeadlineGroup(drivetrain.goToPointCmd(neutralIntakePrep, Meters.of(0.2)), 
+                intakeAngle.extendCmd(),
+                intakeRoller.intakeInCmd()
+            ),
             new ParallelDeadlineGroup(
                 drivetrain.yAxisAlignDistanceCmd(() -> MetersPerSecond.of(yVel), neutralIntakeFin, Meters.of(0.2)),
                 intakeAngle.extendCmd(), intakeRoller.intakeInCmd())
@@ -274,15 +280,20 @@ public final class PointToPointAutons {
 
         double yVel = mirror ? -3 : 3;
 
-        Command firstPassCmd = prepTravel ? drivetrain.goToPointCmd(bumpNeutralPrep, Meters.of(0.2)) : Commands.none();
+        Command firstPassCmd = prepTravel ? drivetrain.goToPointCmd(bumpNeutralPrep.translated(-1, 0), Meters.of(0.2)) : Commands.none();
 
         return new SequentialCommandGroup(
 
             firstPassCmd,
 
             drivetrain.goToPointCruiseCmd(bumpCrossPrep, MetersPerSecond.of(4), Meters.of(0.3)),
-            eventMarkerGoTo(neutralIntakePrep, 0.2, Meters.of(0.2),
-                new ParallelCommandGroup(intakeAngle.extendCmd(), intakeRoller.intakeInCmd())),
+            // eventMarkerGoTo(neutralIntakePrep, 0.2, Meters.of(0.2),
+            //     new ParallelCommandGroup(intakeAngle.extendCmd(), intakeRoller.intakeInCmd())),
+
+            new ParallelDeadlineGroup(drivetrain.goToPointCmd(neutralIntakePrep, Meters.of(0.2)), 
+                intakeAngle.extendCmd(),
+                intakeRoller.intakeInCmd()
+            ),
             new ParallelDeadlineGroup(
                 drivetrain.yAxisAlignDistanceCmd(() -> MetersPerSecond.of(yVel), neutralIntakeFin, Meters.of(0.2)),
                 intakeAngle.extendCmd(), intakeRoller.intakeInCmd())
@@ -294,18 +305,22 @@ public final class PointToPointAutons {
         Waypoint bumpCrossFin      =  w(AutonWaypoints.rightBumpCrossFinished, mirror);
         
         return new SequentialCommandGroup(
-            new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossPrep, MetersPerSecond.of(4), Meters.of(0.1))),
-            new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossFin, MetersPerSecond.of(2), Meters.of(0.2)))
+            new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossPrep, MetersPerSecond.of(4), Meters.of(0.1)),
+                intakeRoller.intakeInCmd()),
+            new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossFin, MetersPerSecond.of(3.5), Meters.of(0.2)),
+                intakeRoller.intakeInCmd())
         );
     }
 
     public Command getReturnTrenchRoutine(boolean mirror){
         Waypoint trenchCrossPrep = w(AutonWaypoints.rightTrenchAlliancePrep.withRotation(Rotation2d.fromDegrees(-90)), mirror);
-        Waypoint trenchCrossFinished = w(AutonWaypoints.rightTrenchNeutralPrep.withRotation(Rotation2d.fromDegrees(-90)), mirror);
+        Waypoint trenchCrossFinished = w(AutonWaypoints.rightTrenchNeutralPrep.translated(0, 0.2).withRotation(Rotation2d.fromDegrees(-90)), mirror);
 
         return new SequentialCommandGroup(
-            drivetrain.goToPointCmd(trenchCrossPrep, Meters.of(0.1)),
-            drivetrain.goToPointCruiseCmd(trenchCrossFinished, MetersPerSecond.of(4), Meters.of(0.2))
+            new ParallelDeadlineGroup(drivetrain.goToPointCmd(trenchCrossPrep, Meters.of(0.1)), 
+                intakeRoller.intakeInCmd()),
+            new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(trenchCrossFinished, MetersPerSecond.of(4), Meters.of(0.2)),
+                intakeRoller.intakeInCmd())
         );
     }
     
@@ -322,10 +337,10 @@ public final class PointToPointAutons {
 
         switch (returnType){
             case TRENCH:
-                returnPrepCmd =  drivetrain.goToPointCmd(bumpCrossPrep, Meters.of(0.15));
+                returnPrepCmd =  drivetrain.goToPointCmd(trenchCrossPrep, Meters.of(0.15));
             
             case BUMP:
-                returnPrepCmd =  drivetrain.goToPointCmd(trenchCrossPrep, Meters.of(0.15));
+                returnPrepCmd =  drivetrain.goToPointCruiseCmd(bumpCrossPrep, MetersPerSecond.of(4), Meters.of(0.15));
 
             default:
                 returnPrepCmd = Commands.none();
@@ -342,7 +357,9 @@ public final class PointToPointAutons {
                 intakeRoller.intakeInCmd()
             ),
 
-            returnPrepCmd            
+            new ParallelDeadlineGroup(
+                returnPrepCmd,
+                intakeRoller.intakeInCmd())     
         );
     }
 
@@ -352,10 +369,12 @@ public final class PointToPointAutons {
 
         switch (returnType){
             case TRENCH:
-                return drivetrain.goToPointCmd(trenchCrossPrep, Meters.of(0.15));
+                return new ParallelDeadlineGroup(drivetrain.goToPointCmd(trenchCrossPrep, Meters.of(0.15)),
+                    intakeRoller.intakeInCmd());
             
             case BUMP:
-                return drivetrain.goToPointCmd(bumpCrossPrep, Meters.of(0.15));
+                return new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossPrep, MetersPerSecond.of(4), Meters.of(0.15)),
+                    intakeRoller.intakeInCmd());
 
             default:
                 return Commands.none();
@@ -364,61 +383,105 @@ public final class PointToPointAutons {
 
     public class AutonBuilder{
 
-        private final SendableChooser<Boolean> isMirroredChooser = new SendableChooser<>();
-        private final SendableChooser<StartType> startTypeChooser = new SendableChooser<>();
-        private final SendableChooser<NeutralZoneType> neutralZoneChooser = new SendableChooser<>();
-        private final SendableChooser<IntakePathType> intakePathChooser = new SendableChooser<>();
-        private final SendableChooser<ReturnType> returnTypeChooser = new SendableChooser<>();
-        private final SendableChooser<Boolean> repeatCycleChooser = new SendableChooser<>();
+        @SuppressWarnings("rawtypes")
+        private final ArrayList<SendableChooser<Boolean>> isMirroredChooserList = new ArrayList<>();
 
-        private GenericEntry startDelay;
-        private GenericEntry returnDelay;
+        private final SendableChooser<StartType> startTypeChooser = new SendableChooser<>();
+
+        @SuppressWarnings("rawtypes")
+        private final ArrayList<SendableChooser<NeutralZoneType>> neutralZoneChooserList = new ArrayList<>();
+
+        @SuppressWarnings("rawtypes")
+        private final ArrayList<SendableChooser<IntakePathType>> intakePathChooserList = new ArrayList<>();
+
+        @SuppressWarnings("rawtypes")
+        private final ArrayList<SendableChooser<ReturnType>> returnTypeChooserList = new ArrayList<>();
+
+        @SuppressWarnings("rawtypes")
+        private final ArrayList<SendableChooser<Boolean>> repeatCycleChooserList = new ArrayList<>();
+
+        private final ArrayList<GenericEntry> startDelayList = new ArrayList<>();
+        
+        private final ArrayList<GenericEntry> returnDelayList = new ArrayList<>();
+
+        private final ArrayList<GenericEntry> shootTimeList = new ArrayList<>();
+
+        private final int cycleCount = 2;
 
 
         public AutonBuilder(){
-            startTypeChooser.addOption("Trench", StartType.TRENCH);
-            startTypeChooser.addOption("Bump", StartType.BUMP);
-            startTypeChooser.addOption("Hub", StartType.HUB);
-            startTypeChooser.setDefaultOption("None", StartType.NONE);
+            for (int i = 0; i < cycleCount; i++){
 
-            neutralZoneChooser.addOption("Trench", NeutralZoneType.TRENCH);
-            neutralZoneChooser.addOption("Bump", NeutralZoneType.BUMP);
-            neutralZoneChooser.setDefaultOption("None", NeutralZoneType.NONE);
+                SendableChooser<Boolean> isMirroredChooser = new SendableChooser<>();
+                SendableChooser<NeutralZoneType> neutralZoneChooser = new SendableChooser<>();
+                SendableChooser<IntakePathType> intakePathChooser = new SendableChooser<>();
+                SendableChooser<ReturnType> returnTypeChooser = new SendableChooser<>();
+                SendableChooser<Boolean> repeatCycleChooser = new SendableChooser<>();
 
-            intakePathChooser.addOption("Snake", IntakePathType.SNAKE);
-            intakePathChooser.addOption("Straight", IntakePathType.STRAIGHT);
-            intakePathChooser.setDefaultOption("None", IntakePathType.NONE);
+                GenericEntry startDelay;
+                GenericEntry returnDelay;
+                GenericEntry shootTime;
 
-            returnTypeChooser.addOption("Trench", ReturnType.TRENCH);
-            returnTypeChooser.addOption("Bump", ReturnType.BUMP);
-            returnTypeChooser.setDefaultOption("None", ReturnType.NONE);
+                startTypeChooser.addOption("Trench", StartType.TRENCH);
+                startTypeChooser.addOption("Bump", StartType.BUMP);
+                startTypeChooser.addOption("Hub", StartType.HUB);
+                startTypeChooser.setDefaultOption("None", StartType.NONE);
 
-            isMirroredChooser.addOption("Right", true);
-            isMirroredChooser.setDefaultOption("Left", false);
+                neutralZoneChooser.addOption("Trench", NeutralZoneType.TRENCH);
+                neutralZoneChooser.addOption("Bump", NeutralZoneType.BUMP);
+                neutralZoneChooser.setDefaultOption("None", NeutralZoneType.NONE);
 
-            repeatCycleChooser.addOption("True", true);
-            repeatCycleChooser.addOption("False", false);
+                intakePathChooser.addOption("Snake", IntakePathType.SNAKE);
+                intakePathChooser.addOption("Straight", IntakePathType.STRAIGHT);
+                intakePathChooser.setDefaultOption("None", IntakePathType.NONE);
 
-            // SmartDashboard.putData("Start Type P2PC", startTypeChooser);
-            // SmartDashboard.putData("Neutral Zone P2PC", neutralZoneChooser);
-            // SmartDashboard.putData("Intake Path P2PC", intakePathChooser);
-            // SmartDashboard.putData("Return Type P2PC", returnTypeChooser);
-            // SmartDashboard.putData("Is Mirrored P2PC", isMirroredChooser);
+                returnTypeChooser.addOption("Trench", ReturnType.TRENCH);
+                returnTypeChooser.addOption("Bump", ReturnType.BUMP);
+                returnTypeChooser.setDefaultOption("None", ReturnType.NONE);
 
-            // SmartDashboard.putNumber("Start Delay P2PC", 0);
-            // SmartDashboard.putNumber("Return Delay P2PC", 0);
+                isMirroredChooser.addOption("Right", false);
+                isMirroredChooser.setDefaultOption("Left", true);
 
-            var firstCycleLayout = Shuffleboard.getTab("Auton")
-                .getLayout("First Cycle P2PC", BuiltInLayouts.kList)
-                .withSize(2, 5);
-            firstCycleLayout.add("Start Type P2PC", startTypeChooser);
-            firstCycleLayout.add("Neutral Zone P2PC", neutralZoneChooser);
-            firstCycleLayout.add("Intake Path P2PC", intakePathChooser);
-            firstCycleLayout.add("Return Type P2PC", returnTypeChooser);
-            firstCycleLayout.add("Left or Right P2PC", isMirroredChooser);
+                repeatCycleChooser.addOption("True", true);
+                repeatCycleChooser.setDefaultOption("False", false);
 
-            startDelay = firstCycleLayout.add("Start Delay P2PC", 0).getEntry();
-            returnDelay = firstCycleLayout.add("Return Delay P2PC", 0).getEntry();
+                // SmartDashboard.putData("Start Type P2PC", startTypeChooser);
+                // SmartDashboard.putData("Neutral Zone P2PC", neutralZoneChooser);
+                // SmartDashboard.putData("Intake Path P2PC", intakePathChooser);
+                // SmartDashboard.putData("Return Type P2PC", returnTypeChooser);
+                // SmartDashboard.putData("Is Mirrored P2PC", isMirroredChooser);
+
+                // SmartDashboard.putNumber("Start Delay P2PC", 0);
+                // SmartDashboard.putNumber("Return Delay P2PC", 0);
+
+
+                var firstCycleLayout = Shuffleboard.getTab("Auton")
+                    .getLayout("Cycle " + (i + 1) + " P2PC", BuiltInLayouts.kList)
+                    .withSize(2, 5);
+
+                if (i == 0){
+                    firstCycleLayout.add("Start Type P2PC", startTypeChooser);
+                }
+                
+                firstCycleLayout.add("Neutral Zone P2PC", neutralZoneChooser);
+                firstCycleLayout.add("Intake Path P2PC", intakePathChooser);
+                firstCycleLayout.add("Return Type P2PC", returnTypeChooser);
+                firstCycleLayout.add("Left or Right P2PC", isMirroredChooser);
+
+                startDelay = firstCycleLayout.add("Start Delay P2PC", 0).getEntry();
+                returnDelay = firstCycleLayout.add("Return Delay P2PC", 0).getEntry();
+                shootTime = firstCycleLayout.add("Shoot Time", 4).getEntry();
+
+                isMirroredChooserList.add(isMirroredChooser);
+                neutralZoneChooserList.add(neutralZoneChooser);
+                intakePathChooserList.add(intakePathChooser);
+                returnTypeChooserList.add(returnTypeChooser);
+                repeatCycleChooserList.add(repeatCycleChooser);
+                
+                startDelayList.add(startDelay);
+                returnDelayList.add(returnDelay);
+                shootTimeList.add(shootTime);
+            }
         }
 
         private enum StartType{
@@ -447,9 +510,9 @@ public final class PointToPointAutons {
         }
 
         public Command getStartCommand(){
-            Waypoint trench = w(AutonWaypoints.rightTrenchAutonStart, isMirroredChooser.getSelected());
-            Waypoint bump = w(AutonWaypoints.rightBumpAutonStart, isMirroredChooser.getSelected());
-            Waypoint hub = w(AutonWaypoints.centerHubAutonStart, isMirroredChooser.getSelected());
+            Waypoint trench = w(AutonWaypoints.rightTrenchAutonStart, isMirroredChooserList.get(0).getSelected());
+            Waypoint bump = w(AutonWaypoints.rightBumpAutonStart, isMirroredChooserList.get(0).getSelected());
+            Waypoint hub = w(AutonWaypoints.centerHubAutonStart, isMirroredChooserList.get(0).getSelected());
             
             switch (startTypeChooser.getSelected()) {
                 case TRENCH:
@@ -466,93 +529,97 @@ public final class PointToPointAutons {
             }
         }
 
-        public Command getNeutralZoneCommand(){
-            switch (neutralZoneChooser.getSelected()) {
+        public Command getNeutralZoneCommand(int cycle){
+            switch (neutralZoneChooserList.get(cycle).getSelected()) {
                 case TRENCH:
-                    return getTrenchNeutralZone(isMirroredChooser.getSelected(), startTypeChooser.getSelected() == StartType.HUB);
+                    return getTrenchNeutralZone(isMirroredChooserList.get(cycle).getSelected(), startTypeChooser.getSelected() == StartType.HUB || cycle > 0);
 
                 case BUMP:
-                    return getBumpNeutralZone(isMirroredChooser.getSelected(), startTypeChooser.getSelected() == StartType.HUB);
+                    return getBumpNeutralZone(isMirroredChooserList.get(cycle).getSelected(), startTypeChooser.getSelected() == StartType.HUB || cycle > 0);
 
                 default:
                     return Commands.none();
             }
         }
 
-        public Command getIntakePathCommand(){
-            switch (intakePathChooser.getSelected()) {
+        public Command getIntakePathCommand(int cycle){
+            switch (intakePathChooserList.get(cycle).getSelected()) {
                 case SNAKE:
-                    return getSnakeIntakePath(isMirroredChooser.getSelected(), returnTypeChooser.getSelected());
+                    return getSnakeIntakePath(isMirroredChooserList.get(cycle).getSelected(), returnTypeChooserList.get(cycle).getSelected());
             
                 case STRAIGHT:
-                    return getStraightIntakePath(isMirroredChooser.getSelected(), returnTypeChooser.getSelected());
+                    return getStraightIntakePath(isMirroredChooserList.get(cycle).getSelected(), returnTypeChooserList.get(cycle).getSelected());
 
                 default:
                     return Commands.none();
             }
         }
 
-        public Command getReturnCommand(){
-            switch (returnTypeChooser.getSelected()) {
+        public Command getReturnCommand(int cycle){
+            switch (returnTypeChooserList.get(cycle).getSelected()) {
                 case TRENCH: 
-                    return getReturnTrenchRoutine(isMirroredChooser.getSelected());
+                    return getReturnTrenchRoutine(isMirroredChooserList.get(cycle).getSelected());
                 case BUMP:
-                    return getReturnBumperRoutine(isMirroredChooser.getSelected());
+                    return getReturnBumperRoutine(isMirroredChooserList.get(cycle).getSelected());
 
                 default:
                     return Commands.none();
             }
         }
 
-        public Command getStartDelayCmd(){
-            return drivetrain.idleCmd().withTimeout(startDelay.getDouble(0));
+        public Command getStartDelayCmd(int cycle){
+            return drivetrain.idleCmd().withTimeout(startDelayList.get(cycle).getDouble(0));
         }
 
-        public Command getReturnDelayCmd(){
-            return drivetrain.idleCmd().withTimeout(returnDelay.getDouble(0));
+        public Command getReturnDelayCmd(int cycle){
+            return drivetrain.idleCmd().withTimeout(returnDelayList.get(cycle).getDouble(0));
+        }
+
+        public Command getShootRoutineCmd(int cycle){
+            return getShootRoutine(shootTimeList.get(cycle).getDouble(4));
         }
 
         public Command getAuton(){
-            Command firstCycle =  new SequentialCommandGroup(
-                getStartCommand(),
-                getStartDelayCmd(),
-                getNeutralZoneCommand(),
-                getIntakePathCommand(),
-                getReturnDelayCmd(),
-                getReturnCommand(),
-                getShootRoutine()
-            );
+            // Command firstCycle =  new SequentialCommandGroup(
+            //     getStartCommand(),
+            //     getStartDelayCmd(),
+            //     getNeutralZoneCommand(),
+            //     getIntakePathCommand(),
+            //     getReturnDelayCmd(),
+            //     getReturnCommand(),
+            //     getShootRoutine()
+            // );
 
-            Command secondCycle = Commands.none();
+            Command finalAuton = getStartCommand();
 
-            if (repeatCycleChooser.getSelected()){
-                secondCycle = firstCycle;
-            }else{
-                secondCycle = new SequentialCommandGroup(
-
+            for (int i = 0; i < cycleCount; i++){
+                finalAuton = finalAuton.andThen(
+                    getStartDelayCmd(i),
+                    getNeutralZoneCommand(i),
+                    getIntakePathCommand(i),
+                    getReturnDelayCmd(i),
+                    getReturnCommand(i),
+                    getShootRoutineCmd(i)
                 );
             }
 
-            return new SequentialCommandGroup(
-                firstCycle,
-                secondCycle
-            );
+            return finalAuton;
         }
         
-        public SendableChooser<StartType> getStartTypeChooser(){
-            return startTypeChooser;
-        }
+        // public SendableChooser<StartType> getStartTypeChooser(){
+        //     return startTypeChooser;
+        // }
 
-        public SendableChooser<NeutralZoneType> getNeutralZoneChooser(){
-            return neutralZoneChooser;
-        }
+        // public SendableChooser<NeutralZoneType> getNeutralZoneChooser(){
+        //     return neutralZoneChooser;
+        // }
         
-        public SendableChooser<IntakePathType> getIntakePathChooser(){
-            return intakePathChooser;
-        }
+        // public SendableChooser<IntakePathType> getIntakePathChooser(){
+        //     return intakePathChooser;
+        // }
 
-        public SendableChooser<ReturnType> getReturnTypeChooser(){
-            return returnTypeChooser;
-        }
+        // public SendableChooser<ReturnType> getReturnTypeChooser(){
+        //     return returnTypeChooser;
+        // }
     }
 }
