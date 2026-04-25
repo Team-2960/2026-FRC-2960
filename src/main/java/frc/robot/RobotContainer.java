@@ -439,7 +439,7 @@ public class RobotContainer {
     public Command hubOrbitRangeCmd() {
         return drivetrain.hubOrbitRestrictedRadiusCommand(slowYVelCtrl, slowXVelCtrl,
                 Rotation2d.fromDegrees(180),
-                Inches.of(160), Meters.of(1.75));
+                Inches.of(180), Meters.of(1.75));
     }
 
     public Command hubOrbitCmd(){
