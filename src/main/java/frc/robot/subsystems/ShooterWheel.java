@@ -322,7 +322,7 @@ public class ShooterWheel extends SubsystemBase {
     @AutoLogOutput
     public double getRPM() {
         double rpm = motorLeader.getVelocity().getValue().in(Rotations.per(Minute));
-        SignalLogger.writeDouble("ShooterWheel RPM", rpm);
+        // SignalLogger.writeDouble("ShooterWheel RPM", rpm);
         return rpm;
     }
 

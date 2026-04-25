@@ -906,10 +906,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .withYAxisCoordinate(targetPose.get().getTranslation())
                     .withUpdateTargetPose(null);
         })
-                .until(() -> Math.abs(PhotonUtils.getDistanceToPose(getPose2d(), targetPose.get())) <= tolerance
-                        .in(Meters))
-                .finallyDo(() -> applyRequest(() -> idleRequest))
-                .withName("Y-Axis Align Distance Command");
+        .until(() -> Math.abs(PhotonUtils.getDistanceToPose(getPose2d(), targetPose.get())) <= tolerance.in(Meters))
+        .andThen(this.runOnce(() -> applyRequest(() -> idleRequest)))
+        .withName("Y-Axis Align Distance Command");
     }
 
     public void initialRotationHelper(Rotation2d rotation) {
