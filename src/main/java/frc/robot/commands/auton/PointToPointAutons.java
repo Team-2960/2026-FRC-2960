@@ -92,7 +92,7 @@ public final class PointToPointAutons {
 
         public static final Waypoint rightBumpAutonStart = WaypointFactory.of(
             FieldLayout.Bump.blueBumpRight.minus(
-                new Translation2d(FieldLayout.Bump.bumpWidth.div(2).plus(Constants.robotWithBumpersLength), 
+                new Translation2d(FieldLayout.Bump.bumpWidth.div(2).plus(Constants.robotWithBumpersLength.div(2)), 
                     Inches.zero())), 
             Rotation2d.kZero, 
             AllianceFlip.ALLIANCE);
