@@ -85,6 +85,9 @@ public final class PointToPointAutons {
         //Snake Intake Path Points
         public static final Waypoint snakePoint1 = WaypointFactory.of(new Pose2d(6.4, 3.6, Rotation2d.fromDegrees(-110)), AllianceFlip.ALLIANCE);
         public static final Waypoint snakePoint2 = rightBumpCrossPrep;
+
+        public static final Waypoint cornerPoint = WaypointFactory.of(new Pose2d(0.5, 0.5, Rotation2d.kZero), AllianceFlip.ALLIANCE);
+        public static final Waypoint hubEndPoint = WaypointFactory.of(new Pose2d(3.22, 4, Rotation2d.kZero), AllianceFlip.ALLIANCE);
         
 
         public static final Waypoint rightBumpAutonStart = WaypointFactory.of(
@@ -132,7 +135,7 @@ public final class PointToPointAutons {
         return autonChooser;
     }
 
-    public final Command eventMarkerGoTo(Waypoint target, double percent, Distance tolerance,Command event){
+    public final Command eventMarkerGoTo(Waypoint target, double percent, Distance tolerance, Command event){
         return drivetrain.runOnce(() -> drivetrain.initialPoseHelper(drivetrain.getPose2d()))
         .andThen(
             new ParallelDeadlineGroup(
@@ -381,6 +384,17 @@ public final class PointToPointAutons {
         }
     }
 
+    public Command getCornerPath(boolean mirror){
+        Waypoint cornerPoint = w(AutonWaypoints.cornerPoint, mirror);
+
+        return drivetrain.goToPointCmd(cornerPoint, Meters.of(0.1));
+    }
+    
+    public Command getHubEndPath(boolean mirror){
+        Waypoint hubPoint = w(AutonWaypoints.hubEndPoint, mirror);
+
+        return drivetrain.goToPointCmd(hubPoint, Meters.of(0.1));
+    }
     public class AutonBuilder{
 
         @SuppressWarnings("rawtypes")
@@ -400,11 +414,15 @@ public final class PointToPointAutons {
         @SuppressWarnings("rawtypes")
         private final ArrayList<SendableChooser<Boolean>> repeatCycleChooserList = new ArrayList<>();
 
+        private final ArrayList<SendableChooser<EndType>> endTypeChooserList = new ArrayList<>();
+
         private final ArrayList<GenericEntry> startDelayList = new ArrayList<>();
         
         private final ArrayList<GenericEntry> returnDelayList = new ArrayList<>();
 
         private final ArrayList<GenericEntry> shootTimeList = new ArrayList<>();
+
+        private final ArrayList<GenericEntry> endDelayList = new ArrayList<>();
 
         private final int cycleCount = 2;
 
@@ -417,10 +435,12 @@ public final class PointToPointAutons {
                 SendableChooser<IntakePathType> intakePathChooser = new SendableChooser<>();
                 SendableChooser<ReturnType> returnTypeChooser = new SendableChooser<>();
                 SendableChooser<Boolean> repeatCycleChooser = new SendableChooser<>();
+                SendableChooser<EndType> endTypeChooser = new SendableChooser<>();
 
                 GenericEntry startDelay;
                 GenericEntry returnDelay;
                 GenericEntry shootTime;
+                GenericEntry endDelayTime;
 
                 startTypeChooser.addOption("Trench", StartType.TRENCH);
                 startTypeChooser.addOption("Bump", StartType.BUMP);
@@ -445,6 +465,10 @@ public final class PointToPointAutons {
                 repeatCycleChooser.addOption("True", true);
                 repeatCycleChooser.setDefaultOption("False", false);
 
+                endTypeChooser.setDefaultOption("None", EndType.NONE);
+                endTypeChooser.addOption("Corner", EndType.CORNER);
+                endTypeChooser.addOption("Hub", EndType.HUB);
+
                 // SmartDashboard.putData("Start Type P2PC", startTypeChooser);
                 // SmartDashboard.putData("Neutral Zone P2PC", neutralZoneChooser);
                 // SmartDashboard.putData("Intake Path P2PC", intakePathChooser);
@@ -467,20 +491,24 @@ public final class PointToPointAutons {
                 firstCycleLayout.add("Intake Path P2PC", intakePathChooser);
                 firstCycleLayout.add("Return Type P2PC", returnTypeChooser);
                 firstCycleLayout.add("Left or Right P2PC", isMirroredChooser);
+                firstCycleLayout.add("End Type P2PC", endTypeChooser);
 
                 startDelay = firstCycleLayout.add("Start Delay P2PC", 0).getEntry();
                 returnDelay = firstCycleLayout.add("Return Delay P2PC", 0).getEntry();
                 shootTime = firstCycleLayout.add("Shoot Time", 4).getEntry();
+                endDelayTime = firstCycleLayout.add("End Delay P2PC", 0).getEntry();
 
                 isMirroredChooserList.add(isMirroredChooser);
                 neutralZoneChooserList.add(neutralZoneChooser);
                 intakePathChooserList.add(intakePathChooser);
                 returnTypeChooserList.add(returnTypeChooser);
                 repeatCycleChooserList.add(repeatCycleChooser);
+                endTypeChooserList.add(endTypeChooser);
                 
                 startDelayList.add(startDelay);
                 returnDelayList.add(returnDelay);
                 shootTimeList.add(shootTime);
+                endDelayList.add(endDelayTime);
             }
         }
 
@@ -507,6 +535,12 @@ public final class PointToPointAutons {
             NONE,
             TRENCH,
             BUMP
+        }
+
+        private enum EndType{
+            NONE,
+            CORNER,
+            HUB
         }
 
         public Command getStartCommand(){
@@ -567,6 +601,31 @@ public final class PointToPointAutons {
             }
         }
 
+        public Command getEndCommand(int cycle){
+            Command endCommand = Commands.none();
+
+            switch(endTypeChooserList.get(cycle).getSelected()){
+                case CORNER:
+                    endCommand = getCornerPath(isMirroredChooserList.get(cycle).getSelected());
+                    break;
+
+                case HUB:
+                    endCommand = getHubEndPath(isMirroredChooserList.get(cycle).getSelected());
+                    break;
+
+                default:
+                    endCommand = Commands.none();
+                    break;
+                    
+            }
+
+            if (endDelayList.get(cycle).getDouble(0) < 0){
+                return endCommand.andThen(drivetrain.idleCmd());
+            }else {
+                return endCommand.andThen(drivetrain.idleCmd().withTimeout(endDelayList.get(cycle).getDouble(0)));
+            }
+        }
+
         public Command getStartDelayCmd(int cycle){
             return drivetrain.idleCmd().withTimeout(startDelayList.get(cycle).getDouble(0));
         }
@@ -599,7 +658,8 @@ public final class PointToPointAutons {
                     getIntakePathCommand(i),
                     getReturnDelayCmd(i),
                     getReturnCommand(i),
-                    getShootRoutineCmd(i)
+                    getShootRoutineCmd(i),
+                    getEndCommand(i)
                 );
             }
 
