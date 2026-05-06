@@ -195,7 +195,9 @@ public class ShooterWheel extends SubsystemBase {
 
         motorConfig.CurrentLimits
             .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
-            .withSupplyCurrentLimitEnable(true);
+            .withSupplyCurrentLimitEnable(true)
+            .withStatorCurrentLimit(Constants.shooterWheelStatorLimit)
+            .withStatorCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Coast);

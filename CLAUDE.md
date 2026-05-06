@@ -19,6 +19,80 @@ pip install robotpy-wpiutil
 .\gradlew.bat simulateJava            # run simulation (triggers AKit replay when in sim)
 ```
 
+## How to run and verify simulation
+
+**Never use `.\gradlew.bat` directly — use the bash-compatible form below.**
+Always run with the WPILib JDK and disable HAL extensions so the sim starts headlessly:
+
+```bash
+cd "/c/Users/hangy/Documents/2026-FRC-2960" && \
+  JAVA_HOME="C:/Users/Public/wpilib/2026/jdk" \
+  PATH="$JAVA_HOME/bin:$PATH" \
+  HALSIM_EXTENSIONS="" \
+  ./gradlew simulateJava 2>&1
+```
+
+Run this in the **background** with a ~15 second timeout, then read the output.
+
+### Pass criteria — robot started successfully
+Look for **both** of these lines in the output:
+```
+********** Robot program startup complete **********
+[PathPlanner] PathfindingCommand finished warmup
+```
+
+### Fail criteria — crash on startup
+Any of the following indicate a problem that must be fixed:
+- `Unhandled exception instantiating robot` — Java exception during `Robot` or `RobotContainer` construction
+- `Error at ... Could not instantiate robot` — fatal startup failure
+- `BUILD FAILED` — compile error slipped through
+
+### Expected warnings to ignore
+These appear on every clean sim run and are **not** errors:
+- `Joystick Button X on port Y not available` — no driver station in sim
+- `Loop time of 0.02s overrun` on the **first** loop only — normal JIT warmup
+- `CameraSim.periodic(): 0.04xs` on first loop — normal
+- `PhotonPoseEstimator` deprecation warning — pre-existing, unrelated
+
+### Loop overrun rule
+A loop overrun on the **first tick only** is normal. If overruns appear on **subsequent ticks** (after `startup complete`), that is a real performance issue worth investigating.
+
+## Post-simulation log analysis
+
+Every simulation run writes an AKit log to `logs/` automatically:
+```
+[AdvantageKit] Renaming log to "logs\akit_<timestamp>.wpilog"
+```
+
+After the sim exits, find the newest log and parse it to understand what ran:
+
+```bash
+# Find the most recently written sim log
+SIMLOG=$(ls -t logs/akit_*.wpilog | head -1)
+
+# Catalog all signals to confirm subsystems initialized
+python tools/parse_wpilog.py "$SIMLOG" --catalog
+
+# Check for any anomalies across all key subsystems
+python tools/parse_wpilog.py "$SIMLOG" --anomalies \
+    --signals ShooterWheel Indexer IntakeAngle IntakeRoller CommandSwerveDrivetrain SystemStats
+```
+
+### What to look for in the sim log catalog
+- All expected subsystems appear under `/RealOutputs/` — confirms AKit annotation processing worked
+- `/DriverStation/Enabled` is present — confirms the HAL initialized correctly
+- `/SystemStats/BatteryVoltage` is present — confirms system stats are logging
+- Missing subsystem signals → that subsystem likely threw an exception during `periodic()`
+
+### Using sim logs for debugging
+When investigating a code change, run simulation and then extract the signals relevant to the change:
+```bash
+python tools/parse_wpilog.py "$SIMLOG" \
+    --signals <subsystem being changed> \
+    --out /tmp/sim_check.csv
+```
+This lets you verify signal shapes and values even without a real robot log.
+
 ## AKit log replay workflow
 Robot logs are written to USB at `/U/logs/` on the RoboRIO.
 Copy the desired `.wpilog` file into the `logs/` folder of this project.

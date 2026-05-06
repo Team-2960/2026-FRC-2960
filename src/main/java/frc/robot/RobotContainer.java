@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -75,7 +76,7 @@ public class RobotContainer {
     SendableChooser<Command> autoChooser;
 
     //P2P Auton
-    SendableChooser<Command> p2pAutoChooser;
+    LoggedDashboardChooser<Command> p2pAutoChooser;
 
     // Mutable Units
     private MutLinearVelocity xVel = MetersPerSecond.mutable(0);
@@ -206,7 +207,6 @@ public class RobotContainer {
         SmartDashboard.putData("Auton Chooser", autoChooser);
 
         p2pAutoChooser = pointToPointAutons.getAutonChooser();
-        SmartDashboard.putData("P2P Auton Chooser", p2pAutoChooser);
         
     }
 
@@ -478,8 +478,8 @@ public class RobotContainer {
     }
 
     public Command getP2PAutononomousCmd(){
-        SmartDashboard.putString("Current P2P Auton", p2pAutoChooser.getSelected().getName());
-        return p2pAutoChooser.getSelected();
+        SmartDashboard.putString("Current P2P Auton", p2pAutoChooser.get().getName());
+        return p2pAutoChooser.get();
     }
 
     public Command getP2PCAutonomousCmd(){

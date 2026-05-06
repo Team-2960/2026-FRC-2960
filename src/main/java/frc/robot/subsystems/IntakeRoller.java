@@ -105,9 +105,11 @@ public class IntakeRoller extends SubsystemBase {
     public IntakeRoller(int motorId, CANBus bus, double gearRatio) {
         motor = new TalonFX(motorId, bus);
 
-        // motorConfig.CurrentLimits
-        //     .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
-        //     .withSupplyCurrentLimitEnable(true);
+        motorConfig.CurrentLimits
+                .withSupplyCurrentLimit(Constants.intakeRollerSupplyLimit)
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(Constants.intakeRollerStatorLimit)
+                .withStatorCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)

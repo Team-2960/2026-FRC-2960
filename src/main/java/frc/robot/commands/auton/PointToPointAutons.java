@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,12 +20,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.LayoutType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -52,7 +48,7 @@ public final class PointToPointAutons {
     private final ShooterManagement shooterManagement;
     private final ShooterWheel shooterWheel;
 
-    private final SendableChooser<Command> autonChooser = new SendableChooser<>();
+    private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("P2P Auton Chooser");
     
     public PointToPointAutons(CommandSwerveDrivetrain drivetrain, Indexer indexer, IntakeAngle intakeAngle, 
         IntakeRoller intakeRoller, ShooterManagement shooterManagement, ShooterWheel shooterWheel){
@@ -64,7 +60,7 @@ public final class PointToPointAutons {
         this.shooterManagement = shooterManagement;
         this.shooterWheel = shooterWheel;
         
-        autonChooser.setDefaultOption("null", Commands.none());
+        autonChooser.addDefaultOption("null", Commands.none());
         autonChooser.addOption("Test Auton", getTestAuton());
         autonChooser.addOption("Right Trench 2 Cycle", getRightTrench2Cycle());
         autonChooser.addOption("Left Trench 2 Cycle", getLeftTrench2Cycle());
@@ -131,7 +127,7 @@ public final class PointToPointAutons {
         }
     }
 
-    public final SendableChooser<Command> getAutonChooser(){
+    public final LoggedDashboardChooser<Command> getAutonChooser(){
         return autonChooser;
     }
 
@@ -397,24 +393,19 @@ public final class PointToPointAutons {
     }
     public class AutonBuilder{
 
-        @SuppressWarnings("rawtypes")
-        private final ArrayList<SendableChooser<Boolean>> isMirroredChooserList = new ArrayList<>();
+        private final ArrayList<LoggedDashboardChooser<Boolean>> isMirroredChooserList = new ArrayList<>();
 
-        private final SendableChooser<StartType> startTypeChooser = new SendableChooser<>();
+        private final LoggedDashboardChooser<StartType> startTypeChooser = new LoggedDashboardChooser<>("Start Type P2PC");
 
-        @SuppressWarnings("rawtypes")
-        private final ArrayList<SendableChooser<NeutralZoneType>> neutralZoneChooserList = new ArrayList<>();
+        private final ArrayList<LoggedDashboardChooser<NeutralZoneType>> neutralZoneChooserList = new ArrayList<>();
 
-        @SuppressWarnings("rawtypes")
-        private final ArrayList<SendableChooser<IntakePathType>> intakePathChooserList = new ArrayList<>();
+        private final ArrayList<LoggedDashboardChooser<IntakePathType>> intakePathChooserList = new ArrayList<>();
 
-        @SuppressWarnings("rawtypes")
-        private final ArrayList<SendableChooser<ReturnType>> returnTypeChooserList = new ArrayList<>();
+        private final ArrayList<LoggedDashboardChooser<ReturnType>> returnTypeChooserList = new ArrayList<>();
 
-        @SuppressWarnings("rawtypes")
-        private final ArrayList<SendableChooser<Boolean>> repeatCycleChooserList = new ArrayList<>();
+        private final ArrayList<LoggedDashboardChooser<Boolean>> repeatCycleChooserList = new ArrayList<>();
 
-        private final ArrayList<SendableChooser<EndType>> endTypeChooserList = new ArrayList<>();
+        private final ArrayList<LoggedDashboardChooser<EndType>> endTypeChooserList = new ArrayList<>();
 
         private final ArrayList<GenericEntry> startDelayList = new ArrayList<>();
         
@@ -430,12 +421,12 @@ public final class PointToPointAutons {
         public AutonBuilder(){
             for (int i = 0; i < cycleCount; i++){
 
-                SendableChooser<Boolean> isMirroredChooser = new SendableChooser<>();
-                SendableChooser<NeutralZoneType> neutralZoneChooser = new SendableChooser<>();
-                SendableChooser<IntakePathType> intakePathChooser = new SendableChooser<>();
-                SendableChooser<ReturnType> returnTypeChooser = new SendableChooser<>();
-                SendableChooser<Boolean> repeatCycleChooser = new SendableChooser<>();
-                SendableChooser<EndType> endTypeChooser = new SendableChooser<>();
+                LoggedDashboardChooser<Boolean> isMirroredChooser = new LoggedDashboardChooser<>("Left or Right Chooser " + i);
+                LoggedDashboardChooser<NeutralZoneType> neutralZoneChooser = new LoggedDashboardChooser<>("Neutral Zone P2PC " + i);
+                LoggedDashboardChooser<IntakePathType> intakePathChooser = new LoggedDashboardChooser<>("Intake Path P2PC " + i);
+                LoggedDashboardChooser<ReturnType> returnTypeChooser = new LoggedDashboardChooser<>("Return Type P2PC " + i);
+                LoggedDashboardChooser<Boolean> repeatCycleChooser = new LoggedDashboardChooser<>("Repeat Cycle P2PC " + i);
+                LoggedDashboardChooser<EndType> endTypeChooser = new LoggedDashboardChooser<>("End Type P2PC " + i);
 
                 GenericEntry startDelay;
                 GenericEntry returnDelay;
@@ -445,27 +436,27 @@ public final class PointToPointAutons {
                 startTypeChooser.addOption("Trench", StartType.TRENCH);
                 startTypeChooser.addOption("Bump", StartType.BUMP);
                 startTypeChooser.addOption("Hub", StartType.HUB);
-                startTypeChooser.setDefaultOption("None", StartType.NONE);
+                startTypeChooser.addDefaultOption("None", StartType.NONE);
 
                 neutralZoneChooser.addOption("Trench", NeutralZoneType.TRENCH);
                 neutralZoneChooser.addOption("Bump", NeutralZoneType.BUMP);
-                neutralZoneChooser.setDefaultOption("None", NeutralZoneType.NONE);
+                neutralZoneChooser.addDefaultOption("None", NeutralZoneType.NONE);
 
                 intakePathChooser.addOption("Snake", IntakePathType.SNAKE);
                 intakePathChooser.addOption("Straight", IntakePathType.STRAIGHT);
-                intakePathChooser.setDefaultOption("None", IntakePathType.NONE);
+                intakePathChooser.addDefaultOption("None", IntakePathType.NONE);
 
                 returnTypeChooser.addOption("Trench", ReturnType.TRENCH);
                 returnTypeChooser.addOption("Bump", ReturnType.BUMP);
-                returnTypeChooser.setDefaultOption("None", ReturnType.NONE);
+                returnTypeChooser.addDefaultOption("None", ReturnType.NONE);
 
                 isMirroredChooser.addOption("Right", false);
-                isMirroredChooser.setDefaultOption("Left", true);
+                isMirroredChooser.addDefaultOption("Left", true);
 
                 repeatCycleChooser.addOption("True", true);
-                repeatCycleChooser.setDefaultOption("False", false);
+                repeatCycleChooser.addDefaultOption("False", false);
 
-                endTypeChooser.setDefaultOption("None", EndType.NONE);
+                endTypeChooser.addDefaultOption("None", EndType.NONE);
                 endTypeChooser.addOption("Corner", EndType.CORNER);
                 endTypeChooser.addOption("Hub", EndType.HUB);
 
@@ -484,14 +475,14 @@ public final class PointToPointAutons {
                     .withSize(2, 5);
 
                 if (i == 0){
-                    firstCycleLayout.add("Start Type P2PC", startTypeChooser);
+                    firstCycleLayout.add("Start Type P2PC", startTypeChooser.getSendableChooser());
                 }
-                
-                firstCycleLayout.add("Neutral Zone P2PC", neutralZoneChooser);
-                firstCycleLayout.add("Intake Path P2PC", intakePathChooser);
-                firstCycleLayout.add("Return Type P2PC", returnTypeChooser);
-                firstCycleLayout.add("Left or Right P2PC", isMirroredChooser);
-                firstCycleLayout.add("End Type P2PC", endTypeChooser);
+
+                firstCycleLayout.add("Neutral Zone P2PC", neutralZoneChooser.getSendableChooser());
+                firstCycleLayout.add("Intake Path P2PC", intakePathChooser.getSendableChooser());
+                firstCycleLayout.add("Return Type P2PC", returnTypeChooser.getSendableChooser());
+                firstCycleLayout.add("Left or Right P2PC", isMirroredChooser.getSendableChooser());
+                firstCycleLayout.add("End Type P2PC", endTypeChooser.getSendableChooser());
 
                 startDelay = firstCycleLayout.add("Start Delay P2PC", 0).getEntry();
                 returnDelay = firstCycleLayout.add("Return Delay P2PC", 0).getEntry();
@@ -544,32 +535,32 @@ public final class PointToPointAutons {
         }
 
         public Command getStartCommand(){
-            Waypoint trench = w(AutonWaypoints.rightTrenchAutonStart, isMirroredChooserList.get(0).getSelected());
-            Waypoint bump = w(AutonWaypoints.rightBumpAutonStart, isMirroredChooserList.get(0).getSelected());
-            Waypoint hub = w(AutonWaypoints.centerHubAutonStart, isMirroredChooserList.get(0).getSelected());
+            Waypoint trench = w(AutonWaypoints.rightTrenchAutonStart, isMirroredChooserList.get(0).get());
+            Waypoint bump = w(AutonWaypoints.rightBumpAutonStart, isMirroredChooserList.get(0).get());
+            Waypoint hub = w(AutonWaypoints.centerHubAutonStart, isMirroredChooserList.get(0).get());
             
-            switch (startTypeChooser.getSelected()) {
+            switch (startTypeChooser.get()) {
                 case TRENCH:
                     return drivetrain.getResetPoseAllianceCmd(trench);
-                
+
                 case BUMP:
                     return drivetrain.getResetPoseAllianceCmd(bump);
 
                 case HUB:
                     return drivetrain.getResetPoseAllianceCmd(hub);
-                
+
                 default:
                     return drivetrain.getResetPoseAllianceCmd(Pose2d.kZero);
             }
         }
 
         public Command getNeutralZoneCommand(int cycle){
-            switch (neutralZoneChooserList.get(cycle).getSelected()) {
+            switch (neutralZoneChooserList.get(cycle).get()) {
                 case TRENCH:
-                    return getTrenchNeutralZone(isMirroredChooserList.get(cycle).getSelected(), startTypeChooser.getSelected() == StartType.HUB || cycle > 0);
+                    return getTrenchNeutralZone(isMirroredChooserList.get(cycle).get(), startTypeChooser.get() == StartType.HUB || cycle > 0);
 
                 case BUMP:
-                    return getBumpNeutralZone(isMirroredChooserList.get(cycle).getSelected(), startTypeChooser.getSelected() == StartType.HUB || cycle > 0);
+                    return getBumpNeutralZone(isMirroredChooserList.get(cycle).get(), startTypeChooser.get() == StartType.HUB || cycle > 0);
 
                 default:
                     return Commands.none();
@@ -577,12 +568,12 @@ public final class PointToPointAutons {
         }
 
         public Command getIntakePathCommand(int cycle){
-            switch (intakePathChooserList.get(cycle).getSelected()) {
+            switch (intakePathChooserList.get(cycle).get()) {
                 case SNAKE:
-                    return getSnakeIntakePath(isMirroredChooserList.get(cycle).getSelected(), returnTypeChooserList.get(cycle).getSelected());
-            
+                    return getSnakeIntakePath(isMirroredChooserList.get(cycle).get(), returnTypeChooserList.get(cycle).get());
+
                 case STRAIGHT:
-                    return getStraightIntakePath(isMirroredChooserList.get(cycle).getSelected(), returnTypeChooserList.get(cycle).getSelected());
+                    return getStraightIntakePath(isMirroredChooserList.get(cycle).get(), returnTypeChooserList.get(cycle).get());
 
                 default:
                     return Commands.none();
@@ -590,11 +581,11 @@ public final class PointToPointAutons {
         }
 
         public Command getReturnCommand(int cycle){
-            switch (returnTypeChooserList.get(cycle).getSelected()) {
-                case TRENCH: 
-                    return getReturnTrenchRoutine(isMirroredChooserList.get(cycle).getSelected());
+            switch (returnTypeChooserList.get(cycle).get()) {
+                case TRENCH:
+                    return getReturnTrenchRoutine(isMirroredChooserList.get(cycle).get());
                 case BUMP:
-                    return getReturnBumperRoutine(isMirroredChooserList.get(cycle).getSelected());
+                    return getReturnBumperRoutine(isMirroredChooserList.get(cycle).get());
 
                 default:
                     return Commands.none();
@@ -604,13 +595,13 @@ public final class PointToPointAutons {
         public Command getEndCommand(int cycle){
             Command endCommand = Commands.none();
 
-            switch(endTypeChooserList.get(cycle).getSelected()){
+            switch(endTypeChooserList.get(cycle).get()){
                 case CORNER:
-                    endCommand = getCornerPath(isMirroredChooserList.get(cycle).getSelected());
+                    endCommand = getCornerPath(isMirroredChooserList.get(cycle).get());
                     break;
 
                 case HUB:
-                    endCommand = getHubEndPath(isMirroredChooserList.get(cycle).getSelected());
+                    endCommand = getHubEndPath(isMirroredChooserList.get(cycle).get());
                     break;
 
                 default:

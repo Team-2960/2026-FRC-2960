@@ -136,8 +136,10 @@ public class IntakeAngle extends SubsystemBase {
         encoder = new CANcoder(encoderId, bus);
 
         motorConfig.CurrentLimits
-                .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
-                .withSupplyCurrentLimitEnable(true);
+                .withSupplyCurrentLimit(Constants.intakeAngleSupplyLimit)
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(Constants.intakeAngleStatorLimit)
+                .withStatorCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)

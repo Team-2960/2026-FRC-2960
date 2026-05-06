@@ -80,8 +80,10 @@ public class Climber extends SubsystemBase {
         motorFollower = new TalonFX(motorFollowerID, bus);
 
         motorConfig.CurrentLimits
-            .withSupplyCurrentLimit(Amps.of(80))
-            .withSupplyCurrentLimitEnable(true);
+            .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
+            .withSupplyCurrentLimitEnable(true)
+            .withStatorCurrentLimit(Constants.climberStatorLimit)
+            .withStatorCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);

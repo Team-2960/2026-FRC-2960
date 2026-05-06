@@ -58,6 +58,21 @@ public class Constants {
 
     public static final Current krakenX60CurrentLimit = Amps.of(80);
 
+    // Per-subsystem current limits (data-driven from MITR2 log analysis)
+    // Stator limits restrict torque and indirectly reduce supply draw.
+    // ShooterWheel / Indexer values derived from p99 × 1.10, rounded to nearest 5A.
+    public static final Current shooterWheelStatorLimit = Amps.of(135);
+    public static final Current indexerStatorLimit      = Amps.of(125);
+
+    // Subsystems without current logging — conservative values per CTRE guidance
+    public static final Current intakeRollerSupplyLimit = Amps.of(40);
+    public static final Current intakeRollerStatorLimit = Amps.of(40);
+    public static final Current intakeAngleSupplyLimit  = Amps.of(60);
+    public static final Current intakeAngleStatorLimit  = Amps.of(80);
+    public static final Current shooterHoodSupplyLimit  = Amps.of(40);
+    public static final Current shooterHoodStatorLimit  = Amps.of(40);
+    public static final Current climberStatorLimit      = Amps.of(80);
+
     public static final CANBus rioBus = CANBus.roboRIO();
     public static final CANBus canivoreBus = new CANBus("canivore");
 

@@ -131,8 +131,10 @@ public class ShooterHood extends SubsystemBase {
         encoderConfig.withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         motorConfig.CurrentLimits
-            .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
-            .withSupplyCurrentLimitEnable(true);
+            .withSupplyCurrentLimit(Constants.shooterHoodSupplyLimit)
+            .withSupplyCurrentLimitEnable(true)
+            .withStatorCurrentLimit(Constants.shooterHoodStatorLimit)
+            .withStatorCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);

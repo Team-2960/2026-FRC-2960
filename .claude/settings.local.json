@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:v6.docs.ctr-electronics.com)",
+      "Bash(python tools/current_analysis.py logs/akit_26-04-03_23-09-06_mitr2_q46.wpilog logs/akit_26-04-03_17-05-56_mitr2_q14.wpilog logs/akit_26-04-03_20-14-23_mitr2_q27.wpilog logs/akit_26-04-03_15-21-41_mitr2_q3.wpilog logs/akit_26-04-03_21-24-30_mitr2_q34.wpilog logs/akit_26-04-03_22-17-12_mitr2_q40.wpilog logs/akit_26-04-03_16-20-43_mitr2_q9.wpilog --enabled-only --json /tmp/current_report.json)",
+      "Bash(pip install *)",
+      "Bash(mkdir -p tasks)",
+      "Bash(cat)",
+      "Bash(.\\\\gradlew.bat build *)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\hangy\\\\wpilib\\\\2026\\\\jdk\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\Users\\\\hangy\\\\Documents\\\\2026-FRC-2960\"; .\\\\gradlew.bat build 2>&1)",
+      "Bash(ls /c/Users/hangy/ && ls /c/ 2>/dev/null | head -20)",
+      "Bash(java -version)",
+      "Bash(find \"/c/Users/hangy/.gradle\" -name \"toolchains\" -type d 2>/dev/null; find \"/c/Users/hangy/.gradle\" -name \"jvms.json\" 2>/dev/null; find \"/c/Program Files/Eclipse Adoptium\" -name \"java.exe\" 2>/dev/null | head -3; find \"/c/Program Files/Microsoft\" -name \"java.exe\" 2>/dev/null | head -3)",
+      "Bash(find \"/c/Program Files\" -name \"java.exe\" 2>/dev/null | head -5; find \"/c/Program Files \\(x86\\)\" -name \"java.exe\" 2>/dev/null | head -3)",
+      "Bash(ls \"/c/Users/Public/wpilib/2026/\" 2>/dev/null && echo \"found public\" || echo \"not found\"; ls \"/c/Users/hangy/wpilib/\" 2>/dev/null && echo \"found user\" || echo \"not found\")"
+    ]
+  }
+}

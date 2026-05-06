@@ -89,7 +89,9 @@ public class Indexer extends SubsystemBase {
 
         motorConfig.CurrentLimits
             .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
-            .withSupplyCurrentLimitEnable(true);
+            .withSupplyCurrentLimitEnable(true)
+            .withStatorCurrentLimit(Constants.indexerStatorLimit)
+            .withStatorCurrentLimitEnable(true);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake);
