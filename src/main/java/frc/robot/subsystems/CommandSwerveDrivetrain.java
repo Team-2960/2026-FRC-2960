@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix6.Orchestra;
@@ -28,6 +29,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -65,6 +67,7 @@ import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricXAxisAlign;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricYAxisAlign;
 import frc.robot.Util.MapleSimSwerveDrivetrain;
+import frc.robot.Util.RobotBumpSim;
 import frc.robot.commands.auton.PointToPointAutons.AutonWaypoints;
 import frc.robot.commands.auton.PointToPointAutons.WaypointSet;
 import frc.robot.generated.TunerConstants;
@@ -420,8 +423,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Pounds.of(109.3),
                 Constants.robotWithBumpersLength,
                 Constants.robotWithBumpersWidth,
-                DCMotor.getKrakenX60(1),
-                DCMotor.getFalcon500(1),
+                DCMotor.getKrakenX60Foc(1),
+                DCMotor.getKrakenX44Foc(1),
                 0.8,
                 getModuleLocations(),
                 getPigeon2(),

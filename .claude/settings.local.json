@@ -12,7 +12,10 @@
       "Bash(java -version)",
       "Bash(find \"/c/Users/hangy/.gradle\" -name \"toolchains\" -type d 2>/dev/null; find \"/c/Users/hangy/.gradle\" -name \"jvms.json\" 2>/dev/null; find \"/c/Program Files/Eclipse Adoptium\" -name \"java.exe\" 2>/dev/null | head -3; find \"/c/Program Files/Microsoft\" -name \"java.exe\" 2>/dev/null | head -3)",
       "Bash(find \"/c/Program Files\" -name \"java.exe\" 2>/dev/null | head -5; find \"/c/Program Files \\(x86\\)\" -name \"java.exe\" 2>/dev/null | head -3)",
-      "Bash(ls \"/c/Users/Public/wpilib/2026/\" 2>/dev/null && echo \"found public\" || echo \"not found\"; ls \"/c/Users/hangy/wpilib/\" 2>/dev/null && echo \"found user\" || echo \"not found\")"
+      "Bash(ls \"/c/Users/Public/wpilib/2026/\" 2>/dev/null && echo \"found public\" || echo \"not found\"; ls \"/c/Users/hangy/wpilib/\" 2>/dev/null && echo \"found user\" || echo \"not found\")",
+      "Bash(python tools/parse_wpilog.py logs/akit_26-05-06_20-01-00.wpilog --catalog)",
+      "Bash(python tools/parse_wpilog.py logs/akit_26-04-03_15-21-41_mitr2_q3.wpilog --catalog)",
+      "Bash(python tools/parse_wpilog.py logs/akit_26-05-06_20-04-41.wpilog --catalog)"
     ]
   }
 }

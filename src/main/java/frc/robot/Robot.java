@@ -5,6 +5,12 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
+
+import static edu.wpi.first.units.Units.Seconds;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.SimulatedArena.Simulatable;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -14,6 +20,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.ctre.phoenix6.HootAutoReplay;
 
 import au.grapplerobotics.CanBridge;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -55,12 +63,12 @@ public class Robot extends LoggedRobot {
             // Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
             // Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
              Logger.addDataReceiver(new WPILOGWriter());
+             Logger.addDataReceiver(new NT4Publisher());
         }
 
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
 
         CanBridge.runTCP();
-
 
         autonTypeChooser.addOption("Pathplanner", AutonType.PATHPLANNER);
         autonTypeChooser.addOption("P2P", AutonType.P2P);
@@ -76,6 +84,10 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         // m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
+
+        Pose3d[] fuelPoses = SimulatedArena.getInstance()
+            .getGamePiecesArrayByType("Fuel");
+        Logger.recordOutput("FieldSimulation/FuelPositions", fuelPoses);
         
         SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
         SmartDashboard.putBoolean("Won Auton", MatchPeriodTracking.allianceWonAuton());
@@ -97,6 +109,9 @@ public class Robot extends LoggedRobot {
         // m_autonomousCommand = robotContainer.getP2PAutononomousCmd();
         // m_autonomousCommand = robotContainer.getAutonomousCommand();
 
+        SimulatedArena.getInstance().clearGamePieces();
+        SimulatedArena.getInstance().placeGamePiecesOnField();
+        
         switch (autonTypeChooser.getSelected()) {
             case PATHPLANNER:
                 m_autonomousCommand = robotContainer.getAutonomousCommand();
