@@ -816,6 +816,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withName("Hub Orbit Restricted Radius Command");
     }
 
+    public Command hubOrbitRestrictedRadiusXWheelsCommand(Supplier<LinearVelocity> travelVel,
+            Supplier<LinearVelocity> radialVelocity,
+            Rotation2d offset, Distance maxRadius, Distance minRadius) {
+        return applyRequest(() -> {
+             
+            if (travelVel.get().equals(MetersPerSecond.of(0)) 
+                    && orbitRestricteRadiusRequest.getRotationError(getPose2d().getRotation()).abs(Degrees) <= 1
+                    && orbitRestricteRadiusRequest.inRange(getPose2d())
+                ){
+                return brakeRequest;
+
+            }else{
+                return orbitRestricteRadiusRequest
+                    .withOrbitPoint(FieldLayout.Hub.getHubCenter())
+                    .withTravelVelocity(travelVel.get())
+                    .withRotationalOffset(offset)
+                    .withMaxRadius(maxRadius)
+                    .withMinRadius(minRadius)
+                    .withRadiusVelocity(radialVelocity.get());
+            }
+        })
+        .finallyDo(() -> applyRequest(() -> idleRequest))
+        .withName("Hub Orbit Restricted Radius Command");
+    }
+
     public Command passOrbitRestrictedRadiusCommand(Supplier<LinearVelocity> travelVel,
             Supplier<LinearVelocity> radialVelocity, Rotation2d offset, Distance maxRadius, Distance minRadius) {
         return applyRequest(() -> orbitRestricteRadiusRequest

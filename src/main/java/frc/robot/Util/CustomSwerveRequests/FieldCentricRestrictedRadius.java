@@ -179,7 +179,7 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
         // 5. Target Angle
         // The robot faces the point. 
         // Use targetPoint.minus(robotPose).getAngle()
-        Rotation2d targetAngle = relativeVector.getAngle().plus(RotationOffset);
+        TargetDirection = relativeVector.getAngle().plus(RotationOffset);
 
         return m_fieldCentricFacingAngle
         .withCenterOfRotation(CenterOfRotation)
@@ -191,7 +191,7 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
         .withMaxAbsRotationalRate(MaxAbsRotationalRate)
         .withRotationalDeadband(RotationalDeadband)
         .withSteerRequestType(SteerRequestType)
-        .withTargetDirection(targetAngle)
+        .withTargetDirection(TargetDirection)
         .withTargetRateFeedforward(TargetRateFeedforward)
         .withVelocityX(vx)
         .withVelocityY(vy)
@@ -518,5 +518,13 @@ public class FieldCentricRestrictedRadius implements SwerveRequest{
 
         public Distance getTargetDistance(){
             return Meters.of(distance);
+        }
+
+        public Angle getRotationError(Rotation2d curRot){
+            return TargetDirection.relativeTo(curRot).getMeasure();
+        }
+
+        public boolean inRange(Pose2d curPose){
+            return getTargetDistance().gte(Meters.of(MinRadius)) && getTargetDistance().lte(Meters.of(MaxRadius));
         }
 }

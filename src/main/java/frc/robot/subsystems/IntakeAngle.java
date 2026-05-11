@@ -33,6 +33,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
@@ -253,6 +254,26 @@ public class IntakeAngle extends SubsystemBase {
     @AutoLogOutput
     public Voltage getVoltage() {
         return motor.getMotorVoltage().getValue();
+    }
+
+    /**
+     * Gets the current voltage of the intake
+     * 
+     * @return
+     */
+    @AutoLogOutput
+    public Current getStatorCurrent() {
+        return motor.getStatorCurrent().getValue();
+    }
+
+    /**
+     * Gets the current voltage of the intake
+     * 
+     * @return
+     */
+    @AutoLogOutput
+    public Current getSupplyCurrent() {
+        return motor.getSupplyCurrent().getValue();
     }
 
     /**

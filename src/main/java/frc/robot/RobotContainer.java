@@ -431,13 +431,13 @@ public class RobotContainer {
 
         // Idle motors when disabled
         RobotModeTriggers.disabled().whileTrue(drivetrain.idleCmd());
-
+ 
         // Drivetrain test Controls
         testMode.and(driverCtrl.a()).whileTrue(drivetrainTestCmds.runCommandCmd());
     }
 
     public Command hubOrbitRangeCmd() {
-        return drivetrain.hubOrbitRestrictedRadiusCommand(slowYVelCtrl, slowXVelCtrl,
+        return drivetrain.hubOrbitRestrictedRadiusXWheelsCommand(slowYVelCtrl, slowXVelCtrl,
                 Rotation2d.fromDegrees(180),
                 Inches.of(180), Meters.of(1.75));
     }
