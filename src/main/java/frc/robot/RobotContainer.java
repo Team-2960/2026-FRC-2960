@@ -262,7 +262,11 @@ public class RobotContainer {
 
         // DRIVER
 
-        driverCtrl.leftTrigger().onTrue(intakeAngle.setPositionCmd(Constants.intakeOutAngle));
+        driverCtrl.povLeft().onTrue(intakeAngle.setPositionCmd(Constants.intakeOutAngle));
+
+        driverCtrl.povRight().onTrue(intakeAngle.setPositionCmd(Constants.intakeInAngle));
+
+        driverCtrl.leftBumper().whileTrue(intakeRoller.intakeInCmd());
 
         // TEST CONTROLS
 
@@ -305,12 +309,9 @@ public class RobotContainer {
 
         // DRIVER
 
-        driverCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubAutoShotCmd());
+        driverCtrl.rightTrigger(.1).whileTrue(shooterMngt.hubIndexAutoShotCmd());
 
-        driverCtrl.rightBumper().whileTrue(shooterMngt.passShotCmd());
-
-        driverCtrl.povDown().whileTrue(shooterMngt.frickingEMERGENCYshot());
-        
+        //driverCtrl.rightBumper().whileTrue(shooterMngt.passShotCmd());
 
         // TEST CONTROLS
 
@@ -398,10 +399,9 @@ public class RobotContainer {
         // driverCtrl.x().whileTrue(
         //         drivetrain.trenchAngleAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(), Rotation2d.fromDegrees(-20)));
 
-        // driverCtrl.leftTrigger(.1).whileTrue(
-        // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(180),new
-        // Translation2d(Inches.of(-11.25) ,Inches.of(-40)))
-        // );
+        driverCtrl.leftTrigger(.1).whileTrue(
+        drivetrain.goToPointCmd(() -> new Pose2d(FieldLayout.Hub.redHubCenter.getX(), FieldLayout.Hub.redHubCenter.getY(), new Rotation2d(90)))
+        );
 
         // driverCtrl.rightTrigger(.1).whileTrue(
         // drivetrain.towerAlignCommand(fullYVelCtrl, Rotation2d.fromDegrees(0), new
@@ -409,7 +409,7 @@ public class RobotContainer {
         // );
 
         // Pose Reset
-        driverCtrl.pov(0).onTrue(drivetrain.runOnce(
+        driverCtrl.povUp().onTrue(drivetrain.runOnce(
                 () -> drivetrain.resetPose(
                         new Pose2d(
                                 FieldLayout.Hub.getHubCenterFront(),
