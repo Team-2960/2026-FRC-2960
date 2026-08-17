@@ -400,7 +400,7 @@ public class RobotContainer {
         //         drivetrain.trenchAngleAlignCmd(() -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(), Rotation2d.fromDegrees(-20)));
 
         driverCtrl.leftTrigger(.1).whileTrue(
-        drivetrain.goToPointCmd(() -> new Pose2d(FieldLayout.Hub.redHubCenter.getX(), FieldLayout.Hub.redHubCenter.getY(), new Rotation2d(90)))
+        drivetrain.goToPointCmd(() -> new Pose2d(FieldLayout.Hub.redHubCenter.getX() + 2, FieldLayout.Hub.redHubCenter.getY(), new Rotation2d(180)))
         );
 
         // driverCtrl.rightTrigger(.1).whileTrue(

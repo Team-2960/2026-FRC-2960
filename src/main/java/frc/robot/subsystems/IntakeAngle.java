@@ -344,7 +344,7 @@ public class IntakeAngle extends SubsystemBase {
                 .until(() -> MathUtil.isNear(target.in(Degrees), getPosition().in(Degrees), 5))
                 .andThen(this.runEnd(
                         () -> setPosition(target),
-                        () -> setVoltage(Volts.of(-2))))
+                        () -> setVoltage(Volts.of(0))))
                 .withName("Position Command");
     }
 
