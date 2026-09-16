@@ -341,9 +341,9 @@ public class RobotContainer {
         // Set default drivetrain command
         drivetrain.setDefaultCommand(
                 drivetrain.getDriveCmd(
-                        () -> driverCtrl.getHID().getLeftBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(),
-                        () -> driverCtrl.getHID().getLeftBumperButton() ? fullYVelCtrl.get() : slowYVelCtrl.get(),
-                        () -> driverCtrl.getHID().getLeftBumperButton() ? fullRVelCtrl.get() : slowRVelCtrl.get()));
+                        () -> driverCtrl.getHID().getRightBumperButton() ? fullXVelCtrl.get() : slowXVelCtrl.get(),
+                        () -> driverCtrl.getHID().getRightBumperButton() ? fullYVelCtrl.get() : slowYVelCtrl.get(),
+                        () -> driverCtrl.getHID().getRightBumperButton() ? fullRVelCtrl.get() : slowRVelCtrl.get()));
 
         // Fast Drive Command
         // driverCtrl.leftBumper().whileTrue(
