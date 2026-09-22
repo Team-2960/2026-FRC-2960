@@ -27,8 +27,10 @@ public class FieldLayout {
         REDLEFT,
         REDRIGHT
     }
+    
+    public static final AprilTagFields fieldType = AprilTagFields.k2026RebuiltWelded;
 
-    public static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+    public static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(fieldType);
 
     // Overall Field Dimensions
     public static final Distance fieldSizeX = Inches.of(651.22);

@@ -56,6 +56,7 @@ public class AprilTagPipeline extends SubsystemBase {
     /** < Timestamp of the most recent pose estimation */
     private double maxDistance;
     private final double ambiguity_threshold;
+    private final AprilTagFieldLayout aprilTagField;
 
     private Matrix<N3, N1> curStdDevs;
 
@@ -113,6 +114,8 @@ public class AprilTagPipeline extends SubsystemBase {
         maxDistance = settings.max_dist;
         ambiguity_threshold = settings.ambiguity_threshold;
         field = settings.field_layout;
+
+        aprilTagField = AprilTagFieldLayout.loadField(field);
 
         // Setup Shuffleboard
         // var layout = Shuffleboard.getTab("AprilTags")
@@ -197,7 +200,7 @@ public class AprilTagPipeline extends SubsystemBase {
                                 drive.addVisionMeasurement(tag_pose3d.toPose2d(), est_timestamp, est_std);
                                 last_pose = tag_pose3d.toPose2d();
 
-                                aprilTagList[iteration] = AprilTagFieldLayout.loadField(field).getTagPose(tag.getFiducialId()).get();
+                                aprilTagList[iteration] = aprilTagField.getTagPose(tag.getFiducialId()).get();
                                 iteration++;
                                 aprilTagSeen = true;
                             }
