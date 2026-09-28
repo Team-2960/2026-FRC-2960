@@ -58,6 +58,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.FieldLayout;
 import frc.robot.Util.GeomUtil;
+import frc.robot.Util.CustomSwerveRequests.FieldCentricAutoAlign;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricCircularOrbit;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricGoToPoint;
 import frc.robot.Util.CustomSwerveRequests.FieldCentricRestrictedRadius;
@@ -130,6 +131,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final FieldCentricGoToPoint goToRequest = new FieldCentricGoToPoint()
             .withHeadingPID(10, 0, 0)
             .withTranslationPID(4, 0, 0);
+
+    private final FieldCentricAutoAlign autoAlignRequest = new FieldCentricAutoAlign()
+            .withHeadingPID(10, 0, 0)
+            .withTranslationPID(6, 0, 0);
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
             .withRadiusCorrectionPID(3, 0, 0)
@@ -724,6 +729,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withRotationalOffset(offset))
                 .finallyDo(() -> applyRequest(() -> idleRequest))
                 .withName("Tower Align Command");
+    }
+
+    public Command autoAlignCmd(Supplier<Pose2d> targetPose) {
+        return applyRequest(() -> autoAlignRequest
+                .withTargetPoint(targetPose.get().getTranslation())
+                .withRotationalOffset(targetPose.get().getRotation()));
     }
 
     public Command goToPointCmd(Supplier<Pose2d> targetPose, Distance tolerance) {

@@ -27,6 +27,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -138,11 +139,13 @@ public class IntakeAngle extends SubsystemBase {
 
         motorConfig.CurrentLimits
                 .withSupplyCurrentLimit(Constants.krakenX60CurrentLimit)
-                .withSupplyCurrentLimitEnable(true);
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(Constants.krakenX60CurrentLimit);
 
         motorConfig.MotorOutput
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive);
+
 
         motorConfig.Feedback
                 // .withSensorToMechanismRatio(1)
@@ -154,9 +157,9 @@ public class IntakeAngle extends SubsystemBase {
 
         motorConfig.SoftwareLimitSwitch
                 .withForwardSoftLimitEnable(true)
-                .withForwardSoftLimitThreshold(Degrees.of(110))
+                .withForwardSoftLimitThreshold(Degrees.of(140))
                 .withReverseSoftLimitEnable(true)
-                .withReverseSoftLimitThreshold(Degrees.of(0.25));
+                .withReverseSoftLimitThreshold(Degrees.of(-.5));
 
         motorConfig.Slot0
                 .withKP(5)
@@ -165,7 +168,9 @@ public class IntakeAngle extends SubsystemBase {
                 .withKS(0.21456)
                 .withKV(4.7628)
                 .withKA(0.18916)
-                .withKG(0.32474);
+                .withKG(0.32474)
+                .withGravityType(GravityTypeValue.Arm_Cosine);
+
 
         motorConfig.Slot2
                 .withKP(0.0)
@@ -174,12 +179,14 @@ public class IntakeAngle extends SubsystemBase {
                 .withKS(0.0)
                 .withKV(0.0)
                 .withKA(0.0)
-                .withKG(0.0);
+                .withKG(0.0)
+                .withGravityType(GravityTypeValue.Arm_Cosine);
 
         motorConfig.MotionMagic
                 .withMotionMagicCruiseVelocity(RotationsPerSecond.of(2))
                 .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(4))
                 .withMotionMagicJerk(80);
+
 
         motor.getConfigurator().apply(motorConfig);
         motor.getConfigurator().setPosition(encoder.getPosition().getValue());

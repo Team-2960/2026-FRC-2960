@@ -118,7 +118,7 @@ public class Constants {
 
     // Intake Constants
     public static final Angle intakeOutAngle = Degrees.of(0);
-    public static final Angle intakeInAngle = Degrees.of(105);
+    public static final Angle intakeInAngle = Degrees.of(120);
 
     public static final Voltage intakeRollerInVolt = Volts.of(12.0);
     public static final Voltage intakeRollerShootingVolt = Volts.of(2.0);
