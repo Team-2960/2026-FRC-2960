@@ -150,7 +150,7 @@ public class IntakeAngle extends SubsystemBase {
         motorConfig.Feedback
                 // .withSensorToMechanismRatio(1)
                 .withSensorToMechanismRatio(50)
-                .withRemoteCANcoder(encoder)
+                //.withRemoteCANcoder(encoder)
                 .withRotorToSensorRatio(gearRatio)
                 // .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor);

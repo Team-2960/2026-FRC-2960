@@ -20,7 +20,7 @@ public class FieldCentricAutoAlign implements SwerveRequest {
      * The desired velocity to travel along the circle created around the orbital point using the radius.
      * The travel velocity is eventually split into an X and Y Velocity to feed into the FieldCentric Request.
      */
-    public double MaxVelocity = 4.5;
+    public double MaxVelocity = 3.5;
 
     /**
      * The target point for the robot to move to.
