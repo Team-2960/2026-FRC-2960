@@ -73,8 +73,8 @@ public final class PointToPointAutons {
     public static final class AutonWaypoints{
         //Trench
         public static final Waypoint rightTrenchAutonStart = WaypointFactory.of(new Pose2d(FieldLayout.Trench.blueTrenchRight, Rotation2d.fromDegrees(90)), AllianceFlip.ALLIANCE);
-        public static final Waypoint rightNeutralIntakePrep = WaypointFactory.of(new Pose2d(7.8, FieldLayout.Trench.blueTrenchRight.getY(), Rotation2d.fromDegrees(90)), AllianceFlip.ALLIANCE);
-        public static final Waypoint rightNeutralIntakeFinished = WaypointFactory.of(new Pose2d(7.8, 3.3, Rotation2d.fromDegrees(90)), AllianceFlip.ALLIANCE);
+        public static final Waypoint rightNeutralIntakePrep = WaypointFactory.of(new Pose2d(7.8, FieldLayout.Trench.blueTrenchRight.getY(), Rotation2d.fromDegrees(65)), AllianceFlip.ALLIANCE);
+        public static final Waypoint rightNeutralIntakeFinished = WaypointFactory.of(new Pose2d(8.4, 3.8, Rotation2d.fromDegrees(85)), AllianceFlip.ALLIANCE);
         public static final Waypoint rightBumpCrossPrep = WaypointFactory.of(new Pose2d(6.0, FieldLayout.Bump.blueBumpRight.getY(), Rotation2d.fromDegrees(180)), AllianceFlip.ALLIANCE);
         public static final Waypoint rightBumpCrossFinished = rightBumpCrossPrep.translated(-3.5, 0).withRotation(Rotation2d.fromDegrees(210));
         public static final Waypoint rightTrenchNeutralPrep = rightTrenchAutonStart.translated(-2, -0.2).withRotation(Rotation2d.fromDegrees(90));
@@ -83,7 +83,7 @@ public final class PointToPointAutons {
         public static final Waypoint rightBumpNeutralPrep = rightBumpCrossFinished.translated(1, 0).withRotation(Rotation2d.kZero);
 
         //Snake Intake Path Points
-        public static final Waypoint snakePoint1 = WaypointFactory.of(new Pose2d(6.4, 3.6, Rotation2d.fromDegrees(-110)), AllianceFlip.ALLIANCE);
+        public static final Waypoint snakePoint1 = WaypointFactory.of(new Pose2d(6.4, 3.6, Rotation2d.fromDegrees(-160)), AllianceFlip.ALLIANCE);
         public static final Waypoint snakePoint2 = rightBumpCrossPrep;
 
         public static final Waypoint cornerPoint = WaypointFactory.of(new Pose2d(0.5, 0.5, Rotation2d.kZero), AllianceFlip.ALLIANCE);
@@ -333,7 +333,7 @@ public final class PointToPointAutons {
         Waypoint bumpCrossPrep     = w(AutonWaypoints.rightBumpCrossPrep, mirror);
         Waypoint trenchCrossPrep = w(AutonWaypoints.rightTrenchAlliancePrep.withRotation(Rotation2d.fromDegrees(-90)), mirror);
 
-        AngularVelocity rotationalVel = RotationsPerSecond.of(0.4);
+        AngularVelocity rotationalVel = RotationsPerSecond.of(.3);
         rotationalVel = mirror ? rotationalVel.times(-1) : rotationalVel;
 
         Command returnPrepCmd = Commands.none();
@@ -351,7 +351,7 @@ public final class PointToPointAutons {
 
         return new SequentialCommandGroup(
             new ParallelDeadlineGroup(
-                drivetrain.goToPointRotationCruiseCmd(snakePointOne, MetersPerSecond.of(2), rotationalVel, Meters.of(0.2), Rotation2d.fromDegrees(2)),
+                drivetrain.goToPointCruiseCmd(snakePointOne, MetersPerSecond.of(2), Meters.of(0.2)),
                 intakeRoller.intakeInCmd()
             ),
 
@@ -372,11 +372,11 @@ public final class PointToPointAutons {
 
         switch (returnType){
             case TRENCH:
-                return new ParallelDeadlineGroup(drivetrain.goToPointCmd(trenchCrossPrep, Meters.of(0.15)),
+                return new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(trenchCrossPrep, MetersPerSecond.of(3), Meters.of(0.15)),
                     intakeRoller.intakeInCmd());
             
             case BUMP:
-                return new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossPrep, MetersPerSecond.of(4), Meters.of(0.15)),
+                return new ParallelDeadlineGroup(drivetrain.goToPointCruiseCmd(bumpCrossPrep, MetersPerSecond.of(3), Meters.of(0.15)),
                     intakeRoller.intakeInCmd());
 
             default:
@@ -424,7 +424,7 @@ public final class PointToPointAutons {
 
         private final ArrayList<GenericEntry> endDelayList = new ArrayList<>();
 
-        private final int cycleCount = 2;
+        private final int cycleCount = 3;
 
 
         public AutonBuilder(){

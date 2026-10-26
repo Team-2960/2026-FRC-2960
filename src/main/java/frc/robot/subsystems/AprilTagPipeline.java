@@ -1,13 +1,11 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.littletonrobotics.junction.AutoLogOutput;
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonUtils;
 import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -23,7 +21,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.GenericEntry;
@@ -39,6 +36,11 @@ import frc.robot.Robot;
 import frc.robot.Util.AprilTagPipelineSettings;
 
 public class AprilTagPipeline extends SubsystemBase {
+
+    /** Height off the floor a vision solution may report before it is rejected, in meters */
+    private static final double kMaxPoseHeight = 0.5;
+    /** Distance past the field perimeter a vision solution may report before it is rejected, in meters */
+    private static final double kFieldMargin = 0.5;
 
     private final CommandSwerveDrivetrain drive;
 
@@ -163,172 +165,104 @@ public class AprilTagPipeline extends SubsystemBase {
     @Override
     public void periodic() {
         updatePose();
-        //updatePoseTest();
         updateUI();
     }
 
     /**
-     * Updates camera pose estimation
+     * Updates camera pose estimation.
+     * <p>
+     * Submits at most one vision measurement per camera frame. The coprocessor's
+     * multi-tag PnP solution is preferred, since it is constrained by every tag in
+     * view; when multi-tag is unavailable the lowest-ambiguity single-tag solution is
+     * used instead, gated on the ambiguity threshold from the pipeline settings.
      */
     private void updatePose() {
-        var unreadResults = camera.getAllUnreadResults();
         aprilTagSeen = false;
-        
-        for (var change : unreadResults) {
-            List<PhotonTrackedTarget> visionEst = change.getTargets();
-            int iteration = 0;
-            last_pose = Pose2d.kZero;
-            // Check if a pose was estimated
-            if (!visionEst.isEmpty()) {
-                double est_timestamp = change.getTimestampSeconds();
-                aprilTagList = new Pose3d[change.getTargets().size()];
-                // Get found tag count and average distance
-                for (var tag : visionEst) {
-                    var tag_pose3d = PhotonUtils.estimateFieldToRobotAprilTag(
-                        tag.bestCameraToTarget, 
-                        pose_est.getFieldTags().getTagPose(tag.fiducialId).get(),
-                        settings.robot_to_camera.inverse());
-
-                        if (tag.getPoseAmbiguity() <= ambiguity_threshold) {
-                            Translation3d tagDistances = tag.getBestCameraToTarget().getTranslation();
-                            double dist = 
-                                Math.sqrt(Math.pow(tagDistances.getX(), 2) + Math.pow(tagDistances.getY(), 2) + Math.pow(tagDistances.getZ(), 2));
-                            if (dist <= maxDistance) {
-                                var est_std = settings.single_tag_std;
-                                est_std = est_std.times(1 + (dist * dist / 30));
-
-                                drive.addVisionMeasurement(tag_pose3d.toPose2d(), est_timestamp, est_std);
-                                last_pose = tag_pose3d.toPose2d();
-
-                                aprilTagList[iteration] = aprilTagField.getTagPose(tag.getFiducialId()).get();
-                                iteration++;
-                                aprilTagSeen = true;
-                            }
-                        }
-
-                }
-
-                if (iteration == 0) aprilTagList = new Pose3d[] {};
-
-            }
-
-        }
-    }
-
-    private void updatePoseTest(){
         last_pose = Pose2d.kZero;
-        aprilTagList = new Pose3d[0];
-        Optional<EstimatedRobotPose> visionEst = Optional.empty();
+        aprilTagList = new Pose3d[] {};
+
         for (var result : camera.getAllUnreadResults()) {
-            visionEst = pose_est.estimateCoprocMultiTagPose(result);
-            if (visionEst.isEmpty()) {
-                visionEst = pose_est.estimateLowestAmbiguityPose(result);
-            }
-        // updateEstimationStdDevs(visionEst, result.getTargets());
+            var multiTagEst = pose_est.estimateCoprocMultiTagPose(result);
+            boolean isMultiTag = multiTagEst.isPresent();
+            var visionEst = isMultiTag ? multiTagEst : pose_est.estimateLowestAmbiguityPose(result);
+            if (visionEst.isEmpty()) continue;
 
-        var targets = result.getTargets();
-        double averageDist = 0;
+            var est = visionEst.get();
+            List<PhotonTrackedTarget> contributingTags;
+            double tagDist;
 
-        if (visionEst.isEmpty()) {
-            // No pose input. Default to single-tag std devs
-            curStdDevs = settings.single_tag_std;
-
-        } else {
-            // Pose present. Start running Heuristic
-            var estStdDevs = settings.single_tag_std;
-            int numTags = 0;
-            double avgDist = 0;
-
-            // Precalculation - see how many tags we found, and calculate an average-distance metric
-            for (var tgt : targets) {
-                var tagPose = pose_est.getFieldTags().getTagPose(tgt.getFiducialId());
-                if (tagPose.isEmpty()) continue;
-                numTags++;
-                avgDist +=
-                        tagPose
-                                .get()
-                                .toPose2d()
-                                .getTranslation()
-                                .getDistance(visionEst.get().estimatedPose.toPose2d().getTranslation());
-            }
-
-            averageDist = avgDist;
-
-            if (numTags == 0) {
-                // No tags visible. Default to single-tag std devs
-                curStdDevs = settings.single_tag_std;
-            } else {
-                // One or more tags visible, run the full heuristic.
-                avgDist /= numTags;
-                // Decrease std devs if multiple targets are visible
-                if (numTags > 1) estStdDevs = settings.multi_tag_std;
-                // Increase std devs based on (average) distance
-                if (numTags == 1 && avgDist > 4)
-                    estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-                else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-                curStdDevs = estStdDevs;
-            }
-        }
-
-            if (visionEst.isPresent()){
-                if (averageDist >= settings.max_dist){
-                // Change our trust in the measurement based on the tags we can see
-                    var estStdDevs = getEstimationStdDevs();
-                    var est = visionEst.get();
-                    last_pose = est.estimatedPose.toPose2d();
-                    aprilTagList = new Pose3d[est.targetsUsed.size()];
-                    for (int i = 0; i < est.targetsUsed.size(); i++){
-                        aprilTagList[i] = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField).getTagPose(est.targetsUsed.get(i).getFiducialId()).get();
-                    }
-
-                    drive.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+            if (isMultiTag) {
+                // targetsUsed is the whole frame, but the coprocessor may have dropped tags
+                // from its solve. Keep only the ones it actually used, so the range below
+                // reflects the geometry that produced this pose.
+                var usedIds = result.getMultiTagResult().get().fiducialIDsUsed;
+                contributingTags = new ArrayList<>(usedIds.size());
+                for (var tag : est.targetsUsed) {
+                    if (usedIds.contains((short) tag.getFiducialId())) contributingTags.add(tag);
                 }
-                    
+                if (contributingTags.isEmpty()) continue;
+
+                // Every one of those tags constrains the solve, so scale the standard
+                // deviations off the average range to them.
+                tagDist = 0;
+                for (var tag : contributingTags) {
+                    tagDist += tag.getBestCameraToTarget().getTranslation().getNorm();
+                }
+                tagDist /= contributingTags.size();
+            } else {
+                // The fallback solved off a single fiducial, but targetsUsed still holds the
+                // whole frame. Find the tag the estimator actually picked - the lowest
+                // ambiguity one - and gate on it alone, since nothing else moved the pose.
+                PhotonTrackedTarget solveTag = null;
+                for (var tag : est.targetsUsed) {
+                    double ambiguity = tag.getPoseAmbiguity();
+                    if (ambiguity != -1 && (solveTag == null || ambiguity < solveTag.getPoseAmbiguity())) {
+                        solveTag = tag;
+                    }
+                }
+                if (solveTag == null || solveTag.getPoseAmbiguity() > ambiguity_threshold) continue;
+
+                contributingTags = List.of(solveTag);
+                tagDist = solveTag.getBestCameraToTarget().getTranslation().getNorm();
             }
-            
+
+            if (tagDist > maxDistance) continue;
+
+            // Throw out solves that put the robot off the floor or outside the field.
+            if (!isPoseOnField(est.estimatedPose)) continue;
+
+            curStdDevs = (isMultiTag ? settings.multi_tag_std : settings.single_tag_std)
+                    .times(1 + (tagDist * tagDist / 30));
+
+            Pose2d est_pose = est.estimatedPose.toPose2d();
+            drive.addVisionMeasurement(est_pose, est.timestampSeconds, curStdDevs);
+
+            last_pose = est_pose;
+            last_timestamp = est.timestampSeconds;
+            aprilTagSeen = true;
+
+            List<Pose3d> tagPoses = new ArrayList<>(contributingTags.size());
+            for (var tag : contributingTags) {
+                aprilTagField.getTagPose(tag.getFiducialId()).ifPresent(tagPoses::add);
+            }
+            aprilTagList = tagPoses.toArray(new Pose3d[0]);
         }
     }
 
-    private void updateEstimationStdDevs(
-            Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
-        if (estimatedPose.isEmpty()) {
-            // No pose input. Default to single-tag std devs
-            curStdDevs = settings.single_tag_std;
-
-        } else {
-            // Pose present. Start running Heuristic
-            var estStdDevs = settings.single_tag_std;
-            int numTags = 0;
-            double avgDist = 0;
-
-            // Precalculation - see how many tags we found, and calculate an average-distance metric
-            for (var tgt : targets) {
-                var tagPose = pose_est.getFieldTags().getTagPose(tgt.getFiducialId());
-                if (tagPose.isEmpty()) continue;
-                numTags++;
-                avgDist +=
-                        tagPose
-                                .get()
-                                .toPose2d()
-                                .getTranslation()
-                                .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
-            }
-
-            if (numTags == 0) {
-                // No tags visible. Default to single-tag std devs
-                curStdDevs = settings.single_tag_std;
-            } else {
-                // One or more tags visible, run the full heuristic.
-                avgDist /= numTags;
-                // Decrease std devs if multiple targets are visible
-                if (numTags > 1) estStdDevs = settings.multi_tag_std;
-                // Increase std devs based on (average) distance
-                if (numTags == 1 && avgDist > 4)
-                    estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-                else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-                curStdDevs = estStdDevs;
-            }
-        }
+    /**
+     * Sanity check on a raw vision solution. A bad solvePnP result usually shows up as
+     * a robot floating above the carpet or standing outside the field perimeter, and
+     * either one drags the pose estimator off course, so reject it before submitting.
+     *
+     * @param pose Estimated field relative robot pose
+     * @return True if the pose is physically plausible
+     */
+    private boolean isPoseOnField(Pose3d pose) {
+        return Math.abs(pose.getZ()) <= kMaxPoseHeight
+                && pose.getX() >= -kFieldMargin
+                && pose.getX() <= aprilTagField.getFieldLength() + kFieldMargin
+                && pose.getY() >= -kFieldMargin
+                && pose.getY() <= aprilTagField.getFieldWidth() + kFieldMargin;
     }
 
     /**
@@ -339,6 +273,21 @@ public class AprilTagPipeline extends SubsystemBase {
      */
     public Matrix<N3, N1> getEstimationStdDevs() {
         return curStdDevs;
+    }
+
+    /**
+     * Standard deviations applied to the most recent accepted measurement, as
+     * [x, y, theta]. Logged so the effect of tuning them is visible on the robot.
+     */
+    @AutoLogOutput (key = "Camera: StdDevs {cameraName}")
+    public double[] getEstimationStdDevsLog() {
+        return curStdDevs.getData();
+    }
+
+    /** True when the most recent frame produced a measurement the filter accepted. */
+    @AutoLogOutput (key = "Camera: TagAccepted {cameraName}")
+    public boolean getAprilTagSeen() {
+        return aprilTagSeen;
     }
 
     @AutoLogOutput (key = "Camera: CamPose {cameraName}")

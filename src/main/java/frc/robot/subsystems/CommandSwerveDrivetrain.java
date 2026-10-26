@@ -134,7 +134,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     private final FieldCentricAutoAlign autoAlignRequest = new FieldCentricAutoAlign()
             .withHeadingPID(10, 0, 0)
-            .withTranslationPID(6, 0, 2);
+            .withMaxVelocity(3.75)
+            .withMaxAcceleration(4.5)
+            .withLagCompensation(0.10);
 
     private final FieldCentricRestrictedRadius orbitRestricteRadiusRequest = new FieldCentricRestrictedRadius()
             .withRadiusCorrectionPID(3, 0, 0)
